@@ -71,7 +71,7 @@ Preencha o `.env.local` com:
 - `NEXTAUTH_URL`: URL da aplicação (http://localhost:3000 para dev)
 - `NEXTAUTH_SECRET`: Gere com `openssl rand -base64 32`
 - `NEXT_PUBLIC_SUPABASE_URL`: URL do seu projeto Supabase
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Chave anônima do Supabase
+- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY`: Publishable key do Supabase
 - `SUPABASE_SERVICE_ROLE_KEY`: Service role key do Supabase
 
 3. **Configure o banco de dados no Supabase**:

@@ -14,10 +14,11 @@ Este documento descreve como fazer o deploy do sistema na Vercel e configurar o 
 
 1. Acesse [supabase.com](https://supabase.com)
 2. Crie um novo projeto
-3. Anote as credenciais:
-   - Project URL
-   - Anon Key
-   - Service Role Key
+3. Anote as credenciais (em Settings > API > Project API keys):
+   - **Project URL** → `NEXT_PUBLIC_SUPABASE_URL`
+   - **Publishable key** → `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY` 
+     (antigamente chamada de "Anon Key" ou "anon public")
+   - **service_role secret** → `SUPABASE_SERVICE_ROLE_KEY`
 
 ### 1.2 Executar Migrations
 
@@ -54,7 +55,7 @@ As variáveis já estão configuradas no projeto. Verifique se estão corretas.
 NEXTAUTH_URL=https://seu-projeto.vercel.app
 NEXTAUTH_SECRET=<gerar com: openssl rand -base64 32>
 NEXT_PUBLIC_SUPABASE_URL=https://seu-projeto.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=sua_chave_anon_aqui
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY=sua_publishable_key_aqui
 SUPABASE_SERVICE_ROLE_KEY=sua_service_role_key_aqui
 ```
 
@@ -126,7 +127,7 @@ Adicione todas as variáveis listadas no Passo 2.2.
 
 ### Erro: "Supabase connection failed"
 
-- Verifique `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- Verifique `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY`
 - Confirme que as migrations foram executadas
 
 ### Erro: "Unauthorized" em todas as rotas
