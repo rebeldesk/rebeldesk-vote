@@ -9,6 +9,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { listarUnidades, criarUnidade } from '@/lib/db';
 import { z } from 'zod';
+import { prisma } from '@/lib/prisma';
 
 // Schema de validação
 const criarUnidadeSchema = z.object({

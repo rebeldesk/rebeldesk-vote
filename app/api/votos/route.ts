@@ -7,7 +7,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { calcularResultado } from '@/lib/db';
-import { supabaseServer } from '@/lib/supabase/server';
+import { prisma } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   try {
@@ -28,11 +28,10 @@ export async function GET(request: NextRequest) {
     }
 
     // Busca a votação para verificar modo de auditoria
-    const { data: votacao } = await supabaseServer
-      .from('votacoes')
-      .select('modo_auditoria')
-      .eq('id', votacaoId)
-      .single();
+    const votacao = await prisma.votacao.findUnique({
+      where: { id: votacaoId },
+      select: { modoAuditoria: true },
+    });
 
     if (!votacao) {
       return NextResponse.json({ error: 'Votação não encontrada' }, { status: 404 });
@@ -45,7 +44,7 @@ export async function GET(request: NextRequest) {
       session.user?.perfil === 'auditor';
 
     // Se não é rastreado, não há detalhes para mostrar
-    if (votacao.modo_auditoria !== 'rastreado') {
+    if (votacao.modoAuditoria !== 'rastreado') {
       return NextResponse.json({
         error: 'Esta votação não possui rastreamento de votos',
       });

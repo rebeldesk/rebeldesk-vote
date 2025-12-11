@@ -11,21 +11,30 @@
 import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { supabaseServer } from '@/lib/supabase/server';
+import { prisma } from '@/lib/prisma';
 import { unidadeJaVotou } from '@/lib/db';
 
 async function buscarVotacoesDisponiveis() {
-  const { data, error } = await supabaseServer
-    .from('votacoes')
-    .select('*')
-    .in('status', ['aberta', 'encerrada'])
-    .order('created_at', { ascending: false });
+  const votacoes = await prisma.votacao.findMany({
+    where: {
+      status: {
+        in: ['aberta', 'encerrada'],
+      },
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+  });
 
-  if (error) {
-    return [];
-  }
-
-  return data || [];
+  // Formata para manter compatibilidade
+  return votacoes.map((v) => ({
+    ...v,
+    data_inicio: v.dataInicio,
+    data_fim: v.dataFim,
+    modo_auditoria: v.modoAuditoria,
+    created_at: v.createdAt,
+    updated_at: v.updatedAt,
+  }));
 }
 
 export default async function VotacoesDisponiveisPage() {

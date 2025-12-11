@@ -1,0 +1,122 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Unidade {
+  id        String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  numero    String    @unique @db.VarChar(50)
+  createdAt DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  users     Usuario[]
+  votos     Voto[]
+
+  @@map("unidades")
+}
+
+model Usuario {
+  id              String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  email           String        @unique @db.VarChar(255)
+  passwordHash    String        @map("password_hash")
+  nome            String        @db.VarChar(255)
+  telefone        String?       @db.VarChar(20)
+  perfil          PerfilUsuario @default(morador)
+  unidadeId       String?       @map("unidade_id") @db.Uuid
+  createdAt       DateTime?     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime?     @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  unidade         Unidade?      @relation(fields: [unidadeId], references: [id], onUpdate: NoAction)
+  votacoesCriadas Votacao[]     @relation("VotacoesCriadas")
+  votos           Voto[]
+
+  @@index([email], map: "idx_users_email")
+  @@index([unidadeId], map: "idx_users_unidade_id")
+  @@map("users")
+}
+
+model Votacao {
+  id            String         @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  titulo        String         @db.VarChar(255)
+  descricao     String?
+  tipo          TipoVotacao
+  modoAuditoria ModoAuditoria  @default(anonimo) @map("modo_auditoria")
+  criadoPor     String         @map("criado_por") @db.Uuid
+  dataInicio    DateTime       @map("data_inicio") @db.Timestamptz(6)
+  dataFim       DateTime       @map("data_fim") @db.Timestamptz(6)
+  status        StatusVotacao  @default(rascunho)
+  createdAt     DateTime?      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime?      @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  opcoes        OpcaoVotacao[]
+  criadoPorUser Usuario        @relation("VotacoesCriadas", fields: [criadoPor], references: [id], onUpdate: NoAction)
+  votos         Voto[]
+
+  @@index([status], map: "idx_votacoes_status")
+  @@index([criadoPor], map: "idx_votacoes_criado_por")
+  @@map("votacoes")
+}
+
+model OpcaoVotacao {
+  id        String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  votacaoId String    @map("votacao_id") @db.Uuid
+  texto     String    @db.VarChar(500)
+  ordem     Int       @default(0)
+  createdAt DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
+  votacao   Votacao   @relation(fields: [votacaoId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  votos     Voto[]    @relation("VotoOpcao")
+
+  @@index([votacaoId], map: "idx_opcoes_votacao_votacao_id")
+  @@map("opcoes_votacao")
+}
+
+model Voto {
+  id        String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  votacaoId String        @map("votacao_id") @db.Uuid
+  unidadeId String        @map("unidade_id") @db.Uuid
+  opcaoId   String?       @map("opcao_id") @db.Uuid
+  opcoesIds Json?         @map("opcoes_ids")
+  userId    String?       @map("user_id") @db.Uuid
+  createdAt DateTime?     @default(now()) @map("created_at") @db.Timestamptz(6)
+  opcao     OpcaoVotacao? @relation("VotoOpcao", fields: [opcaoId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  unidade   Unidade       @relation(fields: [unidadeId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  user      Usuario?      @relation(fields: [userId], references: [id], onUpdate: NoAction)
+  votacao   Votacao       @relation(fields: [votacaoId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([votacaoId, unidadeId])
+  @@index([votacaoId], map: "idx_votos_votacao_id")
+  @@index([unidadeId], map: "idx_votos_unidade_id")
+  @@index([userId], map: "idx_votos_user_id")
+  @@map("votos")
+}
+
+enum PerfilUsuario {
+  staff
+  conselho
+  auditor
+  morador
+
+  @@map("perfil_usuario")
+}
+
+enum TipoVotacao {
+  escolha_unica
+  multipla_escolha
+
+  @@map("tipo_votacao")
+}
+
+enum ModoAuditoria {
+  anonimo
+  rastreado
+
+  @@map("modo_auditoria")
+}
+
+enum StatusVotacao {
+  rascunho
+  aberta
+  encerrada
+
+  @@map("status_votacao")
+}

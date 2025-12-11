@@ -1,11 +1,11 @@
 /**
- * Helpers e utilitários para interação com o banco de dados.
+ * Helpers e utilitários para interação com o banco de dados usando Prisma.
  * 
  * Este arquivo contém funções auxiliares para operações comuns
  * no banco de dados, garantindo consistência e reutilização.
  */
 
-import { supabaseServer } from './supabase/server';
+import { prisma } from './prisma';
 import type {
   Usuario,
   Unidade,
@@ -19,6 +19,7 @@ import type {
   ResultadoVotacao,
 } from '@/types';
 import bcrypt from 'bcryptjs';
+import { Prisma } from '@prisma/client';
 
 /**
  * Hash de senha usando bcrypt.
@@ -49,17 +50,22 @@ export async function verificarSenha(senha: string, hash: string): Promise<boole
  * @returns Usuário encontrado ou null
  */
 export async function buscarUsuarioPorEmail(email: string): Promise<Usuario | null> {
-  const { data, error } = await supabaseServer
-    .from('users')
-    .select('*')
-    .eq('email', email)
-    .single();
+  const usuario = await prisma.usuario.findUnique({
+    where: { email },
+  });
 
-  if (error || !data) {
+  if (!usuario) {
     return null;
   }
 
-  return data as Usuario;
+  // Converte para o tipo Usuario (sem passwordHash)
+  const { passwordHash, unidadeId, createdAt, updatedAt, ...rest } = usuario;
+  return {
+    ...rest,
+    unidade_id: unidadeId,
+    created_at: createdAt?.toISOString() || new Date().toISOString(),
+    updated_at: updatedAt?.toISOString() || new Date().toISOString(),
+  } as Usuario;
 }
 
 /**
@@ -69,17 +75,21 @@ export async function buscarUsuarioPorEmail(email: string): Promise<Usuario | nu
  * @returns Usuário encontrado ou null
  */
 export async function buscarUsuarioPorId(id: string): Promise<Usuario | null> {
-  const { data, error } = await supabaseServer
-    .from('users')
-    .select('*')
-    .eq('id', id)
-    .single();
+  const usuario = await prisma.usuario.findUnique({
+    where: { id },
+  });
 
-  if (error || !data) {
+  if (!usuario) {
     return null;
   }
 
-  return data as Usuario;
+  const { passwordHash, unidadeId, createdAt, updatedAt, ...rest } = usuario;
+  return {
+    ...rest,
+    unidade_id: unidadeId,
+    created_at: createdAt?.toISOString() || new Date().toISOString(),
+    updated_at: updatedAt?.toISOString() || new Date().toISOString(),
+  } as Usuario;
 }
 
 /**
@@ -91,32 +101,35 @@ export async function buscarUsuarioPorId(id: string): Promise<Usuario | null> {
  */
 export async function criarUsuario(dados: CriarUsuarioDTO): Promise<Usuario> {
   // Verifica se o email já existe
-  const usuarioExistente = await buscarUsuarioPorEmail(dados.email);
+  const usuarioExistente = await prisma.usuario.findUnique({
+    where: { email: dados.email },
+  });
+
   if (usuarioExistente) {
     throw new Error('Email já cadastrado');
   }
 
   // Hash da senha
-  const password_hash = await hashSenha(dados.senha);
+  const passwordHash = await hashSenha(dados.senha);
 
-  const { data, error } = await supabaseServer
-    .from('users')
-    .insert({
+  const usuario = await prisma.usuario.create({
+    data: {
       email: dados.email,
-      password_hash,
+      passwordHash,
       nome: dados.nome,
-      telefone: dados.telefone,
+      telefone: dados.telefone || null,
       perfil: dados.perfil,
-      unidade_id: dados.unidade_id,
-    })
-    .select()
-    .single();
+      unidadeId: dados.unidade_id || null,
+    },
+  });
 
-  if (error || !data) {
-    throw new Error(error?.message || 'Erro ao criar usuário');
-  }
-
-  return data as Usuario;
+  const { passwordHash: _, unidadeId, createdAt, updatedAt, ...rest } = usuario;
+  return {
+    ...rest,
+    unidade_id: unidadeId,
+    created_at: createdAt?.toISOString() || new Date().toISOString(),
+    updated_at: updatedAt?.toISOString() || new Date().toISOString(),
+  } as Usuario;
 }
 
 /**
@@ -130,21 +143,24 @@ export async function atualizarUsuario(
   id: string,
   dados: AtualizarUsuarioDTO
 ): Promise<Usuario> {
-  const { data, error } = await supabaseServer
-    .from('users')
-    .update({
-      ...dados,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('id', id)
-    .select()
-    .single();
+  const usuario = await prisma.usuario.update({
+    where: { id },
+    data: {
+      email: dados.email,
+      nome: dados.nome,
+      telefone: dados.telefone,
+      perfil: dados.perfil,
+      unidadeId: dados.unidade_id ?? undefined,
+    },
+  });
 
-  if (error || !data) {
-    throw new Error(error?.message || 'Erro ao atualizar usuário');
-  }
-
-  return data as Usuario;
+  const { passwordHash, unidadeId, createdAt, updatedAt, ...rest } = usuario;
+  return {
+    ...rest,
+    unidade_id: unidadeId,
+    created_at: createdAt?.toISOString() || new Date().toISOString(),
+    updated_at: updatedAt?.toISOString() || new Date().toISOString(),
+  } as Usuario;
 }
 
 /**
@@ -153,16 +169,16 @@ export async function atualizarUsuario(
  * @returns Lista de unidades
  */
 export async function listarUnidades(): Promise<Unidade[]> {
-  const { data, error } = await supabaseServer
-    .from('unidades')
-    .select('*')
-    .order('numero', { ascending: true });
+  const unidades = await prisma.unidade.findMany({
+    orderBy: { numero: 'asc' },
+  });
 
-  if (error) {
-    throw new Error(error.message);
-  }
-
-  return (data || []) as Unidade[];
+  return unidades.map((u) => ({
+    id: u.id,
+    numero: u.numero,
+    created_at: u.createdAt?.toISOString() || new Date().toISOString(),
+    updated_at: u.updatedAt?.toISOString() || new Date().toISOString(),
+  })) as Unidade[];
 }
 
 /**
@@ -172,17 +188,16 @@ export async function listarUnidades(): Promise<Unidade[]> {
  * @returns Unidade criada
  */
 export async function criarUnidade(numero: string): Promise<Unidade> {
-  const { data, error } = await supabaseServer
-    .from('unidades')
-    .insert({ numero })
-    .select()
-    .single();
+  const unidade = await prisma.unidade.create({
+    data: { numero },
+  });
 
-  if (error) {
-    throw new Error(error.message);
-  }
-
-  return data as Unidade;
+  return {
+    id: unidade.id,
+    numero: unidade.numero,
+    created_at: unidade.createdAt?.toISOString() || new Date().toISOString(),
+    updated_at: unidade.updatedAt?.toISOString() || new Date().toISOString(),
+  } as Unidade;
 }
 
 /**
@@ -195,29 +210,45 @@ export async function buscarVotacaoCompleta(id: string): Promise<{
   votacao: Votacao;
   opcoes: OpcaoVotacao[];
 } | null> {
-  const { data: votacao, error: errorVotacao } = await supabaseServer
-    .from('votacoes')
-    .select('*')
-    .eq('id', id)
-    .single();
+  const votacao = await prisma.votacao.findUnique({
+    where: { id },
+    include: {
+      opcoes: {
+        orderBy: { ordem: 'asc' },
+      },
+    },
+  });
 
-  if (errorVotacao || !votacao) {
+  if (!votacao) {
     return null;
   }
 
-  const { data: opcoes, error: errorOpcoes } = await supabaseServer
-    .from('opcoes_votacao')
-    .select('*')
-    .eq('votacao_id', id)
-    .order('ordem', { ascending: true });
+  // Formata votação para o tipo esperado
+  const votacaoFormatada: Votacao = {
+    id: votacao.id,
+    titulo: votacao.titulo,
+    descricao: votacao.descricao || '',
+    tipo: votacao.tipo,
+    modo_auditoria: votacao.modoAuditoria,
+    criado_por: votacao.criadoPor,
+    data_inicio: votacao.dataInicio.toISOString(),
+    data_fim: votacao.dataFim.toISOString(),
+    status: votacao.status,
+    created_at: votacao.createdAt?.toISOString() || new Date().toISOString(),
+    updated_at: votacao.updatedAt?.toISOString() || new Date().toISOString(),
+  };
 
-  if (errorOpcoes) {
-    throw new Error(errorOpcoes.message);
-  }
+  const opcoesFormatadas: OpcaoVotacao[] = votacao.opcoes.map((op) => ({
+    id: op.id,
+    votacao_id: op.votacaoId,
+    texto: op.texto,
+    ordem: op.ordem,
+    created_at: op.createdAt?.toISOString() || new Date().toISOString(),
+  }));
 
   return {
-    votacao: votacao as Votacao,
-    opcoes: (opcoes || []) as OpcaoVotacao[],
+    votacao: votacaoFormatada,
+    opcoes: opcoesFormatadas,
   };
 }
 
@@ -234,14 +265,16 @@ export async function unidadeJaVotou(
   votacaoId: string,
   unidadeId: string
 ): Promise<boolean> {
-  const { data, error } = await supabaseServer
-    .from('votos')
-    .select('id')
-    .eq('votacao_id', votacaoId)
-    .eq('unidade_id', unidadeId)
-    .single();
+  const voto = await prisma.voto.findUnique({
+    where: {
+      votacaoId_unidadeId: {
+        votacaoId,
+        unidadeId,
+      },
+    },
+  });
 
-  return !error && !!data;
+  return !!voto;
 }
 
 /**
@@ -266,12 +299,14 @@ export async function registrarVoto(
   userId?: string
 ): Promise<Voto> {
   // Busca a votação para validar
-  const votacaoCompleta = await buscarVotacaoCompleta(votacaoId);
-  if (!votacaoCompleta) {
+  const votacao = await prisma.votacao.findUnique({
+    where: { id: votacaoId },
+    include: { opcoes: true },
+  });
+
+  if (!votacao) {
     throw new Error('Votação não encontrada');
   }
-
-  const { votacao } = votacaoCompleta;
 
   // Validações
   if (votacao.status !== 'aberta') {
@@ -279,7 +314,7 @@ export async function registrarVoto(
   }
 
   const agora = new Date();
-  const dataFim = new Date(votacao.data_fim);
+  const dataFim = new Date(votacao.dataFim);
   if (agora > dataFim) {
     throw new Error('Período de votação encerrado');
   }
@@ -300,34 +335,43 @@ export async function registrarVoto(
   }
 
   // Se rastreado, userId é obrigatório
-  if (votacao.modo_auditoria === 'rastreado' && !userId) {
+  if (votacao.modoAuditoria === 'rastreado' && !userId) {
     throw new Error('User ID é obrigatório para votações rastreadas');
   }
 
   // Prepara dados do voto
-  const dadosVoto: any = {
-    votacao_id: votacaoId,
-    unidade_id: unidadeId,
-    opcoes_ids: opcoesIds,
-    user_id: votacao.modo_auditoria === 'rastreado' ? userId : null,
+  const dadosVoto: Prisma.VotoCreateInput = {
+    votacao: {
+      connect: { id: votacaoId },
+    },
+    unidade: {
+      connect: { id: unidadeId },
+    },
+    opcoesIds: opcoesIds.length > 1 ? (opcoesIds as Prisma.InputJsonValue) : undefined,
+    user: userId ? { connect: { id: userId } } : undefined,
   };
 
-  // Para escolha única, também preenche opcao_id
+  // Para escolha única, também conecta a opção
   if (votacao.tipo === 'escolha_unica') {
-    dadosVoto.opcao_id = opcoesIds[0];
+    dadosVoto.opcao = {
+      connect: { id: opcoesIds[0] },
+    };
   }
 
-  const { data, error } = await supabaseServer
-    .from('votos')
-    .insert(dadosVoto)
-    .select()
-    .single();
+  const voto = await prisma.voto.create({
+    data: dadosVoto,
+  });
 
-  if (error || !data) {
-    throw new Error(error?.message || 'Erro ao registrar voto');
-  }
-
-  return data as Voto;
+  // Formata para o tipo Voto esperado
+  return {
+    id: voto.id,
+    votacao_id: voto.votacaoId,
+    unidade_id: voto.unidadeId,
+    opcao_id: voto.opcaoId,
+    opcoes_ids: voto.opcoesIds as string[] | null,
+    user_id: voto.userId,
+      created_at: voto.createdAt?.toISOString() || new Date().toISOString(),
+  } as Voto;
 }
 
 /**
@@ -341,38 +385,34 @@ export async function calcularResultado(
   votacaoId: string,
   incluirDetalhes = false
 ): Promise<ResultadoVotacao> {
-  const votacaoCompleta = await buscarVotacaoCompleta(votacaoId);
-  if (!votacaoCompleta) {
+  const votacao = await prisma.votacao.findUnique({
+    where: { id: votacaoId },
+    include: {
+      opcoes: {
+        orderBy: { ordem: 'asc' },
+      },
+      votos: incluirDetalhes,
+    },
+  });
+
+  if (!votacao) {
     throw new Error('Votação não encontrada');
   }
 
-  const { votacao, opcoes } = votacaoCompleta;
-
-  // Busca todos os votos
-  const { data: votos, error } = await supabaseServer
-    .from('votos')
-    .select('*')
-    .eq('votacao_id', votacaoId);
-
-  if (error) {
-    throw new Error(error.message);
-  }
-
-  const votosArray = (votos || []) as Voto[];
-  const totalVotos = votosArray.length;
+  const totalVotos = votacao.votos.length;
 
   // Calcula votos por opção
-  const resultadoOpcoes = opcoes.map((opcao) => {
+  const resultadoOpcoes = votacao.opcoes.map((opcao) => {
     let votos = 0;
 
-    votosArray.forEach((voto) => {
+    votacao.votos.forEach((voto) => {
       if (votacao.tipo === 'escolha_unica') {
-        if (voto.opcao_id === opcao.id) {
+        if (voto.opcaoId === opcao.id) {
           votos++;
         }
       } else {
         // múltipla escolha
-        if (voto.opcoes_ids && voto.opcoes_ids.includes(opcao.id)) {
+        if (voto.opcoesIds && Array.isArray(voto.opcoesIds) && (voto.opcoesIds as string[]).includes(opcao.id)) {
           votos++;
         }
       }
@@ -381,23 +421,45 @@ export async function calcularResultado(
     const percentual = totalVotos > 0 ? (votos / totalVotos) * 100 : 0;
 
     return {
-      opcao,
+      opcao: opcao as unknown as OpcaoVotacao,
       votos,
       percentual: Math.round(percentual * 100) / 100, // 2 casas decimais
     };
   });
 
+  // Formata votação para o tipo esperado
+  const votacaoFormatada: Votacao = {
+    id: votacao.id,
+    titulo: votacao.titulo,
+    descricao: votacao.descricao || '',
+    tipo: votacao.tipo,
+    modo_auditoria: votacao.modoAuditoria,
+    criado_por: votacao.criadoPor,
+    data_inicio: votacao.dataInicio.toISOString(),
+    data_fim: votacao.dataFim.toISOString(),
+    status: votacao.status,
+    created_at: votacao.createdAt?.toISOString() || new Date().toISOString(),
+    updated_at: votacao.updatedAt?.toISOString() || new Date().toISOString(),
+  };
+
   const resultado: ResultadoVotacao = {
-    votacao,
+    votacao: votacaoFormatada,
     opcoes: resultadoOpcoes,
     total_votos: totalVotos,
   };
 
   // Inclui detalhes se solicitado e se for rastreado
-  if (incluirDetalhes && votacao.modo_auditoria === 'rastreado') {
-    resultado.votos_detalhados = votosArray;
+  if (incluirDetalhes && votacao.modoAuditoria === 'rastreado') {
+    resultado.votos_detalhados = votacao.votos.map((v) => ({
+      id: v.id,
+      votacao_id: v.votacaoId,
+      unidade_id: v.unidadeId,
+      opcao_id: v.opcaoId,
+      opcoes_ids: v.opcoesIds as string[] | null,
+      user_id: v.userId,
+      created_at: v.createdAt?.toISOString() || new Date().toISOString(),
+    })) as Voto[];
   }
 
   return resultado;
 }
-

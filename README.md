@@ -1,6 +1,6 @@
 # Sistema de Votação Condominial
 
-Sistema web para gerenciamento de votações em condomínios, desenvolvido com Next.js, Supabase e deploy na Vercel.
+Sistema web para gerenciamento de votações em condomínios, desenvolvido com Next.js, Prisma, Supabase e deploy na Vercel.
 
 ## Visão Geral
 
@@ -12,6 +12,7 @@ Este sistema permite:
 
 - **Frontend**: Next.js 14+ (App Router) com TypeScript
 - **Backend**: API Routes do Next.js
+- **ORM**: Prisma
 - **Banco de Dados**: Supabase (PostgreSQL)
 - **Autenticação**: NextAuth.js com credenciais customizadas
 - **Deploy**: Vercel
@@ -27,11 +28,13 @@ projeto-votacao/
 │   └── api/               # API Routes
 ├── components/            # Componentes React
 ├── lib/                   # Bibliotecas e utilitários
-│   ├── supabase/         # Clientes Supabase
+│   ├── prisma.ts         # Cliente Prisma
 │   ├── auth.ts           # Configuração NextAuth
 │   └── db.ts             # Helpers do banco de dados
+├── prisma/                # Schema e migrations do Prisma
+│   └── schema.prisma     # Schema do banco de dados
 ├── types/                 # Definições TypeScript
-├── supabase/             # Migrations e seeds
+├── supabase/             # Migrations SQL (legado) e seeds
 └── docs/                 # Documentação adicional
 ```
 
@@ -70,21 +73,33 @@ cp .env.local.example .env.local
 Preencha o `.env.local` com:
 - `NEXTAUTH_URL`: URL da aplicação (http://localhost:3000 para dev)
 - `NEXTAUTH_SECRET`: Gere com `openssl rand -base64 32`
-- `NEXT_PUBLIC_SUPABASE_URL`: URL do seu projeto Supabase
-- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY`: Publishable key do Supabase
-- `SUPABASE_SERVICE_ROLE_KEY`: Service role key do Supabase
+- `DATABASE_URL`: Connection string do PostgreSQL (Supabase)
+  - Formato: `postgresql://postgres:[PASSWORD]@[HOST]:5432/postgres`
+  - Encontre em: Supabase Dashboard > Settings > Database > Connection string > URI
+- `NEXT_PUBLIC_SUPABASE_URL`: URL do seu projeto Supabase (opcional, para futuras integrações)
+- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY`: Publishable key do Supabase (opcional)
+- `SUPABASE_SERVICE_ROLE_KEY`: Service role key do Supabase (opcional)
 
-3. **Configure o banco de dados no Supabase**:
-   - Acesse o SQL Editor no Supabase
-   - Execute o arquivo `supabase/migrations/001_initial_schema.sql`
-   - Execute o arquivo `supabase/seed.sql` para criar o usuário admin inicial
+3. **Configure o banco de dados**:
+   - Opção 1 (Recomendado): Use Prisma Migrate
+     ```bash
+     npx prisma migrate dev
+     ```
+   - Opção 2: Execute manualmente no Supabase SQL Editor
+     - Execute o arquivo `supabase/migrations/001_initial_schema.sql`
+     - Execute o arquivo `supabase/seed.sql` para criar o usuário admin inicial
 
-4. **Execute o projeto**:
+4. **Gere o Prisma Client**:
+```bash
+npx prisma generate
+```
+
+5. **Execute o projeto**:
 ```bash
 npm run dev
 ```
 
-5. **Acesse a aplicação**:
+6. **Acesse a aplicação**:
    - URL: http://localhost:3000
    - Login inicial: admin@condominio.com / admin123
    - **IMPORTANTE**: Altere a senha após o primeiro login!
@@ -95,6 +110,9 @@ npm run dev
 - `npm run build`: Gera build de produção
 - `npm run start`: Inicia servidor de produção
 - `npm run lint`: Executa o linter
+- `npx prisma generate`: Gera o Prisma Client
+- `npx prisma migrate dev`: Cria e aplica migrations
+- `npx prisma studio`: Abre o Prisma Studio (GUI para visualizar dados)
 - `node scripts/generate-password-hash.js "senha"`: Gera hash de senha para uso no seed
 
 ## Documentação Adicional

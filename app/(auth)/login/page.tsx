@@ -12,9 +12,10 @@ import { LoginForm } from '@/components/auth/LoginForm';
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: { callbackUrl?: string; error?: string };
+  searchParams: Promise<{ callbackUrl?: string; error?: string }>;
 }) {
   const session = await auth();
+  const params = await searchParams;
 
   // Se já está autenticado, redireciona
   if (session) {
@@ -22,7 +23,7 @@ export default async function LoginPage({
     if (perfil === 'staff' || perfil === 'conselho') {
       redirect('/dashboard');
     } else {
-      redirect('/votacoes');
+      redirect('/participar');
     }
   }
 
@@ -37,7 +38,7 @@ export default async function LoginPage({
             Faça login para continuar
           </p>
         </div>
-        <LoginForm callbackUrl={searchParams.callbackUrl} error={searchParams.error} />
+        <LoginForm callbackUrl={params.callbackUrl} error={params.error} />
       </div>
     </div>
   );

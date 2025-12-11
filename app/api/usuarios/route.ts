@@ -7,9 +7,9 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { criarUsuario, listarUnidades } from '@/lib/db';
+import { criarUsuario } from '@/lib/db';
 import { z } from 'zod';
-import { supabaseServer } from '@/lib/supabase/server';
+import { prisma } from '@/lib/prisma';
 
 // Schema de validação para criar usuário
 const criarUsuarioSchema = z.object({
@@ -30,29 +30,36 @@ export async function GET() {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 403 });
     }
 
-    const { data, error } = await supabaseServer
-      .from('users')
-      .select(`
-        id,
-        email,
-        nome,
-        telefone,
-        perfil,
-        unidade_id,
-        created_at,
-        updated_at,
-        unidades:unidade_id (
-          id,
-          numero
-        )
-      `)
-      .order('created_at', { ascending: false });
+    const usuarios = await prisma.usuario.findMany({
+      include: {
+        unidade: {
+          select: {
+            id: true,
+            numero: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
 
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
+    // Remove passwordHash e formata resposta
+    const usuariosFormatados = usuarios.map((u) => {
+      const { passwordHash, ...rest } = u;
+      return {
+        ...rest,
+        unidade_id: rest.unidadeId,
+        created_at: rest.createdAt,
+        updated_at: rest.updatedAt,
+        unidades: rest.unidade ? {
+          id: rest.unidade.id,
+          numero: rest.unidade.numero,
+        } : null,
+      };
+    });
 
-    return NextResponse.json(data);
+    return NextResponse.json(usuariosFormatados);
   } catch (error) {
     return NextResponse.json(
       { error: 'Erro ao buscar usuários' },
@@ -82,8 +89,8 @@ export async function POST(request: NextRequest) {
       unidade_id: dados.unidade_id || null,
     });
 
-    // Remove password_hash da resposta
-    const { password_hash, ...usuarioSemSenha } = usuario as any;
+    // Remove passwordHash da resposta
+    const { passwordHash, ...usuarioSemSenha } = usuario as any;
 
     return NextResponse.json(usuarioSemSenha, { status: 201 });
   } catch (error) {

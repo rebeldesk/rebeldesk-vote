@@ -9,7 +9,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { buscarVotacaoCompleta } from '@/lib/db';
 import { z } from 'zod';
-import { supabaseServer } from '@/lib/supabase/server';
+import { prisma } from '@/lib/prisma';
 
 const atualizarVotacaoSchema = z.object({
   titulo: z.string().min(1).optional(),
@@ -75,24 +75,29 @@ export async function PUT(
       }
     }
 
-    const { data, error } = await supabaseServer
-      .from('votacoes')
-      .update({
-        ...dados,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', id)
-      .select()
-      .single();
+    const votacao = await prisma.votacao.update({
+      where: { id },
+      data: {
+        titulo: dados.titulo,
+        descricao: dados.descricao,
+        dataInicio: dados.data_inicio ? new Date(dados.data_inicio) : undefined,
+        dataFim: dados.data_fim ? new Date(dados.data_fim) : undefined,
+        status: dados.status,
+      },
+    });
 
-    if (error || !data) {
-      return NextResponse.json(
-        { error: error?.message || 'Erro ao atualizar votação' },
-        { status: 500 }
-      );
-    }
+    // Formata resposta
+    const votacaoFormatada = {
+      ...votacao,
+      criado_por: votacao.criadoPor,
+      data_inicio: votacao.dataInicio,
+      data_fim: votacao.dataFim,
+      modo_auditoria: votacao.modoAuditoria,
+      created_at: votacao.createdAt,
+      updated_at: votacao.updatedAt,
+    };
 
-    return NextResponse.json(data);
+    return NextResponse.json(votacaoFormatada);
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(

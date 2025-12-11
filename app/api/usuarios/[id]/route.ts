@@ -10,7 +10,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { buscarUsuarioPorId, atualizarUsuario } from '@/lib/db';
 import { z } from 'zod';
-import { supabaseServer } from '@/lib/supabase/server';
+import { prisma } from '@/lib/prisma';
 
 // Schema de validação para atualizar usuário
 const atualizarUsuarioSchema = z.object({
@@ -111,14 +111,9 @@ export async function DELETE(
       );
     }
 
-    const { error } = await supabaseServer
-      .from('users')
-      .delete()
-      .eq('id', id);
-
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
+    await prisma.usuario.delete({
+      where: { id },
+    });
 
     return NextResponse.json({ success: true });
   } catch (error) {

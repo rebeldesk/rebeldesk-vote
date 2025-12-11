@@ -28,42 +28,58 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.senha) {
+          console.log('[Auth] Credenciais não fornecidas');
           return null;
         }
 
         try {
-          // Busca usuário no banco com password_hash
-          const { supabaseServer } = await import('./supabase/server');
-          const { data: userData, error } = await supabaseServer
-            .from('users')
-            .select('id, email, nome, perfil, unidade_id, password_hash')
-            .eq('email', credentials.email as string)
-            .single();
+          // Busca usuário no banco com password_hash usando Prisma
+          const { prisma } = await import('./prisma');
+          const userData = await prisma.usuario.findUnique({
+            where: { email: credentials.email as string },
+            select: {
+              id: true,
+              email: true,
+              nome: true,
+              perfil: true,
+              unidadeId: true,
+              passwordHash: true,
+            },
+          });
 
-          if (error || !userData || !userData.password_hash) {
+          if (!userData) {
+            console.log('[Auth] Usuário não encontrado:', credentials.email);
+            return null;
+          }
+
+          if (!userData.passwordHash) {
+            console.error('[Auth] Usuário sem passwordHash:', credentials.email);
             return null;
           }
 
           // Verifica senha
           const senhaValida = await verificarSenha(
             credentials.senha as string,
-            userData.password_hash
+            userData.passwordHash
           );
 
           if (!senhaValida) {
+            console.log('[Auth] Senha inválida para:', credentials.email);
             return null;
           }
 
-          // Retorna dados do usuário (sem password_hash)
+          console.log('[Auth] Login bem-sucedido para:', credentials.email);
+
+          // Retorna dados do usuário (sem passwordHash)
           return {
             id: userData.id,
             email: userData.email,
             name: userData.nome,
             perfil: userData.perfil,
-            unidade_id: userData.unidade_id,
+            unidade_id: userData.unidadeId,
           };
         } catch (error) {
-          console.error('Erro na autenticação:', error);
+          console.error('[Auth] Erro na autenticação:', error);
           return null;
         }
       },

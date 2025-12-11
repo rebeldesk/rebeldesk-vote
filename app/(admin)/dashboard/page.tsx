@@ -6,22 +6,18 @@
  */
 
 import { auth } from '@/lib/auth';
-import { supabaseServer } from '@/lib/supabase/server';
+import { prisma } from '@/lib/prisma';
 import Link from 'next/link';
 
 export default async function DashboardPage() {
   const session = await auth();
 
   // Busca estatísticas
-  const [usuariosResult, votacoesResult, unidadesResult] = await Promise.all([
-    supabaseServer.from('users').select('id', { count: 'exact', head: true }),
-    supabaseServer.from('votacoes').select('id', { count: 'exact', head: true }),
-    supabaseServer.from('unidades').select('id', { count: 'exact', head: true }),
+  const [totalUsuarios, totalVotacoes, totalUnidades] = await Promise.all([
+    prisma.usuario.count(),
+    prisma.votacao.count(),
+    prisma.unidade.count(),
   ]);
-
-  const totalUsuarios = usuariosResult.count || 0;
-  const totalVotacoes = votacoesResult.count || 0;
-  const totalUnidades = unidadesResult.count || 0;
 
   return (
     <div>

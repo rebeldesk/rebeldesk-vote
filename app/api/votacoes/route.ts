@@ -8,7 +8,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { z } from 'zod';
-import { supabaseServer } from '@/lib/supabase/server';
+import { prisma } from '@/lib/prisma';
 
 // Schema de validação
 const criarVotacaoSchema = z.object({
@@ -29,23 +29,34 @@ export async function GET() {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
     }
 
-    const { data, error } = await supabaseServer
-      .from('votacoes')
-      .select(`
-        *,
-        criado_por_user:users!votacoes_criado_por_fkey (
-          id,
-          nome,
-          email
-        )
-      `)
-      .order('created_at', { ascending: false });
+    const votacoes = await prisma.votacao.findMany({
+      include: {
+        criadoPorUser: {
+          select: {
+            id: true,
+            nome: true,
+            email: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
 
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
+    // Formata resposta para manter compatibilidade
+    const votacoesFormatadas = votacoes.map((v) => ({
+      ...v,
+      criado_por: v.criadoPor,
+      data_inicio: v.dataInicio,
+      data_fim: v.dataFim,
+      modo_auditoria: v.modoAuditoria,
+      created_at: v.createdAt,
+      updated_at: v.updatedAt,
+      criado_por_user: v.criadoPorUser,
+    }));
 
-    return NextResponse.json(data);
+    return NextResponse.json(votacoesFormatadas);
   } catch (error) {
     return NextResponse.json(
       { error: 'Erro ao buscar votações' },
@@ -77,50 +88,41 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Cria a votação
-    const { data: votacao, error: errorVotacao } = await supabaseServer
-      .from('votacoes')
-      .insert({
+    // Cria a votação com opções em uma transação
+    const votacao = await prisma.votacao.create({
+      data: {
         titulo: dados.titulo,
         descricao: dados.descricao || null,
         tipo: dados.tipo,
-        modo_auditoria: dados.modo_auditoria,
-        criado_por: session.user!.id,
-        data_inicio: dados.data_inicio,
-        data_fim: dados.data_fim,
+        modoAuditoria: dados.modo_auditoria,
+        criadoPor: session.user!.id,
+        dataInicio: new Date(dados.data_inicio),
+        dataFim: new Date(dados.data_fim),
         status: 'rascunho',
-      })
-      .select()
-      .single();
+        opcoes: {
+          create: dados.opcoes.map((texto, index) => ({
+            texto,
+            ordem: index,
+          })),
+        },
+      },
+      include: {
+        opcoes: true,
+      },
+    });
 
-    if (errorVotacao || !votacao) {
-      return NextResponse.json(
-        { error: errorVotacao?.message || 'Erro ao criar votação' },
-        { status: 500 }
-      );
-    }
+    // Formata resposta para manter compatibilidade
+    const votacaoFormatada = {
+      ...votacao,
+      criado_por: votacao.criadoPor,
+      data_inicio: votacao.dataInicio,
+      data_fim: votacao.dataFim,
+      modo_auditoria: votacao.modoAuditoria,
+      created_at: votacao.createdAt,
+      updated_at: votacao.updatedAt,
+    };
 
-    // Cria as opções
-    const opcoes = dados.opcoes.map((texto, index) => ({
-      votacao_id: votacao.id,
-      texto,
-      ordem: index,
-    }));
-
-    const { error: errorOpcoes } = await supabaseServer
-      .from('opcoes_votacao')
-      .insert(opcoes);
-
-    if (errorOpcoes) {
-      // Rollback: exclui a votação se falhar ao criar opções
-      await supabaseServer.from('votacoes').delete().eq('id', votacao.id);
-      return NextResponse.json(
-        { error: 'Erro ao criar opções de votação' },
-        { status: 500 }
-      );
-    }
-
-    return NextResponse.json(votacao, { status: 201 });
+    return NextResponse.json(votacaoFormatada, { status: 201 });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
