@@ -1,0 +1,97 @@
+# Regras do Projeto - Sistema de Votação Condominial
+
+## Contexto do Projeto
+Este é um sistema de votação para condomínios desenvolvido em Next.js 14+ com TypeScript, Supabase e NextAuth.js.
+
+## Padrões de Código
+
+### TypeScript
+- Sempre use tipos explícitos, evite `any`
+- Use interfaces para objetos complexos
+- Documente tipos com JSDoc quando necessário
+- Tipos centralizados em `types/index.ts`
+
+### Nomenclatura
+- Componentes: PascalCase (ex: `UserForm.tsx`)
+- Funções: camelCase (ex: `buscarUsuario`)
+- Constantes: UPPER_SNAKE_CASE (ex: `MAX_RETRIES`)
+- Arquivos: kebab-case para rotas, PascalCase para componentes
+
+### Estrutura de Pastas
+- `app/`: Rotas e páginas (App Router)
+- `components/`: Componentes React reutilizáveis
+- `lib/`: Utilitários e configurações
+- `types/`: Definições TypeScript
+- `supabase/`: Migrations e seeds
+
+### Documentação
+- Todas as funções públicas devem ter JSDoc
+- Explique "por quê" não apenas "o quê" em comentários
+- Regras de negócio complexas devem ser comentadas
+- Use comentários para decisões arquiteturais importantes
+
+### Regras de Negócio Importantes
+1. **Voto por Unidade**: Uma unidade só pode votar uma vez por votação (não por usuário)
+2. **Histórico Preservado**: Quando morador muda, unidade mantém histórico
+3. **Perfis**: Staff e Conselho têm acesso admin; Conselho e Auditor podem votar
+4. **Auditoria**: Anônimo (sem rastreamento) ou Rastreado (vinculado ao usuário)
+
+### Segurança
+- Nunca exponha `SUPABASE_SERVICE_ROLE_KEY` no cliente
+- Sempre valide inputs com Zod
+- Hash de senhas com bcrypt (10 salt rounds)
+- Proteção de rotas via middleware e layouts
+
+### APIs
+- Use NextResponse para respostas
+- Valide dados com Zod schemas
+- Retorne códigos HTTP apropriados
+- Mensagens de erro descritivas
+
+### Componentes
+- Use 'use client' apenas quando necessário (interatividade, hooks)
+- Prefira Server Components quando possível
+- Formulários: use react-hook-form + zod
+- Validação no cliente e servidor
+
+## Convenções Específicas
+
+### Autenticação
+- Use `auth()` do NextAuth para verificar sessão
+- Proteja rotas no middleware e layouts
+- Perfis: 'staff', 'conselho', 'auditor', 'morador'
+
+### Banco de Dados
+- Use `supabaseServer` para operações server-side
+- Use `supabase` (client) apenas quando necessário no cliente
+- Sempre trate erros de queries
+- Use transações quando criar votações com opções
+
+### Formulários
+- Validação com Zod + react-hook-form
+- Mensagens de erro claras
+- Loading states durante submissão
+- Feedback visual de sucesso/erro
+
+## Quando Adicionar Novos Arquivos
+
+### Componentes
+- Se será reutilizado em múltiplos lugares
+- Se tem lógica complexa que merece isolamento
+- Organize por contexto: `components/admin/`, `components/votante/`, etc.
+
+### APIs
+- Uma rota por recurso principal
+- Use `[id]` para recursos específicos
+- Agrupe operações relacionadas (ex: `/api/votacoes/[id]/votos`)
+
+### Páginas
+- Siga a estrutura de rotas do Next.js App Router
+- Use route groups `(admin)`, `(votante)`, `(auth)` para organização
+- Layouts compartilhados em cada grupo
+
+## Testes e Qualidade
+- Sempre verifique erros de lint antes de commitar
+- Teste fluxos principais manualmente
+- Valide regras de negócio em cada feature
+

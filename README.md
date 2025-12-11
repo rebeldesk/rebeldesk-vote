@@ -1,36 +1,132 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Sistema de Votação Condominial
 
-## Getting Started
+Sistema web para gerenciamento de votações em condomínios, desenvolvido com Next.js, Supabase e deploy na Vercel.
 
-First, run the development server:
+## Visão Geral
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+Este sistema permite:
+- **Área Administrativa**: Cadastro de usuários, criação de votações e auditoria de resultados (acesso para Staff e Conselho)
+- **Área do Votante**: Visualização e participação em votações disponíveis (todos os moradores)
+
+## Arquitetura
+
+- **Frontend**: Next.js 14+ (App Router) com TypeScript
+- **Backend**: API Routes do Next.js
+- **Banco de Dados**: Supabase (PostgreSQL)
+- **Autenticação**: NextAuth.js com credenciais customizadas
+- **Deploy**: Vercel
+
+## Estrutura do Projeto
+
+```
+projeto-votacao/
+├── app/                    # Rotas e páginas (App Router)
+│   ├── (auth)/            # Rotas de autenticação
+│   ├── (admin)/           # Área administrativa
+│   ├── (votante)/         # Área do votante
+│   └── api/               # API Routes
+├── components/            # Componentes React
+├── lib/                   # Bibliotecas e utilitários
+│   ├── supabase/         # Clientes Supabase
+│   ├── auth.ts           # Configuração NextAuth
+│   └── db.ts             # Helpers do banco de dados
+├── types/                 # Definições TypeScript
+├── supabase/             # Migrations e seeds
+└── docs/                 # Documentação adicional
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Regras de Negócio Principais
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. **Voto por Unidade**: Uma unidade só pode votar uma vez por votação (não por usuário)
+2. **Histórico de Unidade**: Quando um morador muda (aluguel/venda), a unidade mantém seu histórico de votos
+3. **Perfis de Acesso**:
+   - **Staff**: Acesso administrativo completo
+   - **Conselho**: Acesso administrativo + pode votar
+   - **Auditor**: Pode auditar resultados + pode votar
+   - **Morador**: Apenas pode votar
+4. **Tipos de Votação**: Escolha única ou múltipla escolha
+5. **Modos de Auditoria**: Anônimo (sem rastreamento) ou Rastreado (vinculado ao usuário)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Instalação e Setup
 
-## Learn More
+### Pré-requisitos
 
-To learn more about Next.js, take a look at the following resources:
+- Node.js 22+ (gerenciado via nvm)
+- Conta no Supabase
+- Conta na Vercel (para deploy)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Passos
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. **Clone o repositório e instale dependências**:
+```bash
+npm install
+```
 
-## Deploy on Vercel
+2. **Configure as variáveis de ambiente**:
+```bash
+cp .env.local.example .env.local
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Preencha o `.env.local` com:
+- `NEXTAUTH_URL`: URL da aplicação (http://localhost:3000 para dev)
+- `NEXTAUTH_SECRET`: Gere com `openssl rand -base64 32`
+- `NEXT_PUBLIC_SUPABASE_URL`: URL do seu projeto Supabase
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Chave anônima do Supabase
+- `SUPABASE_SERVICE_ROLE_KEY`: Service role key do Supabase
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+3. **Configure o banco de dados no Supabase**:
+   - Acesse o SQL Editor no Supabase
+   - Execute o arquivo `supabase/migrations/001_initial_schema.sql`
+   - Execute o arquivo `supabase/seed.sql` para criar o usuário admin inicial
+
+4. **Execute o projeto**:
+```bash
+npm run dev
+```
+
+5. **Acesse a aplicação**:
+   - URL: http://localhost:3000
+   - Login inicial: admin@condominio.com / admin123
+   - **IMPORTANTE**: Altere a senha após o primeiro login!
+
+## Scripts Disponíveis
+
+- `npm run dev`: Inicia o servidor de desenvolvimento
+- `npm run build`: Gera build de produção
+- `npm run start`: Inicia servidor de produção
+- `npm run lint`: Executa o linter
+- `node scripts/generate-password-hash.js "senha"`: Gera hash de senha para uso no seed
+
+## Documentação Adicional
+
+Consulte a pasta `docs/` para documentação detalhada:
+- `ARCHITECTURE.md`: Arquitetura e decisões técnicas
+- `BUSINESS_RULES.md`: Regras de negócio detalhadas
+- `API_DOCS.md`: Documentação das APIs
+- `DATABASE_SCHEMA.md`: Schema do banco de dados
+- `DEPLOYMENT.md`: Guia de deploy
+
+## Deploy na Vercel
+
+1. Conecte seu repositório Git à Vercel
+2. Configure as variáveis de ambiente na Vercel
+3. O deploy será automático a cada push
+
+## Segurança
+
+- Senhas hasheadas com bcrypt (10 salt rounds)
+- Tokens JWT via NextAuth
+- Validação de inputs com Zod
+- Proteção CSRF automática do NextAuth
+- Service role key nunca exposta no cliente
+
+## Tecnologias
+
+- Next.js 16+
+- React 19+
+- TypeScript 5+
+- NextAuth.js 5 (beta)
+- Supabase
+- Tailwind CSS 4
+- Zod
+- React Hook Form
