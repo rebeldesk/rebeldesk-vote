@@ -27,13 +27,13 @@ export default async function VotanteLayout({
           <div className="flex h-16 justify-between">
             <div className="flex">
               <div className="flex flex-shrink-0 items-center">
-                <Link href="/votacoes" className="text-xl font-bold text-gray-900">
+                <Link href="/participar" className="text-xl font-bold text-gray-900">
                   Sistema de Votação
                 </Link>
               </div>
               <div className="ml-6 flex space-x-8">
                 <Link
-                  href="/votacoes"
+                  href="/participar"
                   className="inline-flex items-center border-b-2 border-blue-500 px-1 pt-1 text-sm font-medium text-gray-900"
                 >
                   Votações

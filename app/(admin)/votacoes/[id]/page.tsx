@@ -12,7 +12,7 @@ import Link from 'next/link';
 export default async function VotacaoDetalhesPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
   const session = await auth();
 
@@ -20,7 +20,8 @@ export default async function VotacaoDetalhesPage({
     redirect('/dashboard');
   }
 
-  const votacaoCompleta = await buscarVotacaoCompleta(params.id);
+  const { id } = await params;
+  const votacaoCompleta = await buscarVotacaoCompleta(id);
 
   if (!votacaoCompleta) {
     redirect('/votacoes');
@@ -116,8 +117,9 @@ export default async function VotacaoDetalhesPage({
           <form
             action={async () => {
               'use server';
+              const { id: votacaoId } = await params;
               const response = await fetch(
-                `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/votacoes/${params.id}`,
+                `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/votacoes/${votacaoId}`,
                 {
                   method: 'PUT',
                   headers: { 'Content-Type': 'application/json' },
@@ -125,7 +127,7 @@ export default async function VotacaoDetalhesPage({
                 }
               );
               if (response.ok) {
-                redirect(`/votacoes/${params.id}`);
+                redirect(`/votacoes/${votacaoId}`);
               }
             }}
           >
@@ -144,8 +146,9 @@ export default async function VotacaoDetalhesPage({
           <form
             action={async () => {
               'use server';
+              const { id: votacaoId } = await params;
               const response = await fetch(
-                `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/votacoes/${params.id}`,
+                `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/votacoes/${votacaoId}`,
                 {
                   method: 'PUT',
                   headers: { 'Content-Type': 'application/json' },
@@ -153,7 +156,7 @@ export default async function VotacaoDetalhesPage({
                 }
               );
               if (response.ok) {
-                redirect(`/votacoes/${params.id}`);
+                redirect(`/votacoes/${votacaoId}`);
               }
             }}
           >

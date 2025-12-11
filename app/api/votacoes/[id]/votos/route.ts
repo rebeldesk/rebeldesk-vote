@@ -15,7 +15,7 @@ const registrarVotoSchema = z.object({
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -32,11 +32,12 @@ export async function POST(
       );
     }
 
+    const { id } = await params;
     const body = await request.json();
     const dados = registrarVotoSchema.parse(body);
 
     const voto = await registrarVoto(
-      params.id,
+      id,
       session.user.unidade_id,
       dados.opcoes_ids,
       session.user.id
@@ -46,7 +47,7 @@ export async function POST(
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Dados inválidos', details: error.errors },
+        { error: 'Dados inválidos', details: error.issues },
         { status: 400 }
       );
     }

@@ -9,19 +9,14 @@
 
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-
-if (!supabaseUrl || !supabaseServiceRoleKey) {
-  throw new Error(
-    'Variáveis de ambiente do Supabase não configuradas. ' +
-    'Verifique NEXT_PUBLIC_SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY'
-  );
-}
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
+const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-key';
 
 /**
  * Cliente Supabase com privilégios de service role.
  * Use apenas em Server Components e API Routes.
+ * 
+ * Nota: Variáveis de ambiente são validadas em runtime, não em build time.
  */
 export const supabaseServer = createClient(
   supabaseUrl,
@@ -33,4 +28,20 @@ export const supabaseServer = createClient(
     },
   }
 );
+
+/**
+ * Valida se as variáveis de ambiente estão configuradas.
+ * Use esta função antes de operações críticas.
+ */
+export function validarConfiguracaoSupabase() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  
+  if (!url || !key || url === 'https://placeholder.supabase.co' || key === 'placeholder-key') {
+    throw new Error(
+      'Variáveis de ambiente do Supabase não configuradas. ' +
+      'Verifique NEXT_PUBLIC_SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY'
+    );
+  }
+}
 

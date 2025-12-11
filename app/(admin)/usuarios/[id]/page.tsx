@@ -21,7 +21,7 @@ async function buscarUsuario(id: string) {
 export default async function EditarUsuarioPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
   const session = await auth();
 
@@ -29,7 +29,8 @@ export default async function EditarUsuarioPage({
     redirect('/dashboard');
   }
 
-  const usuario = await buscarUsuario(params.id);
+  const { id } = await params;
+  const usuario = await buscarUsuario(id);
 
   if (!usuario) {
     redirect('/usuarios');
@@ -40,7 +41,7 @@ export default async function EditarUsuarioPage({
       <h1 className="text-3xl font-bold text-gray-900">Editar Usuário</h1>
       <div className="mt-8">
         <UserForm
-          usuarioId={params.id}
+          usuarioId={id}
           initialData={{
             email: usuario.email,
             nome: usuario.nome,

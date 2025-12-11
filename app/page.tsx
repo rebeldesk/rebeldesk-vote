@@ -20,5 +20,5 @@ export default async function Home() {
   }
 
   // Para outros perfis (auditor, morador), vai para área de votante
-  redirect('/votacoes');
+  redirect('/participar');
 }

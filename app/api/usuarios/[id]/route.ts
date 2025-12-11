@@ -23,7 +23,7 @@ const atualizarUsuarioSchema = z.object({
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -33,7 +33,8 @@ export async function GET(
       return NextResponse.json({ error: 'Não autorizado' }, { status: 403 });
     }
 
-    const usuario = await buscarUsuarioPorId(params.id);
+    const { id } = await params;
+    const usuario = await buscarUsuarioPorId(id);
 
     if (!usuario) {
       return NextResponse.json({ error: 'Usuário não encontrado' }, { status: 404 });
@@ -53,7 +54,7 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -63,10 +64,11 @@ export async function PUT(
       return NextResponse.json({ error: 'Não autorizado' }, { status: 403 });
     }
 
+    const { id } = await params;
     const body = await request.json();
     const dados = atualizarUsuarioSchema.parse(body);
 
-    const usuario = await atualizarUsuario(params.id, dados);
+    const usuario = await atualizarUsuario(id, dados);
 
     // Remove password_hash da resposta
     const { password_hash, ...usuarioSemSenha } = usuario as any;
@@ -75,7 +77,7 @@ export async function PUT(
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Dados inválidos', details: error.errors },
+        { error: 'Dados inválidos', details: error.issues },
         { status: 400 }
       );
     }
@@ -89,7 +91,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -99,8 +101,10 @@ export async function DELETE(
       return NextResponse.json({ error: 'Não autorizado' }, { status: 403 });
     }
 
+    const { id } = await params;
+
     // Não permite excluir a si mesmo
-    if (session.user?.id === params.id) {
+    if (session.user?.id === id) {
       return NextResponse.json(
         { error: 'Não é possível excluir seu próprio usuário' },
         { status: 400 }
@@ -110,7 +114,7 @@ export async function DELETE(
     const { error } = await supabaseServer
       .from('users')
       .delete()
-      .eq('id', params.id);
+      .eq('id', id);
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });

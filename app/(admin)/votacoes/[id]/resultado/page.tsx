@@ -13,7 +13,7 @@ import Link from 'next/link';
 export default async function ResultadoPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
   const session = await auth();
 
@@ -21,8 +21,9 @@ export default async function ResultadoPage({
     redirect('/votacoes');
   }
 
+  const { id } = await params;
   const resultado = await calcularResultado(
-    params.id,
+    id,
     session.user?.perfil === 'staff' || session.user?.perfil === 'conselho' || session.user?.perfil === 'auditor'
   );
 
@@ -38,7 +39,7 @@ export default async function ResultadoPage({
           </p>
         </div>
         <Link
-          href={`/votacoes/${params.id}`}
+          href={`/votacoes/${id}`}
           className="rounded-md bg-gray-600 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700"
         >
           Voltar

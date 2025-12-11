@@ -12,7 +12,7 @@ import { VotingCard } from '@/components/votante/VotingCard';
 export default async function VotarPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
   const session = await auth();
 
@@ -20,10 +20,11 @@ export default async function VotarPage({
     redirect('/login');
   }
 
-  const votacaoCompleta = await buscarVotacaoCompleta(params.id);
+  const { id } = await params;
+  const votacaoCompleta = await buscarVotacaoCompleta(id);
 
   if (!votacaoCompleta) {
-    redirect('/votacoes');
+    redirect('/participar');
   }
 
   const { votacao, opcoes } = votacaoCompleta;

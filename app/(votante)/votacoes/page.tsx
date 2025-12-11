@@ -3,6 +3,9 @@
  * 
  * Exibe todas as votações disponíveis (abertas e encerradas)
  * para que os moradores possam visualizar e votar.
+ * 
+ * Esta página está em um route group diferente para evitar conflito
+ * com a página administrativa. A rota real é /participar.
  */
 
 import { auth } from '@/lib/auth';
