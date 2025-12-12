@@ -37,6 +37,7 @@ export default async function VotanteLayout({
               {/* Menu desktop - oculto em mobile */}
               <div className="hidden md:ml-6 md:flex md:space-x-8">
                 <NavLink href="/participar">Votações</NavLink>
+                <NavLink href="/perfil">Meu Perfil</NavLink>
                 {(session.user?.perfil === 'staff' || session.user?.perfil === 'conselho') && (
                   <NavLink href="/dashboard">Administração</NavLink>
                 )}
@@ -51,6 +52,7 @@ export default async function VotanteLayout({
               <MobileMenu
                 links={[
                   { href: '/participar', label: 'Votações' },
+                  { href: '/perfil', label: 'Meu Perfil' },
                   ...(session.user?.perfil === 'staff' || session.user?.perfil === 'conselho'
                     ? [{ href: '/dashboard', label: 'Administração' }]
                     : []),
