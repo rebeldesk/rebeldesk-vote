@@ -7,6 +7,7 @@
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import Link from 'next/link';
+import { MobileMenu } from '@/components/admin/MobileMenu';
 
 export default async function VotanteLayout({
   children,
@@ -24,7 +25,7 @@ export default async function VotanteLayout({
       {/* Navegação */}
       <nav className="bg-white shadow">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 justify-between">
+          <div className="relative flex h-16 justify-between">
             <div className="flex flex-1 items-center">
               <div className="flex flex-shrink-0 items-center">
                 <Link href="/participar" className="text-lg sm:text-xl font-bold text-gray-900">
@@ -56,6 +57,15 @@ export default async function VotanteLayout({
               <span className="sm:hidden text-xs text-gray-700 truncate max-w-[100px]">
                 {session.user?.name}
               </span>
+              {/* Menu hambúrguer mobile */}
+              <MobileMenu
+                links={[
+                  { href: '/participar', label: 'Votações' },
+                  ...(session.user?.perfil === 'staff' || session.user?.perfil === 'conselho'
+                    ? [{ href: '/dashboard', label: 'Administração' }]
+                    : []),
+                ]}
+              />
               <form
                 action={async () => {
                   'use server';
@@ -71,25 +81,6 @@ export default async function VotanteLayout({
                   Sair
                 </button>
               </form>
-            </div>
-          </div>
-          {/* Menu mobile - dropdown simples */}
-          <div className="md:hidden border-t border-gray-200">
-            <div className="px-2 pt-2 pb-3 space-y-1">
-              <Link
-                href="/participar"
-                className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 rounded-md"
-              >
-                Votações
-              </Link>
-              {(session.user?.perfil === 'staff' || session.user?.perfil === 'conselho') && (
-                <Link
-                  href="/dashboard"
-                  className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 rounded-md"
-                >
-                  Administração
-                </Link>
-              )}
             </div>
           </div>
         </div>

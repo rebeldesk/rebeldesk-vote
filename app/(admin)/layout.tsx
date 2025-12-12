@@ -8,6 +8,7 @@
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import Link from 'next/link';
+import { MobileMenu } from '@/components/admin/MobileMenu';
 
 export default async function AdminLayout({
   children,
@@ -32,7 +33,7 @@ export default async function AdminLayout({
       {/* Navegação */}
       <nav className="bg-white shadow">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 justify-between">
+          <div className="relative flex h-16 justify-between">
             <div className="flex flex-1 items-center">
               <div className="flex flex-shrink-0 items-center">
                 <Link href="/dashboard" className="text-lg sm:text-xl font-bold text-gray-900">
@@ -82,6 +83,18 @@ export default async function AdminLayout({
               <span className="sm:hidden text-xs text-gray-700 truncate max-w-[100px]">
                 {session.user?.name}
               </span>
+              {/* Menu hambúrguer mobile */}
+              <MobileMenu
+                links={[
+                  { href: '/dashboard', label: 'Dashboard' },
+                  { href: '/usuarios', label: 'Usuários' },
+                  { href: '/unidades', label: 'Unidades' },
+                  { href: '/votacoes', label: 'Votações' },
+                  ...(perfil === 'conselho'
+                    ? [{ href: '/participar', label: 'Participar' }]
+                    : []),
+                ]}
+              />
               <form
                 action={async () => {
                   'use server';
@@ -97,43 +110,6 @@ export default async function AdminLayout({
                   Sair
                 </button>
               </form>
-            </div>
-          </div>
-          {/* Menu mobile - dropdown simples */}
-          <div className="md:hidden border-t border-gray-200">
-            <div className="px-2 pt-2 pb-3 space-y-1">
-              <Link
-                href="/dashboard"
-                className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 rounded-md"
-              >
-                Dashboard
-              </Link>
-              <Link
-                href="/usuarios"
-                className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 rounded-md"
-              >
-                Usuários
-              </Link>
-              <Link
-                href="/unidades"
-                className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 rounded-md"
-              >
-                Unidades
-              </Link>
-              <Link
-                href="/votacoes"
-                className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 rounded-md"
-              >
-                Votações
-              </Link>
-              {perfil === 'conselho' && (
-                <Link
-                  href="/participar"
-                  className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 rounded-md"
-                >
-                  Participar
-                </Link>
-              )}
             </div>
           </div>
         </div>

@@ -14,21 +14,23 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import type { PerfilUsuario } from '@/types';
 
+// Schema Zod com validação e transformação
 const userSchema = z.object({
   email: z.string().email('Email inválido'),
   senha: z.string().min(6, 'Senha deve ter no mínimo 6 caracteres').optional().or(z.literal('')),
   nome: z.string().min(1, 'Nome é obrigatório'),
   telefone: z.string().optional(),
   perfil: z.enum(['staff', 'conselho', 'auditor', 'morador']),
-  // Aceita string vazia, UUID válido ou null/undefined e transforma string vazia em null
+  // Aceita string vazia, UUID válido ou null/undefined e transforma para string | null
   unidade_id: z
     .union([z.string().uuid(), z.string().length(0), z.null(), z.undefined()])
-    .optional()
-    .nullable()
-    .transform((val) => (val === '' || val === undefined ? null : val)),
+    .transform((val) => (val === '' || val === undefined ? null : (val as string | null))),
 });
 
-type UserFormData = z.infer<typeof userSchema>;
+// Tipo do formulário - garante que unidade_id seja string | null (não undefined)
+type UserFormData = Omit<z.infer<typeof userSchema>, 'unidade_id'> & {
+  unidade_id: string | null;
+};
 
 interface UserFormProps {
   usuarioId?: string;
@@ -50,7 +52,7 @@ export function UserForm({ usuarioId, initialData }: UserFormProps) {
     setValue,
     watch,
   } = useForm<UserFormData>({
-    resolver: zodResolver(userSchema),
+    resolver: zodResolver(userSchema) as any,
     defaultValues: initialData || {
       email: '',
       senha: '',
