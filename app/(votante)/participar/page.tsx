@@ -12,7 +12,7 @@ import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
-import { unidadeJaVotou } from '@/lib/db';
+import { unidadeJaVotou, buscarUnidadesUsuario } from '@/lib/db';
 
 async function buscarVotacoesDisponiveis() {
   const votacoes = await prisma.votacao.findMany({
@@ -45,19 +45,37 @@ export default async function VotacoesDisponiveisPage() {
   }
 
   const votacoes = await buscarVotacoesDisponiveis();
-  const unidadeId = session.user?.unidade_id;
+  
+  // Busca todas as unidades do usuário
+  const userId = session.user?.id;
+  if (!userId) {
+    redirect('/login');
+  }
 
-  // Para cada votação, verifica se a unidade já votou
+  const unidadesUsuario = await buscarUnidadesUsuario(userId);
+  const temUnidades = unidadesUsuario.length > 0;
+
+  // Para cada votação, verifica se alguma unidade do usuário já votou
   const votacoesComStatus = await Promise.all(
     votacoes.map(async (votacao) => {
       let jaVotou = false;
-      if (unidadeId && votacao.status === 'aberta') {
-        jaVotou = await unidadeJaVotou(votacao.id, unidadeId);
+      let unidadesQueVotaram: string[] = [];
+      
+      if (temUnidades && votacao.status === 'aberta') {
+        // Verifica se alguma unidade do usuário já votou
+        for (const unidade of unidadesUsuario) {
+          const unidadeVotou = await unidadeJaVotou(votacao.id, unidade.id);
+          if (unidadeVotou) {
+            jaVotou = true;
+            unidadesQueVotaram.push(unidade.id);
+          }
+        }
       }
 
       return {
         ...votacao,
         jaVotou,
+        unidadesQueVotaram,
       };
     })
   );
@@ -111,12 +129,14 @@ export default async function VotacoesDisponiveisPage() {
                     {new Date(votacao.data_fim).toLocaleDateString('pt-BR')}
                   </span>
                 </div>
-                {votacao.status === 'aberta' && unidadeId && (
+                {votacao.status === 'aberta' && temUnidades && (
                   <div className="flex items-center">
                     <span className="font-medium">Status:</span>
                     <span className="ml-2">
                       {votacao.jaVotou ? (
-                        <span className="text-green-600">✓ Você já votou</span>
+                        <span className="text-green-600">
+                          ✓ Você já votou {votacao.unidadesQueVotaram?.length > 1 ? `com ${votacao.unidadesQueVotaram.length} unidades` : ''}
+                        </span>
                       ) : (
                         <span className="text-blue-600">Pendente</span>
                       )}
@@ -127,14 +147,21 @@ export default async function VotacoesDisponiveisPage() {
             </div>
 
             <div className="bg-gray-50 px-6 py-3">
-              {votacao.status === 'aberta' && unidadeId && !votacao.jaVotou ? (
+              {votacao.status === 'aberta' && temUnidades && !votacao.jaVotou ? (
                 <Link
                   href={`/participar/${votacao.id}/votar`}
                   className="block w-full rounded-md bg-blue-600 px-4 py-2 text-center text-sm font-medium text-white hover:bg-blue-700"
                 >
                   Votar Agora
                 </Link>
-              ) : votacao.status === 'aberta' && !unidadeId ? (
+              ) : votacao.status === 'aberta' && temUnidades && votacao.jaVotou ? (
+                <Link
+                  href={`/participar/${votacao.id}/votar`}
+                  className="block w-full rounded-md bg-green-600 px-4 py-2 text-center text-sm font-medium text-white hover:bg-green-700"
+                >
+                  Ver/Alterar Voto
+                </Link>
+              ) : votacao.status === 'aberta' && !temUnidades ? (
                 <p className="text-center text-sm text-gray-500">
                   Você precisa estar vinculado a uma unidade para votar
                 </p>
