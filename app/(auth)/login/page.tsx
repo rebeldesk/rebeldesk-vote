@@ -17,8 +17,13 @@ export default async function LoginPage({
   const session = await auth();
   const params = await searchParams;
 
-  // Se já está autenticado, redireciona
+  // Se já está autenticado, verifica se precisa trocar senha
   if (session) {
+    // Se precisa trocar senha, redireciona para página de troca obrigatória
+    if (session.user?.forcar_troca_senha) {
+      redirect('/trocar-senha-obrigatoria');
+    }
+    
     const perfil = session.user?.perfil;
     if (perfil === 'staff' || perfil === 'conselho') {
       redirect('/dashboard');

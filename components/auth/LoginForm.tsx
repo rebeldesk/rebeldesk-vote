@@ -42,11 +42,16 @@ export function LoginForm({ callbackUrl, error: initialError }: LoginFormProps) 
         return;
       }
 
-      // Redireciona para callbackUrl ou página padrão
-      const url = callbackUrl || searchParams.get('callbackUrl') || '/';
-      router.push(url);
+      // Força atualização da sessão e redireciona
+      // O middleware e a página inicial vão verificar se precisa trocar senha
       router.refresh();
-    } catch (err) {
+      
+      // Aguarda um momento para garantir que a sessão foi atualizada
+      setTimeout(() => {
+        const url = callbackUrl || searchParams.get('callbackUrl') || '/';
+        window.location.href = url; // Usa window.location para garantir que passa pelo middleware
+      }, 200);
+    } catch {
       setError('Erro ao fazer login. Tente novamente.');
       setLoading(false);
     }

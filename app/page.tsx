@@ -12,6 +12,11 @@ export default async function Home() {
     redirect('/login');
   }
 
+  // Se precisa trocar senha, redireciona para página de troca obrigatória
+  if (session.user?.forcar_troca_senha) {
+    redirect('/trocar-senha-obrigatoria');
+  }
+
   // Redireciona baseado no perfil
   const perfil = session.user?.perfil;
 

@@ -72,6 +72,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           }
 
           console.log('[Auth] Login bem-sucedido para:', credentials.email);
+          console.log('[Auth] Forcar troca senha:', userData.forcarTrocaSenha);
 
           // Retorna dados do usuário (sem passwordHash)
           return {
@@ -80,7 +81,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             name: userData.nome,
             perfil: userData.perfil,
             unidade_id: userData.unidadeId,
-            forcar_troca_senha: userData.forcarTrocaSenha,
+            forcar_troca_senha: userData.forcarTrocaSenha || false,
           };
         } catch (error) {
           console.error('[Auth] Erro na autenticação:', error);
@@ -96,7 +97,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.id = user.id;
         token.perfil = (user as any).perfil;
         token.unidade_id = (user as any).unidade_id;
-        token.forcar_troca_senha = (user as any).forcar_troca_senha;
+        token.forcar_troca_senha = (user as any).forcar_troca_senha || false;
+        console.log('[Auth] JWT atualizado - forcar_troca_senha:', token.forcar_troca_senha);
       }
       // Retorna o token (mantém os dados mesmo em requisições subsequentes)
       return token;
@@ -107,7 +109,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.id = String(token.id);
         session.user.perfil = token.perfil as PerfilUsuario;
         session.user.unidade_id = token.unidade_id as string | null;
-        session.user.forcar_troca_senha = token.forcar_troca_senha as boolean | undefined;
+        session.user.forcar_troca_senha = (token.forcar_troca_senha as boolean) || false;
+        console.log('[Auth] Session criada - forcar_troca_senha:', session.user.forcar_troca_senha);
       }
       return session;
     },

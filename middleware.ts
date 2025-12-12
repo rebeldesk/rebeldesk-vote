@@ -29,8 +29,12 @@ export async function middleware(request: NextRequest) {
   }
 
   // Se precisa trocar senha, redireciona para página de troca obrigatória
-  // (exceto se já estiver na página de trocar senha)
-  if (session.user?.forcar_troca_senha && !pathname.startsWith('/trocar-senha-obrigatoria')) {
+  // (exceto se já estiver na página de trocar senha ou em rotas de API)
+  if (
+    session.user?.forcar_troca_senha && 
+    !pathname.startsWith('/trocar-senha-obrigatoria') &&
+    !pathname.startsWith('/api/auth/alterar-senha-obrigatoria')
+  ) {
     return NextResponse.redirect(new URL('/trocar-senha-obrigatoria', request.url));
   }
 
