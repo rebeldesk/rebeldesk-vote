@@ -9,13 +9,15 @@ if (process.env.NODE_ENV !== 'production') {
   }
 }
 
-import { defineConfig } from "prisma/config";
+import { defineConfig, env } from "prisma/config";
 
 export default defineConfig({
   schema: "prisma/schema.prisma",
   migrations: {
     path: "prisma/migrations",
   },
-  // A URL do datasource está definida no schema.prisma
-  // Este arquivo apenas configura migrations e outras opções
+  datasource: {
+    // No Prisma 7, a URL deve estar aqui, não no schema.prisma
+    url: env("DATABASE_URL"),
+  },
 });
