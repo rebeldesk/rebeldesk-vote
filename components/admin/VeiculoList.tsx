@@ -18,13 +18,14 @@ interface Veiculo {
 
 interface VeiculoListProps {
   veiculos: Veiculo[];
-  vagaId: string | null;
+  vagaId: string | null; // ID da vaga própria da unidade
+  vagaAlugadaId: string | null; // ID da vaga alugada pela unidade
   unidadeId: string;
   isStaff: boolean;
   onEdit: (veiculoId: string) => void;
 }
 
-export function VeiculoList({ veiculos, vagaId, unidadeId, isStaff, onEdit }: VeiculoListProps) {
+export function VeiculoList({ veiculos, vagaId, vagaAlugadaId, unidadeId, isStaff, onEdit }: VeiculoListProps) {
   const router = useRouter();
   const [veiculoDeletando, setVeiculoDeletando] = useState<string | null>(null);
 
@@ -96,10 +97,20 @@ export function VeiculoList({ veiculos, vagaId, unidadeId, isStaff, onEdit }: Ve
                 </span>
               </td>
               <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                {veiculo.vaga_id === vagaId ? (
-                  <span className="inline-flex rounded-full bg-green-100 px-2 text-xs font-medium text-green-800">
-                    Na vaga
-                  </span>
+                {veiculo.vaga_id ? (
+                  veiculo.vaga_id === vagaId ? (
+                    <span className="inline-flex rounded-full bg-green-100 px-2 text-xs font-medium text-green-800">
+                      Vaga própria
+                    </span>
+                  ) : veiculo.vaga_id === vagaAlugadaId ? (
+                    <span className="inline-flex rounded-full bg-blue-100 px-2 text-xs font-medium text-blue-800">
+                      Vaga alugada
+                    </span>
+                  ) : (
+                    <span className="inline-flex rounded-full bg-gray-100 px-2 text-xs font-medium text-gray-800">
+                      Na vaga
+                    </span>
+                  )
                 ) : (
                   <span className="text-gray-400">-</span>
                 )}

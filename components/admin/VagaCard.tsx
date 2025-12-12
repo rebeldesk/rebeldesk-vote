@@ -6,6 +6,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { VagaForm } from './VagaForm';
 
 interface Vaga {
@@ -28,10 +29,11 @@ interface VagaCardProps {
   unidadeId: string;
   vaga: Vaga | null;
   todasUnidades: Array<{ id: string; numero: string }>;
+  temDireitoVaga: boolean;
   isStaff: boolean;
 }
 
-export function VagaCard({ unidadeId, vaga, todasUnidades, isStaff }: VagaCardProps) {
+export function VagaCard({ unidadeId, vaga, todasUnidades, temDireitoVaga, isStaff }: VagaCardProps) {
   const router = useRouter();
   const [editando, setEditando] = useState(false);
   const [deletando, setDeletando] = useState(false);
@@ -67,6 +69,22 @@ export function VagaCard({ unidadeId, vaga, todasUnidades, isStaff }: VagaCardPr
   if (!vaga) {
     if (!isStaff) {
       return null;
+    }
+
+    if (!temDireitoVaga) {
+      return (
+        <div className="bg-white shadow sm:rounded-lg">
+          <div className="px-4 py-5 sm:p-6">
+            <h3 className="text-lg font-medium leading-6 text-gray-900">Vaga de Estacionamento</h3>
+            <div className="mt-2 rounded-md bg-yellow-50 border border-yellow-200 p-4">
+              <p className="text-sm text-yellow-800">
+                <strong>Atenção:</strong> Esta unidade não tem direito a vaga de estacionamento.
+                Para cadastrar uma vaga, é necessário marcar que a unidade tem direito a vaga nas informações da unidade.
+              </p>
+            </div>
+          </div>
+        </div>
+      );
     }
 
     return (
@@ -147,7 +165,15 @@ export function VagaCard({ unidadeId, vaga, todasUnidades, isStaff }: VagaCardPr
           {vaga.esta_alugada && vaga.unidade_alugada && (
             <div>
               <dt className="text-sm font-medium text-gray-500">Unidade que está usando</dt>
-              <dd className="mt-1 text-sm text-gray-900">{vaga.unidade_alugada.numero}</dd>
+              <dd className="mt-1 text-sm text-gray-900">
+                <Link
+                  href={`/unidades/${vaga.unidade_alugada.id}`}
+                  className="text-blue-600 hover:text-blue-900 hover:underline font-medium"
+                >
+                  {vaga.unidade_alugada.numero}
+                </Link>
+                <span className="ml-2 text-xs text-gray-500">(clique para ver detalhes)</span>
+              </dd>
             </div>
           )}
         </dl>

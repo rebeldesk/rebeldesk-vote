@@ -83,6 +83,7 @@ export async function GET(
     return NextResponse.json({
       id: unidade.id,
       numero: unidade.numero,
+      tem_direito_vaga: unidade.temDireitoVaga,
       created_at: unidade.createdAt?.toISOString(),
       updated_at: unidade.updatedAt?.toISOString(),
       total_usuarios: unidade._count.usuarioUnidades,
@@ -118,6 +119,70 @@ export async function GET(
     console.error('Erro ao buscar unidade:', error);
     return NextResponse.json(
       { error: 'Erro ao buscar unidade' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const session = await auth();
+
+    // Apenas staff pode atualizar unidades
+    if (!session || session.user?.perfil !== 'staff') {
+      return NextResponse.json({ error: 'Não autorizado' }, { status: 403 });
+    }
+
+    const { id } = await params;
+    const body = await request.json();
+    const { numero, tem_direito_vaga } = body;
+
+    // Verifica se a unidade existe
+    const unidade = await prisma.unidade.findUnique({
+      where: { id },
+    });
+
+    if (!unidade) {
+      return NextResponse.json({ error: 'Unidade não encontrada' }, { status: 404 });
+    }
+
+    // Prepara dados para atualização
+    const dadosAtualizacao: any = {};
+    
+    if (numero !== undefined) {
+      dadosAtualizacao.numero = numero;
+    }
+    
+    if (tem_direito_vaga !== undefined) {
+      dadosAtualizacao.temDireitoVaga = tem_direito_vaga;
+    }
+
+    const unidadeAtualizada = await prisma.unidade.update({
+      where: { id },
+      data: dadosAtualizacao,
+    });
+
+    return NextResponse.json({
+      id: unidadeAtualizada.id,
+      numero: unidadeAtualizada.numero,
+      tem_direito_vaga: unidadeAtualizada.temDireitoVaga,
+      created_at: unidadeAtualizada.createdAt?.toISOString(),
+      updated_at: unidadeAtualizada.updatedAt?.toISOString(),
+    });
+  } catch (error: any) {
+    if (error?.code === 'P2002' && error?.meta?.target?.includes('numero')) {
+      return NextResponse.json(
+        { error: 'Número de unidade já cadastrado' },
+        { status: 409 }
+      );
+    }
+
+    console.error('Erro ao atualizar unidade:', error);
+    return NextResponse.json(
+      { error: error?.message || 'Erro ao atualizar unidade' },
       { status: 500 }
     );
   }

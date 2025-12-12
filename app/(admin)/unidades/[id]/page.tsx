@@ -51,6 +51,25 @@ async function buscarUnidade(id: string) {
           },
         },
       },
+      vagasAlugadas: {
+        include: {
+          unidade: {
+            select: {
+              id: true,
+              numero: true,
+            },
+          },
+          veiculos: {
+            select: {
+              id: true,
+              placa: true,
+              modelo: true,
+              marca: true,
+              tipo: true,
+            },
+          },
+        },
+      },
       veiculos: {
         include: {
           vaga: {
@@ -68,9 +87,13 @@ async function buscarUnidade(id: string) {
     return null;
   }
 
+  // Busca se esta unidade está usando uma vaga alugada
+  const vagaAlugada = unidade.vagasAlugadas.length > 0 ? unidade.vagasAlugadas[0] : null;
+
   return {
     id: unidade.id,
     numero: unidade.numero,
+    tem_direito_vaga: unidade.temDireitoVaga,
     created_at: unidade.createdAt?.toISOString(),
     updated_at: unidade.updatedAt?.toISOString(),
     total_usuarios: unidade._count.usuarioUnidades,
@@ -91,6 +114,16 @@ async function buscarUnidade(id: string) {
               }
             : null,
           veiculos: unidade.vaga.veiculos,
+        }
+      : null,
+    vaga_alugada: vagaAlugada
+      ? {
+          id: vagaAlugada.id,
+          unidade_proprietaria: {
+            id: vagaAlugada.unidade.id,
+            numero: vagaAlugada.unidade.numero,
+          },
+          veiculos: vagaAlugada.veiculos,
         }
       : null,
     veiculos: unidade.veiculos.map((v) => ({

@@ -101,18 +101,52 @@ export async function POST(
     const body = await request.json();
     const dados = criarVeiculoSchema.parse(body);
 
-    // Se vaga_id foi informado, verifica se a vaga pertence à unidade
+    // Se vaga_id foi informado, verifica se a unidade pode usar a vaga
     if (dados.vaga_id) {
       const vaga = await prisma.vaga.findUnique({
         where: { id: dados.vaga_id },
+        include: {
+          unidade: {
+            select: {
+              temDireitoVaga: true,
+            },
+          },
+        },
       });
 
       if (!vaga) {
         return NextResponse.json({ error: 'Vaga não encontrada' }, { status: 404 });
       }
 
-      // Verifica se a vaga pertence à unidade ou se está alugada para ela
-      if (vaga.unidadeId !== id && vaga.unidadeAlugadaId !== id) {
+      // Se a vaga pertence à unidade (vaga própria)
+      if (vaga.unidadeId === id) {
+        // Se não tem direito a vaga própria, não pode usar
+        const unidadeAtual = await prisma.unidade.findUnique({
+          where: { id },
+          select: {
+            temDireitoVaga: true,
+          },
+        });
+
+        if (!unidadeAtual?.temDireitoVaga) {
+          return NextResponse.json(
+            { error: 'Esta unidade não tem direito a vaga de estacionamento' },
+            { status: 403 }
+          );
+        }
+        // Se a vaga própria está alugada, não permite associar veículo
+        if (vaga.estaAlugada) {
+          return NextResponse.json(
+            { error: 'Não é possível associar veículo à vaga. Esta vaga está alugada para outra unidade.' },
+            { status: 403 }
+          );
+        }
+      } else if (vaga.unidadeAlugadaId === id) {
+        // Se a vaga está alugada para a unidade (vaga alugada)
+        // Permite usar vaga alugada mesmo sem direito a vaga própria
+        // Não precisa verificar temDireitoVaga aqui
+      } else {
+        // A vaga não pertence à unidade nem está alugada para ela
         return NextResponse.json(
           { error: 'A vaga não pertence a esta unidade' },
           { status: 403 }
@@ -150,7 +184,7 @@ export async function POST(
       },
       { status: 201 }
     );
-  } catch (error) {
+  } catch (error: any) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: 'Dados inválidos', details: error.issues },
@@ -158,16 +192,16 @@ export async function POST(
       );
     }
 
-    if (error instanceof Error && error.message.includes('unique')) {
+    if (error?.code === 'P2002' && error?.meta?.target?.includes('placa')) {
       return NextResponse.json(
-        { error: 'Placa já cadastrada' },
+        { error: 'Placa já cadastrada no sistema' },
         { status: 409 }
       );
     }
 
     console.error('Erro ao criar veículo:', error);
     return NextResponse.json(
-      { error: 'Erro ao criar veículo' },
+      { error: error?.message || 'Erro ao criar veículo' },
       { status: 500 }
     );
   }

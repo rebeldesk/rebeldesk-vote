@@ -9,6 +9,7 @@ datasource db {
 model Unidade {
   id              String           @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   numero          String           @unique @db.VarChar(50)
+  temDireitoVaga  Boolean          @default(true) @map("tem_direito_vaga")
   createdAt       DateTime?        @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt       DateTime?        @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
   users           Usuario[]

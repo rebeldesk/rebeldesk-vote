@@ -98,13 +98,20 @@ export async function POST(
 
     const { id } = await params;
 
-    // Verifica se a unidade existe
+    // Verifica se a unidade existe e tem direito a vaga
     const unidade = await prisma.unidade.findUnique({
       where: { id },
     });
 
     if (!unidade) {
       return NextResponse.json({ error: 'Unidade não encontrada' }, { status: 404 });
+    }
+
+    if (!unidade.temDireitoVaga) {
+      return NextResponse.json(
+        { error: 'Esta unidade não tem direito a vaga de estacionamento' },
+        { status: 403 }
+      );
     }
 
     // Verifica se já existe vaga para esta unidade
