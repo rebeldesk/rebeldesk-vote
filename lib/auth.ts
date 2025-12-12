@@ -7,7 +7,6 @@
 
 import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
-import { buscarUsuarioPorEmail, verificarSenha } from './db';
 import type { PerfilUsuario } from '@/types';
 
 /**
@@ -33,8 +32,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         }
 
         try {
-          // Busca usuário no banco com password_hash usando Prisma
+          // Lazy load do Prisma e verificarSenha para evitar carregar no Edge Runtime
+          const { verificarSenha } = await import('./password');
           const { prisma } = await import('./prisma');
+          
+          // Busca usuário no banco com password_hash usando Prisma
           const userData = await prisma.usuario.findUnique({
             where: { email: credentials.email as string },
             select: {

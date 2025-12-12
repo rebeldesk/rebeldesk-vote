@@ -6,6 +6,7 @@
  */
 
 import { prisma } from './prisma';
+import { hashSenha, verificarSenha } from './password';
 import type {
   Usuario,
   Unidade,
@@ -18,30 +19,10 @@ import type {
   RegistrarVotoDTO,
   ResultadoVotacao,
 } from '@/types';
-import bcrypt from 'bcryptjs';
 import { Prisma } from '@prisma/client';
 
-/**
- * Hash de senha usando bcrypt.
- * 
- * @param senha - Senha em texto plano
- * @returns Hash da senha
- */
-export async function hashSenha(senha: string): Promise<string> {
-  const salt = await bcrypt.genSalt(10);
-  return bcrypt.hash(senha, salt);
-}
-
-/**
- * Verifica se a senha corresponde ao hash.
- * 
- * @param senha - Senha em texto plano
- * @param hash - Hash armazenado
- * @returns true se a senha corresponder
- */
-export async function verificarSenha(senha: string, hash: string): Promise<boolean> {
-  return bcrypt.compare(senha, hash);
-}
+// Re-exporta funções de senha para manter compatibilidade
+export { hashSenha, verificarSenha };
 
 /**
  * Busca um usuário por email.
