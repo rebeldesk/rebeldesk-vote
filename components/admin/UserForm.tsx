@@ -22,24 +22,18 @@ const userSchema = z.object({
   senha: z.string().min(6, 'Senha deve ter no mínimo 6 caracteres').optional().or(z.literal('')),
   nome: z.string().min(1, 'Nome é obrigatório'),
   telefone: z
-    .preprocess(
+    .string()
+    .optional()
+    .refine(
       (val) => {
-        // Remove máscara para validação
-        if (!val || typeof val !== 'string' || val.trim() === '') return '';
-        return unmaskTelefone(val);
+        if (!val || val.trim() === '') return true; // Telefone é opcional
+        // Remove máscara e valida
+        const numbers = unmaskTelefone(val);
+        return isValidTelefone(numbers);
       },
-      z
-        .string()
-        .refine(
-          (val) => {
-            if (!val || val.trim() === '') return true; // Telefone é opcional
-            return isValidTelefone(val);
-          },
-          {
-            message: 'Telefone deve ter DDD + número completo. Formato: (11) 98765-4321 ou (11) 3456-7890',
-          }
-        )
-        .optional()
+      {
+        message: 'Telefone deve ter DDD + número completo. Formato: (11) 98765-4321 ou (11) 3456-7890',
+      }
     ),
   perfil: z.enum(['staff', 'conselho', 'auditor', 'morador']),
   // Array de IDs de unidades
@@ -145,11 +139,13 @@ export function UserForm({ usuarioId, initialData }: UserFormProps) {
       const method = usuarioId ? 'PUT' : 'POST';
 
       // Prepara dados para envio
-      // O telefone já vem sem máscara do schema (transform)
+      // Remove máscara do telefone antes de enviar
+      const telefoneSemMascara = data.telefone ? unmaskTelefone(data.telefone) : '';
+      
       const dadosEnvio: any = {
         email: data.email,
         nome: data.nome,
-        telefone: data.telefone || '',
+        telefone: telefoneSemMascara,
         perfil: data.perfil,
         unidades_ids: data.unidades_ids || [],
         forcar_troca_senha: forcarTrocaSenha,

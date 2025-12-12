@@ -16,24 +16,18 @@ import { maskTelefone, unmaskTelefone, isValidTelefone } from '@/lib/utils/masks
 
 const perfilSchema = z.object({
   telefone: z
-    .preprocess(
+    .string()
+    .optional()
+    .refine(
       (val) => {
-        // Remove máscara para validação
-        if (!val || typeof val !== 'string' || val.trim() === '') return '';
-        return unmaskTelefone(val);
+        if (!val || val.trim() === '') return true; // Telefone é opcional
+        // Remove máscara e valida
+        const numbers = unmaskTelefone(val);
+        return isValidTelefone(numbers);
       },
-      z
-        .string()
-        .refine(
-          (val) => {
-            if (!val || val.trim() === '') return true; // Telefone é opcional
-            return isValidTelefone(val);
-          },
-          {
-            message: 'Telefone deve ter DDD + número completo. Formato: (11) 98765-4321 ou (11) 3456-7890',
-          }
-        )
-        .optional()
+      {
+        message: 'Telefone deve ter DDD + número completo. Formato: (11) 98765-4321 ou (11) 3456-7890',
+      }
     ),
 });
 
@@ -102,11 +96,13 @@ export function PerfilForm({ usuario }: PerfilFormProps) {
     setSuccess(false);
 
     try {
-      // O telefone já vem sem máscara do schema (transform)
+      // Remove máscara do telefone antes de enviar
+      const telefoneSemMascara = data.telefone ? unmaskTelefone(data.telefone) : '';
+      
       const response = await fetch('/api/perfil', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ telefone: data.telefone || '' }),
+        body: JSON.stringify({ telefone: telefoneSemMascara }),
       });
 
       const result = await response.json();
