@@ -17,6 +17,7 @@ const criarVotacaoSchema = z.object({
   tipo: z.enum(['escolha_unica', 'multipla_escolha']),
   modo_auditoria: z.enum(['anonimo', 'rastreado']),
   mostrar_parcial: z.boolean().optional().default(false),
+  permitir_alterar_voto: z.boolean().optional().default(true),
   // Aceita formato datetime-local (YYYY-MM-DDTHH:mm) ou datetime ISO completo
   data_inicio: z.string().refine(
     (val) => {
@@ -66,6 +67,7 @@ export async function GET() {
       data_fim: v.dataFim,
       modo_auditoria: v.modoAuditoria,
       mostrar_parcial: v.mostrarParcial,
+      permitir_alterar_voto: v.permitirAlterarVoto,
       created_at: v.createdAt,
       updated_at: v.updatedAt,
       criado_por_user: v.criadoPorUser,
@@ -111,6 +113,7 @@ export async function POST(request: NextRequest) {
         tipo: dados.tipo,
         modoAuditoria: dados.modo_auditoria,
         mostrarParcial: dados.mostrar_parcial ?? false,
+        permitirAlterarVoto: dados.permitir_alterar_voto ?? true,
         criadoPor: session.user!.id,
         dataInicio: new Date(dados.data_inicio),
         dataFim: new Date(dados.data_fim),
@@ -135,6 +138,7 @@ export async function POST(request: NextRequest) {
       data_fim: votacao.dataFim,
       modo_auditoria: votacao.modoAuditoria,
       mostrar_parcial: votacao.mostrarParcial,
+      permitir_alterar_voto: votacao.permitirAlterarVoto,
       created_at: votacao.createdAt,
       updated_at: votacao.updatedAt,
     };

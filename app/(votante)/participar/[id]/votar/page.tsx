@@ -136,23 +136,68 @@ export default async function VotarPage({
       )}
       <div className="mt-8">
         {jaVotou && (
-          <div className="mb-4 rounded-md bg-blue-50 p-4">
-            <p className="text-sm font-medium text-blue-800">
-              ℹ️ Você já votou nesta votação. Você pode alterar seu voto até o fim do período.
+          <div className={`mb-4 rounded-md p-4 ${
+            votacao.permitir_alterar_voto 
+              ? 'bg-blue-50' 
+              : 'bg-green-50'
+          }`}>
+            <p className={`text-sm font-medium ${
+              votacao.permitir_alterar_voto 
+                ? 'text-blue-800' 
+                : 'text-green-800'
+            }`}>
+              {votacao.permitir_alterar_voto 
+                ? 'ℹ️ Você já votou nesta votação. Você pode alterar seu voto até o fim do período.'
+                : '✓ Você já votou nesta votação. A alteração de voto não é permitida nesta votação.'
+              }
             </p>
             {votoUnidade && (
-              <p className="mt-1 text-xs text-blue-700">
-                Último voto registrado em {new Date(votoUnidade.created_at).toLocaleString('pt-BR')}.
+              <p className={`mt-1 text-xs ${
+                votacao.permitir_alterar_voto 
+                  ? 'text-blue-700' 
+                  : 'text-green-700'
+              }`}>
+                Voto registrado em {new Date(votoUnidade.created_at).toLocaleString('pt-BR')}.
               </p>
             )}
           </div>
         )}
-        <VotingCard 
-          votacao={votacao} 
-          opcoes={opcoes} 
-          opcoesVotadas={opcoesVotadas}
-          jaVotou={jaVotou}
-        />
+        {jaVotou && !votacao.permitir_alterar_voto ? (
+          <div className="space-y-2">
+            <h2 className="text-lg font-semibold">Opções:</h2>
+            {opcoes.map((opcao) => {
+              const foiVotada = opcoesVotadas.includes(opcao.id);
+              return (
+                <div
+                  key={opcao.id}
+                  className={`rounded-md border-2 p-4 ${
+                    foiVotada
+                      ? 'border-green-500 bg-green-50'
+                      : 'border-gray-200 bg-white'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <p className={foiVotada ? 'font-medium text-green-900' : 'text-gray-900'}>
+                      {opcao.texto}
+                    </p>
+                    {foiVotada && (
+                      <span className="ml-2 inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800">
+                        ✓ Sua escolha
+                      </span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <VotingCard 
+            votacao={votacao} 
+            opcoes={opcoes} 
+            opcoesVotadas={opcoesVotadas}
+            jaVotou={jaVotou && votacao.permitir_alterar_voto}
+          />
+        )}
         {votacao.mostrar_parcial && votacao.status === 'aberta' && (
           <ResultadoParcial votacaoId={votacao.id} />
         )}

@@ -224,6 +224,7 @@ export async function buscarVotacaoCompleta(id: string): Promise<{
     tipo: votacao.tipo,
     modo_auditoria: votacao.modoAuditoria,
     mostrar_parcial: votacao.mostrarParcial,
+    permitir_alterar_voto: votacao.permitirAlterarVoto,
     criado_por: votacao.criadoPor,
     data_inicio: votacao.dataInicio.toISOString(),
     data_fim: votacao.dataFim.toISOString(),
@@ -373,6 +374,11 @@ export async function registrarVoto(
     },
   });
 
+  // Se já votou e não permite alterar voto, lança erro
+  if (votoExistente && !votacao.permitirAlterarVoto) {
+    throw new Error('Esta unidade já votou nesta votação e a alteração de voto não é permitida');
+  }
+
   // Prepara dados do voto (para create ou update)
   let dadosVoto: Prisma.VotoCreateInput | Prisma.VotoUpdateInput;
 
@@ -507,6 +513,7 @@ export async function calcularResultado(
     tipo: votacao.tipo,
     modo_auditoria: votacao.modoAuditoria,
     mostrar_parcial: votacao.mostrarParcial,
+    permitir_alterar_voto: votacao.permitirAlterarVoto,
     criado_por: votacao.criadoPor,
     data_inicio: votacao.dataInicio.toISOString(),
     data_fim: votacao.dataFim.toISOString(),

@@ -15,6 +15,7 @@ const atualizarVotacaoSchema = z.object({
   titulo: z.string().min(1).optional(),
   descricao: z.string().optional(),
   mostrar_parcial: z.boolean().optional(),
+  permitir_alterar_voto: z.boolean().optional(),
   // Aceita formato datetime-local (YYYY-MM-DDTHH:mm) ou datetime ISO completo
   data_inicio: z.string().refine(
     (val) => {
@@ -97,6 +98,7 @@ export async function PUT(
         titulo: dados.titulo,
         descricao: dados.descricao,
         mostrarParcial: dados.mostrar_parcial,
+        permitirAlterarVoto: dados.permitir_alterar_voto,
         dataInicio: dados.data_inicio ? new Date(dados.data_inicio) : undefined,
         dataFim: dados.data_fim ? new Date(dados.data_fim) : undefined,
         status: dados.status,
@@ -111,6 +113,7 @@ export async function PUT(
       data_fim: votacao.dataFim,
       modo_auditoria: votacao.modoAuditoria,
       mostrar_parcial: votacao.mostrarParcial,
+      permitir_alterar_voto: votacao.permitirAlterarVoto,
       created_at: votacao.createdAt,
       updated_at: votacao.updatedAt,
     };

@@ -78,6 +78,7 @@ export interface Votacao {
   tipo: TipoVotacao;
   modo_auditoria: ModoAuditoria;
   mostrar_parcial: boolean; // Se true, mostra resultados parciais durante a votação
+  permitir_alterar_voto: boolean; // Se true, permite alterar o voto até o fim da votação
   criado_por: string; // user_id
   data_inicio: string;
   data_fim: string;
@@ -150,6 +151,7 @@ export interface CriarVotacaoDTO {
   tipo: TipoVotacao;
   modo_auditoria: ModoAuditoria;
   mostrar_parcial?: boolean; // Se true, mostra resultados parciais durante a votação
+  permitir_alterar_voto?: boolean; // Se true, permite alterar o voto até o fim da votação
   data_inicio: string;
   data_fim: string;
   opcoes: string[]; // textos das opções

@@ -16,6 +16,7 @@ const votingSchema = z.object({
   tipo: z.enum(['escolha_unica', 'multipla_escolha']),
   modo_auditoria: z.enum(['anonimo', 'rastreado']),
   mostrar_parcial: z.boolean(),
+  permitir_alterar_voto: z.boolean(),
   data_inicio: z.string().min(1, 'Data de início é obrigatória'),
   data_fim: z.string().min(1, 'Data de término é obrigatória'),
   opcoes: z.array(z.string().min(1, 'Opção não pode ser vazia')).min(2, 'Deve ter pelo menos 2 opções'),
@@ -50,6 +51,7 @@ export function VotingForm({ votacaoId, initialData }: VotingFormProps) {
       tipo: initialData?.tipo || 'escolha_unica',
       modo_auditoria: initialData?.modo_auditoria || 'anonimo',
       mostrar_parcial: initialData?.mostrar_parcial ?? false,
+      permitir_alterar_voto: initialData?.permitir_alterar_voto ?? true,
       data_inicio: initialData?.data_inicio || '',
       data_fim: initialData?.data_fim || '',
       opcoes: initialData?.opcoes || ['', ''],
@@ -197,6 +199,23 @@ export function VotingForm({ votacaoId, initialData }: VotingFormProps) {
         </div>
         <p className="mt-1 text-xs text-gray-500">
           Se marcado, os votantes poderão ver os resultados parciais enquanto a votação estiver aberta
+        </p>
+      </div>
+
+      <div>
+        <div className="flex items-center">
+          <input
+            {...register('permitir_alterar_voto')}
+            type="checkbox"
+            id="permitir_alterar_voto"
+            className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+          />
+          <label htmlFor="permitir_alterar_voto" className="ml-2 block text-sm text-gray-700">
+            Permitir alteração de voto até o fim da votação
+          </label>
+        </div>
+        <p className="mt-1 text-xs text-gray-500">
+          Se marcado, os votantes poderão alterar seu voto a qualquer momento enquanto a votação estiver aberta. Se desmarcado, cada unidade só poderá votar uma vez.
         </p>
       </div>
 
