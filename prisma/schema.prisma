@@ -18,6 +18,7 @@ model Unidade {
   vaga            Vaga?
   vagasAlugadas   Vaga[]           @relation("VagasAlugadas")
   veiculos        Veiculo[]
+  moradores       Morador[]
 
   @@map("unidades")
 }
@@ -184,4 +185,30 @@ enum TipoVeiculo {
   moto
 
   @@map("tipo_veiculo")
+}
+
+model Morador {
+  id             String         @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  unidadeId      String         @map("unidade_id") @db.Uuid
+  nome           String         @db.VarChar(255)
+  documento      String         @unique @db.VarChar(20)
+  grauParentesco GrauParentesco @map("grau_parentesco")
+  createdAt      DateTime?      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime?      @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  unidade        Unidade        @relation(fields: [unidadeId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([unidadeId], map: "idx_moradores_unidade_id")
+  @@index([documento], map: "idx_moradores_documento")
+  @@map("moradores")
+}
+
+enum GrauParentesco {
+  Proprietario
+  Conjuge
+  Filho
+  Pai
+  Mae
+  Outro
+
+  @@map("grau_parentesco")
 }

@@ -80,6 +80,9 @@ async function buscarUnidade(id: string) {
           },
         },
       },
+      moradores: {
+        orderBy: { nome: 'asc' },
+      },
     },
   });
 
@@ -133,6 +136,12 @@ async function buscarUnidade(id: string) {
       marca: v.marca,
       tipo: v.tipo,
       vaga_id: v.vagaId,
+    })),
+    moradores: unidade.moradores.map((m) => ({
+      id: m.id,
+      nome: m.nome,
+      documento: m.documento,
+      grau_parentesco: m.grauParentesco,
     })),
   };
 }
