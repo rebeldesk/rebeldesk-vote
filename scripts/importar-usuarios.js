@@ -1,7 +1,9 @@
 /**
  * Script para importar usuários em lote.
  * 
- * Suporta usuários com múltiplas unidades criando uma conta para cada unidade.
+ * Agrupa usuários por email e vincula todas as unidades ao mesmo usuário.
+ * Se um usuário aparece múltiplas vezes com o mesmo email, cria apenas uma conta
+ * e vincula todas as unidades através da tabela usuario_unidades.
  * 
  * Uso:
  *   node scripts/importar-usuarios.js arquivo.csv
@@ -9,12 +11,13 @@
  * Formato do CSV:
  *   nome,email,telefone,unidade
  *   João Silva,joao@email.com,(11) 98765-4321,101
+ *   João Silva,joao@email.com,,202  (mesmo usuário, segunda unidade)
  *   Maria Santos,maria@email.com,,202
  * 
  * Formato do JSON:
  *   [
  *     { "nome": "João Silva", "email": "joao@email.com", "telefone": "(11) 98765-4321", "unidade": "101" },
- *     { "nome": "Maria Santos", "email": "maria@email.com", "unidade": "202" }
+ *     { "nome": "João Silva", "email": "joao@email.com", "unidade": "202" }
  *   ]
  * 
  * Requer: DATABASE_URL no .env.local
@@ -92,6 +95,16 @@ function parseCSV(content) {
       headers.forEach((header, index) => {
         obj[header] = (values[index] || '').replace(/^"|"$/g, '');
       });
+      
+      // Normaliza o campo de unidade: usa 'unidade' se existir, senão tenta 'numero'
+      if (!obj.unidade && obj.numero) {
+        obj.unidade = obj.numero;
+      }
+      // Se tem bloco e numero, pode criar unidade composta
+      if (obj.bloco && obj.numero && !obj.unidade) {
+        obj.unidade = `${obj.bloco}-${obj.numero}`;
+      }
+      
       dados.push(obj);
     }
   }
@@ -123,77 +136,69 @@ async function buscarOuCriarUnidade(client, numero) {
 }
 
 /**
- * Cria um usuário
+ * Busca ou cria um usuário por email
  */
-async function criarUsuario(client, dados, unidadeId, emailsUsados) {
+async function buscarOuCriarUsuario(client, email, nome, telefone) {
+  const emailNormalizado = email.toLowerCase().trim();
+  
+  // Verifica se o usuário já existe
+  const usuarioExistente = await client.query(
+    'SELECT id FROM users WHERE email = $1',
+    [emailNormalizado]
+  );
+
+  if (usuarioExistente.rows.length > 0) {
+    return usuarioExistente.rows[0].id;
+  }
+
+  // Cria novo usuário
   const senha = gerarSenha();
   const salt = await bcrypt.genSalt(10);
   const passwordHash = await bcrypt.hash(senha, salt);
 
-  // Gera email único de forma mais limpa
-  let email = dados.email.toLowerCase().trim();
-  const [emailLocal, emailDomain] = email.split('@');
-  let emailFinal = email;
-
-  // Verifica se o email original já foi usado nesta importação
-  const emailJaUsado = emailsUsados.has(email);
-  
-  // Verifica se o email já existe no banco
-  let emailExisteNoBanco = false;
-  const checkOriginal = await client.query(
-    'SELECT id FROM users WHERE email = $1',
-    [email]
-  );
-  emailExisteNoBanco = checkOriginal.rows.length > 0;
-
-  // Se o email já existe (no banco ou nesta importação), adiciona sufixo com unidade
-  if (emailJaUsado || emailExisteNoBanco) {
-    const sufixoUnidade = dados.unidade.replace(/[^0-9]/g, ''); // Remove caracteres não numéricos
-    
-    // Usa formato mais limpo: nome.unidade@dominio.com
-    emailFinal = `${emailLocal}.${sufixoUnidade}@${emailDomain}`;
-    
-    // Verifica se esse email já existe
-    let tentativas = 0;
-    while (true) {
-      const checkResult = await client.query(
-        'SELECT id FROM users WHERE email = $1',
-        [emailFinal]
-      );
-
-      if (checkResult.rows.length === 0 && !emailsUsados.has(emailFinal)) {
-        break; // Email disponível
-      }
-
-      // Email já existe, adiciona contador
-      tentativas++;
-      emailFinal = `${emailLocal}.${sufixoUnidade}_${tentativas}@${emailDomain}`;
-    }
-  }
-
-  // Marca o email como usado
-  emailsUsados.set(emailFinal, true);
-
-  // Cria usuário
   const result = await client.query(
-    `INSERT INTO users (email, password_hash, nome, telefone, perfil, unidade_id)
-     VALUES ($1, $2, $3, $4, $5, $6)
+    `INSERT INTO users (email, password_hash, nome, telefone, perfil)
+     VALUES ($1, $2, $3, $4, $5)
      RETURNING id, email, nome`,
     [
-      emailFinal,
+      emailNormalizado,
       passwordHash,
-      dados.nome.trim(),
-      dados.telefone || null,
+      nome.trim(),
+      telefone || null,
       'morador',
-      unidadeId,
     ]
   );
 
   return {
-    ...result.rows[0],
+    usuarioId: result.rows[0].id,
+    email: result.rows[0].email,
+    nome: result.rows[0].nome,
     senha,
-    unidade: dados.unidade,
+    criado: true,
   };
+}
+
+/**
+ * Vincula uma unidade a um usuário
+ */
+async function vincularUnidadeAoUsuario(client, usuarioId, unidadeId) {
+  // Verifica se o vínculo já existe
+  const vinculoExistente = await client.query(
+    'SELECT id FROM usuario_unidades WHERE usuario_id = $1 AND unidade_id = $2',
+    [usuarioId, unidadeId]
+  );
+
+  if (vinculoExistente.rows.length > 0) {
+    return false; // Já existe
+  }
+
+  // Cria o vínculo
+  await client.query(
+    'INSERT INTO usuario_unidades (usuario_id, unidade_id) VALUES ($1, $2)',
+    [usuarioId, unidadeId]
+  );
+
+  return true; // Criado
 }
 
 async function importarUsuarios() {
@@ -242,46 +247,122 @@ async function importarUsuarios() {
 
     console.log(`📊 Encontrados ${dados.length} registros para processar\n`);
 
+    // Agrupa registros por email
+    const usuariosPorEmail = new Map();
+    
+    for (let i = 0; i < dados.length; i++) {
+      const registro = dados[i];
+      
+      // Valida campos obrigatórios
+      if (!registro.nome || !registro.email || !registro.unidade) {
+        continue;
+      }
+
+      const email = registro.email.toLowerCase().trim();
+      
+      if (!usuariosPorEmail.has(email)) {
+        usuariosPorEmail.set(email, {
+          nome: registro.nome.trim(),
+          email: email,
+          telefone: registro.telefone || null, // Usa o primeiro telefone encontrado
+          unidades: [],
+        });
+      }
+      
+      // Adiciona unidade à lista (evita duplicatas)
+      const usuario = usuariosPorEmail.get(email);
+      if (!usuario.unidades.includes(registro.unidade)) {
+        usuario.unidades.push(registro.unidade);
+      }
+      
+      // Se o telefone atual está vazio e o novo tem valor, atualiza
+      if (!usuario.telefone && registro.telefone) {
+        usuario.telefone = registro.telefone;
+      }
+    }
+
+    console.log(`📊 Agrupados em ${usuariosPorEmail.size} usuários únicos\n`);
+
     const resultados = {
       sucesso: [],
       erros: [],
       unidadesCriadas: new Set(),
-      emailsUsados: new Map(), // Rastreia emails já usados durante a importação
+      usuariosCriados: new Set(),
+      unidadesVinculadas: 0,
     };
 
-    // Processa cada registro
-    for (let i = 0; i < dados.length; i++) {
-      const registro = dados[i];
-      
+    // Processa cada usuário único
+    let processados = 0;
+    for (const [email, dadosUsuario] of usuariosPorEmail.entries()) {
       try {
-        // Valida campos obrigatórios
-        if (!registro.nome || !registro.email || !registro.unidade) {
-          resultados.erros.push({
-            linha: i + 2,
-            registro,
-            erro: 'Campos obrigatórios faltando: nome, email ou unidade',
-          });
-          continue;
+        processados++;
+        
+        // Busca ou cria o usuário
+        const resultadoUsuario = await buscarOuCriarUsuario(
+          client,
+          dadosUsuario.email,
+          dadosUsuario.nome,
+          dadosUsuario.telefone
+        );
+
+        let usuarioId;
+        let senha = null;
+        let usuarioCriado = false;
+
+        if (typeof resultadoUsuario === 'string') {
+          // Usuário já existia
+          usuarioId = resultadoUsuario;
+        } else {
+          // Usuário foi criado
+          usuarioId = resultadoUsuario.usuarioId;
+          senha = resultadoUsuario.senha;
+          usuarioCriado = true;
+          resultados.usuariosCriados.add(email);
         }
 
-        // Busca ou cria unidade
-        const unidadeId = await buscarOuCriarUnidade(client, registro.unidade);
-        if (!resultados.unidadesCriadas.has(registro.unidade)) {
-          resultados.unidadesCriadas.add(registro.unidade);
+        // Processa cada unidade do usuário
+        const unidadesVinculadas = [];
+        for (const numeroUnidade of dadosUsuario.unidades) {
+          try {
+            // Busca ou cria unidade
+            const unidadeId = await buscarOuCriarUnidade(client, numeroUnidade);
+            if (!resultados.unidadesCriadas.has(numeroUnidade)) {
+              resultados.unidadesCriadas.add(numeroUnidade);
+            }
+
+            // Vincula unidade ao usuário
+            const vinculado = await vincularUnidadeAoUsuario(client, usuarioId, unidadeId);
+            if (vinculado) {
+              unidadesVinculadas.push(numeroUnidade);
+              resultados.unidadesVinculadas++;
+            }
+          } catch (error) {
+            console.error(`  ⚠️  Erro ao vincular unidade ${numeroUnidade}: ${error.message}`);
+          }
         }
 
-        // Cria usuário
-        const usuario = await criarUsuario(client, registro, unidadeId, resultados.emailsUsados);
-        resultados.sucesso.push(usuario);
+        resultados.sucesso.push({
+          nome: dadosUsuario.nome,
+          email: dadosUsuario.email,
+          unidades: dadosUsuario.unidades,
+          unidadesVinculadas: unidadesVinculadas,
+          senha: senha,
+          criado: usuarioCriado,
+        });
 
-        console.log(`✓ ${i + 1}/${dados.length} - ${usuario.nome} (${usuario.email}) → Unidade ${registro.unidade}`);
+        const status = usuarioCriado ? 'CRIADO' : 'EXISTENTE';
+        console.log(`✓ ${processados}/${usuariosPorEmail.size} - ${dadosUsuario.nome} (${dadosUsuario.email}) [${status}]`);
+        console.log(`  → ${dadosUsuario.unidades.length} unidade(s): ${dadosUsuario.unidades.join(', ')}`);
+        if (unidadesVinculadas.length < dadosUsuario.unidades.length) {
+          console.log(`  → ${unidadesVinculadas.length} nova(s) vinculação(ões)`);
+        }
       } catch (error) {
         resultados.erros.push({
-          linha: i + 2,
-          registro,
+          email,
+          dadosUsuario,
           erro: error.message,
         });
-        console.error(`✗ ${i + 1}/${dados.length} - Erro: ${error.message}`);
+        console.error(`✗ ${processados}/${usuariosPorEmail.size} - Erro: ${error.message}`);
       }
     }
 
@@ -289,18 +370,28 @@ async function importarUsuarios() {
     console.log('\n' + '='.repeat(60));
     console.log('📊 RESUMO DA IMPORTAÇÃO');
     console.log('='.repeat(60));
-    console.log(`✅ Usuários criados: ${resultados.sucesso.length}`);
-    console.log(`❌ Erros: ${resultados.erros.length}`);
+    console.log(`📝 Registros processados: ${dados.length}`);
+    console.log(`👥 Usuários únicos: ${usuariosPorEmail.size}`);
+    console.log(`✅ Usuários criados: ${resultados.usuariosCriados.size}`);
+    console.log(`🔄 Usuários existentes: ${resultados.sucesso.length - resultados.usuariosCriados.size}`);
     console.log(`🏠 Unidades processadas: ${resultados.unidadesCriadas.size}`);
+    console.log(`🔗 Vínculos criados: ${resultados.unidadesVinculadas}`);
+    console.log(`❌ Erros: ${resultados.erros.length}`);
 
     if (resultados.sucesso.length > 0) {
-      console.log('\n📋 USUÁRIOS CRIADOS:');
+      console.log('\n📋 USUÁRIOS PROCESSADOS:');
       console.log('-'.repeat(60));
       resultados.sucesso.forEach((u, idx) => {
         console.log(`${idx + 1}. ${u.nome}`);
         console.log(`   Email: ${u.email}`);
-        console.log(`   Unidade: ${u.unidade}`);
-        console.log(`   Senha: ${u.senha}`);
+        console.log(`   Status: ${u.criado ? 'CRIADO' : 'JÁ EXISTIA'}`);
+        console.log(`   Unidades: ${u.unidades.join(', ')}`);
+        if (u.senha) {
+          console.log(`   Senha: ${u.senha}`);
+        }
+        if (u.unidadesVinculadas.length < u.unidades.length) {
+          console.log(`   ⚠️  ${u.unidades.length - u.unidadesVinculadas.length} unidade(s) já estava(m) vinculada(s)`);
+        }
         console.log('');
       });
     }
@@ -325,8 +416,10 @@ async function importarUsuarios() {
       usuarios: resultados.sucesso.map(u => ({
         nome: u.nome,
         email: u.email,
-        unidade: u.unidade,
+        unidades: u.unidades,
+        unidadesVinculadas: u.unidadesVinculadas,
         senha: u.senha,
+        criado: u.criado,
       })),
       erros_detalhados: resultados.erros,
     };

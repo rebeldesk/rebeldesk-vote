@@ -4,10 +4,11 @@ Este script permite importar usuários em lote a partir de um arquivo CSV ou JSO
 
 ## Características
 
-- ✅ Suporta usuários com múltiplas unidades (cria uma conta para cada unidade)
+- ✅ Agrupa usuários por email (cria apenas uma conta por email)
+- ✅ Vincula múltiplas unidades ao mesmo usuário automaticamente
 - ✅ Cria unidades automaticamente se não existirem
-- ✅ Gera senhas aleatórias seguras para cada usuário
-- ✅ Gera emails únicos para usuários com múltiplas unidades (adiciona sufixo com número da unidade)
+- ✅ Gera senhas aleatórias seguras para novos usuários
+- ✅ Detecta usuários já existentes e apenas vincula novas unidades
 - ✅ Gera relatório completo da importação
 
 ## Como Usar
@@ -75,11 +76,9 @@ O script irá:
 
 Quando um usuário aparece com o mesmo email em múltiplas unidades, o script:
 
-1. Cria uma conta separada para cada unidade
-2. Gera um email único adicionando o número da unidade:
-   - Email original: `alan@gmail.com`
-   - Unidade 1401: `alan+1401@gmail.com`
-   - Unidade 1402: `alan+1402@gmail.com`
+1. **Agrupa por email**: Identifica todos os registros com o mesmo email
+2. **Cria uma única conta**: Cria apenas um usuário com o email original
+3. **Vincula todas as unidades**: Conecta todas as unidades ao mesmo usuário através da tabela `usuario_unidades`
 
 **Exemplo:**
 ```csv
@@ -89,8 +88,14 @@ ALAN SANTOS,alan@gmail.com,,1402
 ```
 
 Resultado:
-- `alan+1401@gmail.com` → Unidade 1401
-- `alan+1402@gmail.com` → Unidade 1402
+- **Uma conta criada**: `alan@gmail.com`
+- **Duas unidades vinculadas**: 1401 e 1402
+- O usuário pode escolher qual unidade usar ao votar
+
+**Vantagens:**
+- ✅ Email limpo (sem sufixos)
+- ✅ Uma senha para todas as unidades
+- ✅ Controle de voto por unidade mantido
 
 ## Exemplo de Saída
 
@@ -100,24 +105,40 @@ Resultado:
 📄 Lendo arquivo...
 📊 Encontrados 8 registros para processar
 
-✓ 1/8 - MARCIA SILVA (marcia+904@gmail.com) → Unidade 904
-✓ 2/8 - ALAN SANTOS (alan+1401@gmail.com) → Unidade 1401
-✓ 3/8 - ALAN SANTOS (alan+1402@gmail.com) → Unidade 1402
+📊 Agrupados em 6 usuários únicos
+
+✓ 1/6 - MARCIA SILVA (marcia@gmail.com) [CRIADO]
+  → 1 unidade(s): 904
+✓ 2/6 - ALAN SANTOS (alan@gmail.com) [CRIADO]
+  → 2 unidade(s): 1401, 1402
+✓ 3/6 - FATIMA SOUZA (fatima@gmail.com) [CRIADO]
+  → 2 unidade(s): 1203, 1204
 ...
 
 ============================================================
 📊 RESUMO DA IMPORTAÇÃO
 ============================================================
-✅ Usuários criados: 8
-❌ Erros: 0
+📝 Registros processados: 8
+👥 Usuários únicos: 6
+✅ Usuários criados: 6
+🔄 Usuários existentes: 0
 🏠 Unidades processadas: 8
+🔗 Vínculos criados: 8
+❌ Erros: 0
 
-📋 USUÁRIOS CRIADOS:
+📋 USUÁRIOS PROCESSADOS:
 ------------------------------------------------------------
 1. MARCIA SILVA
-   Email: marcia+904@gmail.com
-   Unidade: 904
+   Email: marcia@gmail.com
+   Status: CRIADO
+   Unidades: 904
    Senha: IOPlrzLO
+
+2. ALAN SANTOS
+   Email: alan@gmail.com
+   Status: CRIADO
+   Unidades: 1401, 1402
+   Senha: NkhG4gMd
 ...
 ```
 
@@ -131,7 +152,7 @@ Resultado:
 
 1. **Senhas**: Todas as senhas são geradas aleatoriamente. Salve o relatório para distribuir as senhas aos usuários.
 
-2. **Emails únicos**: O sistema exige emails únicos. Usuários com múltiplas unidades receberão emails modificados.
+2. **Emails únicos**: O sistema exige emails únicos. Usuários com múltiplas unidades são agrupados e todas as unidades são vinculadas à mesma conta.
 
 3. **Unidades**: As unidades são criadas automaticamente se não existirem.
 

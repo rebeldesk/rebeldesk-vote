@@ -59,7 +59,7 @@ export function UserForm({ usuarioId, initialData }: UserFormProps) {
       perfil: initialData?.perfil || 'morador',
       unidades_ids: (initialData as any)?.unidades?.map((u: any) => u.id) || 
                     (initialData as any)?.unidades_ids || 
-                    (initialData?.unidade_id ? [initialData.unidade_id] : []),
+                    ((initialData as any)?.unidade_id ? [(initialData as any).unidade_id] : []),
     },
   });
 
