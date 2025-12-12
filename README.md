@@ -74,8 +74,10 @@ Preencha o `.env.local` com:
 - `NEXTAUTH_URL`: URL da aplicação (http://localhost:3000 para dev)
 - `NEXTAUTH_SECRET`: Gere com `openssl rand -base64 32`
 - `DATABASE_URL`: Connection string do PostgreSQL (Supabase)
-  - Formato: `postgresql://postgres:[PASSWORD]@[HOST]:5432/postgres`
-  - Encontre em: Supabase Dashboard > Settings > Database > Connection string > URI
+  - **Recomendado (Connection Pooling)**: `postgresql://postgres:[PASSWORD]@[HOST]:6543/postgres?pgbouncer=true`
+  - **Alternativa (Direct Connection)**: `postgresql://postgres:[PASSWORD]@[HOST]:5432/postgres`
+  - Encontre em: Supabase Dashboard > Settings > Database > Connection string
+  - **IMPORTANTE**: Use connection pooling (porta 6543) em produção para melhor performance e gerenciamento de conexões
 - `NEXT_PUBLIC_SUPABASE_URL`: URL do seu projeto Supabase (opcional, para futuras integrações)
 - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY`: Publishable key do Supabase (opcional)
 - `SUPABASE_SERVICE_ROLE_KEY`: Service role key do Supabase (opcional)
