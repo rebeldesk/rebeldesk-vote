@@ -22,21 +22,24 @@ const userSchema = z.object({
   senha: z.string().min(6, 'Senha deve ter no mínimo 6 caracteres').optional().or(z.literal('')),
   nome: z.string().min(1, 'Nome é obrigatório'),
   telefone: z
-    .string()
-    .optional()
-    .transform((val) => {
-      // Remove máscara para validação
-      if (!val || val.trim() === '') return '';
-      return unmaskTelefone(val);
-    })
-    .refine(
+    .preprocess(
       (val) => {
-        if (!val || val.trim() === '') return true; // Telefone é opcional
-        return isValidTelefone(val);
+        // Remove máscara para validação
+        if (!val || typeof val !== 'string' || val.trim() === '') return '';
+        return unmaskTelefone(val);
       },
-      {
-        message: 'Telefone deve ter DDD + número completo. Formato: (11) 98765-4321 ou (11) 3456-7890',
-      }
+      z
+        .string()
+        .refine(
+          (val) => {
+            if (!val || val.trim() === '') return true; // Telefone é opcional
+            return isValidTelefone(val);
+          },
+          {
+            message: 'Telefone deve ter DDD + número completo. Formato: (11) 98765-4321 ou (11) 3456-7890',
+          }
+        )
+        .optional()
     ),
   perfil: z.enum(['staff', 'conselho', 'auditor', 'morador']),
   // Array de IDs de unidades

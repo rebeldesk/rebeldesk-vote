@@ -16,21 +16,24 @@ import { maskTelefone, unmaskTelefone, isValidTelefone } from '@/lib/utils/masks
 
 const perfilSchema = z.object({
   telefone: z
-    .string()
-    .optional()
-    .transform((val) => {
-      // Remove máscara para validação
-      if (!val || val.trim() === '') return '';
-      return unmaskTelefone(val);
-    })
-    .refine(
+    .preprocess(
       (val) => {
-        if (!val || val.trim() === '') return true; // Telefone é opcional
-        return isValidTelefone(val);
+        // Remove máscara para validação
+        if (!val || typeof val !== 'string' || val.trim() === '') return '';
+        return unmaskTelefone(val);
       },
-      {
-        message: 'Telefone deve ter DDD + número completo. Formato: (11) 98765-4321 ou (11) 3456-7890',
-      }
+      z
+        .string()
+        .refine(
+          (val) => {
+            if (!val || val.trim() === '') return true; // Telefone é opcional
+            return isValidTelefone(val);
+          },
+          {
+            message: 'Telefone deve ter DDD + número completo. Formato: (11) 98765-4321 ou (11) 3456-7890',
+          }
+        )
+        .optional()
     ),
 });
 
