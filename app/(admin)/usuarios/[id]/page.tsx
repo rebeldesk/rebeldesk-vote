@@ -28,7 +28,7 @@ async function buscarUsuario(id: string) {
   const { passwordHash, unidadeId, createdAt, updatedAt, ...rest } = usuario;
   return {
     ...rest,
-    unidade_id: unidadeId,
+    unidade_id: unidadeId || null,
     created_at: createdAt?.toISOString() || new Date().toISOString(),
     updated_at: updatedAt?.toISOString() || new Date().toISOString(),
   };
@@ -52,6 +52,9 @@ export default async function EditarUsuarioPage({
     redirect('/usuarios');
   }
 
+  // Garante que unidade_id seja string ou null (não undefined)
+  const unidadeId = usuario.unidade_id ? String(usuario.unidade_id) : null;
+
   return (
     <div>
       <h1 className="text-3xl font-bold text-gray-900">Editar Usuário</h1>
@@ -63,7 +66,7 @@ export default async function EditarUsuarioPage({
             nome: usuario.nome,
             telefone: usuario.telefone || '',
             perfil: usuario.perfil,
-            unidade_id: usuario.unidade_id || null,
+            unidade_id: unidadeId,
           }}
         />
       </div>

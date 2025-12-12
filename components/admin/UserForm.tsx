@@ -62,14 +62,27 @@ export function UserForm({ usuarioId, initialData }: UserFormProps) {
   });
 
   const senhaAtual = watch('senha');
+  const unidadeIdAtual = watch('unidade_id');
 
   useEffect(() => {
     // Busca unidades
     fetch('/api/unidades')
       .then((res) => res.json())
-      .then((data) => setUnidades(data))
+      .then((data) => {
+        setUnidades(data);
+        // Após carregar unidades, seta o valor da unidade se houver initialData
+        // e se ainda não foi setado
+        if (initialData?.unidade_id && !unidadeIdAtual) {
+          setValue('unidade_id', initialData.unidade_id);
+        } else if (
+          (initialData?.unidade_id === null || initialData?.unidade_id === undefined) &&
+          unidadeIdAtual === undefined
+        ) {
+          setValue('unidade_id', null);
+        }
+      })
       .catch(() => setError('Erro ao carregar unidades'));
-  }, []);
+  }, [initialData, setValue, unidadeIdAtual]);
 
   /**
    * Gera uma senha aleatória segura.
@@ -269,6 +282,11 @@ export function UserForm({ usuarioId, initialData }: UserFormProps) {
           {...register('unidade_id')}
           id="unidade_id"
           className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
+          value={unidadeIdAtual || ''}
+          onChange={(e) => {
+            const value = e.target.value === '' ? null : e.target.value;
+            setValue('unidade_id', value as any);
+          }}
         >
           <option value="">Nenhuma</option>
           {unidades.map((unidade) => (
