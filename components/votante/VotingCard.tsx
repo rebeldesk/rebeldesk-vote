@@ -62,8 +62,9 @@ export function VotingCard({ votacao, opcoes }: VotingCardProps) {
         throw new Error(errorData.error || 'Erro ao registrar voto');
       }
 
-      router.push('/votacoes');
-      router.refresh();
+      // Redireciona para a página de participação após votar com sucesso
+      // Usa window.location para garantir navegação completa e evitar loops
+      window.location.href = '/participar';
     } catch (err: any) {
       setError(err.message || 'Erro ao registrar voto');
       setLoading(false);

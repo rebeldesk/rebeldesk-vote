@@ -129,7 +129,7 @@ export default async function VotacoesDisponiveisPage() {
             <div className="bg-gray-50 px-6 py-3">
               {votacao.status === 'aberta' && unidadeId && !votacao.jaVotou ? (
                 <Link
-                  href={`/votacoes/${votacao.id}/votar`}
+                  href={`/participar/${votacao.id}/votar`}
                   className="block w-full rounded-md bg-blue-600 px-4 py-2 text-center text-sm font-medium text-white hover:bg-blue-700"
                 >
                   Votar Agora
@@ -140,7 +140,7 @@ export default async function VotacoesDisponiveisPage() {
                 </p>
               ) : (
                 <Link
-                  href={`/votacoes/${votacao.id}/votar`}
+                  href={`/participar/${votacao.id}/votar`}
                   className="block w-full rounded-md bg-gray-600 px-4 py-2 text-center text-sm font-medium text-white hover:bg-gray-700"
                 >
                   Ver Detalhes

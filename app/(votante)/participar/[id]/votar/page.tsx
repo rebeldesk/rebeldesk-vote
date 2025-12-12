@@ -6,7 +6,7 @@
 
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
-import { buscarVotacaoCompleta, unidadeJaVotou } from '@/lib/db';
+import { buscarVotacaoCompleta, unidadeJaVotou, buscarVotoUnidade } from '@/lib/db';
 import { VotingCard } from '@/components/votante/VotingCard';
 
 export default async function VotarPage({
@@ -42,6 +42,17 @@ export default async function VotarPage({
   }
 
   const jaVotou = await unidadeJaVotou(votacao.id, unidadeId);
+  const votoUnidade = jaVotou ? await buscarVotoUnidade(votacao.id, unidadeId) : null;
+
+  // Determina quais opções foram votadas
+  const opcoesVotadas: string[] = [];
+  if (votoUnidade) {
+    if (votacao.tipo === 'escolha_unica' && votoUnidade.opcao_id) {
+      opcoesVotadas.push(votoUnidade.opcao_id);
+    } else if (votacao.tipo === 'multipla_escolha' && votoUnidade.opcoes_ids) {
+      opcoesVotadas.push(...votoUnidade.opcoes_ids);
+    }
+  }
 
   // Se já votou ou votação encerrada, apenas mostra detalhes
   if (jaVotou || votacao.status !== 'aberta') {
@@ -54,9 +65,14 @@ export default async function VotarPage({
         <div className="mt-8">
           {jaVotou && (
             <div className="mb-4 rounded-md bg-green-50 p-4">
-              <p className="text-sm text-green-800">
+              <p className="text-sm font-medium text-green-800">
                 ✓ Você já votou nesta votação.
               </p>
+              {votoUnidade && (
+                <p className="mt-2 text-sm text-green-700">
+                  Seu voto foi registrado em {new Date(votoUnidade.created_at).toLocaleString('pt-BR')}.
+                </p>
+              )}
             </div>
           )}
           {votacao.status !== 'aberta' && (
@@ -68,14 +84,30 @@ export default async function VotarPage({
           )}
           <div className="space-y-2">
             <h2 className="text-lg font-semibold">Opções:</h2>
-            {opcoes.map((opcao) => (
-              <div
-                key={opcao.id}
-                className="rounded-md border border-gray-200 bg-white p-4"
-              >
-                <p>{opcao.texto}</p>
-              </div>
-            ))}
+            {opcoes.map((opcao) => {
+              const foiVotada = opcoesVotadas.includes(opcao.id);
+              return (
+                <div
+                  key={opcao.id}
+                  className={`rounded-md border-2 p-4 ${
+                    foiVotada
+                      ? 'border-green-500 bg-green-50'
+                      : 'border-gray-200 bg-white'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <p className={foiVotada ? 'font-medium text-green-900' : 'text-gray-900'}>
+                      {opcao.texto}
+                    </p>
+                    {foiVotada && (
+                      <span className="ml-2 inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800">
+                        ✓ Sua escolha
+                      </span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>

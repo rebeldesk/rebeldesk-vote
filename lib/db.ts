@@ -259,6 +259,41 @@ export async function unidadeJaVotou(
 }
 
 /**
+ * Busca o voto de uma unidade em uma votação.
+ * 
+ * @param votacaoId - ID da votação
+ * @param unidadeId - ID da unidade
+ * @returns Voto encontrado ou null
+ */
+export async function buscarVotoUnidade(
+  votacaoId: string,
+  unidadeId: string
+): Promise<Voto | null> {
+  const voto = await prisma.voto.findUnique({
+    where: {
+      votacaoId_unidadeId: {
+        votacaoId,
+        unidadeId,
+      },
+    },
+  });
+
+  if (!voto) {
+    return null;
+  }
+
+  return {
+    id: voto.id,
+    votacao_id: voto.votacaoId,
+    unidade_id: voto.unidadeId,
+    opcao_id: voto.opcaoId,
+    opcoes_ids: voto.opcoesIds as string[] | null,
+    user_id: voto.userId,
+    created_at: voto.createdAt?.toISOString() || new Date().toISOString(),
+  } as Voto;
+}
+
+/**
  * Registra um voto de uma unidade.
  * 
  * Regras de negócio:
@@ -431,15 +466,28 @@ export async function calcularResultado(
 
   // Inclui detalhes se solicitado e se for rastreado
   if (incluirDetalhes && votacao.modoAuditoria === 'rastreado') {
+    // Busca unidades para os votos
+    const unidadesIds = [...new Set(votacao.votos.map((v) => v.unidadeId))];
+    const unidades = await prisma.unidade.findMany({
+      where: {
+        id: {
+          in: unidadesIds,
+        },
+      },
+    });
+
+    const unidadesMap = new Map(unidades.map((u) => [u.id, u.numero]));
+
     resultado.votos_detalhados = votacao.votos.map((v) => ({
       id: v.id,
       votacao_id: v.votacaoId,
       unidade_id: v.unidadeId,
+      unidade_numero: unidadesMap.get(v.unidadeId) || v.unidadeId, // Fallback para ID se não encontrar
       opcao_id: v.opcaoId,
       opcoes_ids: v.opcoesIds as string[] | null,
       user_id: v.userId,
       created_at: v.createdAt?.toISOString() || new Date().toISOString(),
-    })) as Voto[];
+    })) as any; // Usando any temporariamente para incluir unidade_numero
   }
 
   return resultado;

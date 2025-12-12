@@ -97,8 +97,8 @@ export default async function ResultadoPage({
               <tbody className="divide-y divide-gray-200 bg-white">
                 {resultado.votos_detalhados.map((voto: any) => (
                   <tr key={voto.id}>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
-                      {voto.unidade_id}
+                    <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
+                      {voto.unidade_numero || voto.unidade_id}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-500">
                       {voto.opcao_id
