@@ -313,6 +313,13 @@ export function UnidadeDetalhes({ unidade, todasUnidades, isStaff }: UnidadeDeta
                 unidadeId={unidade.id}
                 vagaId={unidade.vaga?.id || null}
                 vagaEstaAlugada={unidade.vaga?.esta_alugada || false}
+                veiculosNaVagaPropria={unidade.vaga?.veiculos.length || 0}
+                veiculoEstaNaVagaPropria={
+                  veiculoEditando
+                    ? unidade.veiculos.find((v) => v.id === veiculoEditando)?.vaga_id ===
+                      unidade.vaga?.id
+                    : false
+                }
                 vagaAlugadaId={unidade.vaga_alugada?.id || null}
                 veiculosNaVagaAlugada={unidade.vaga_alugada?.veiculos.length || 0}
                 veiculoId={veiculoEditando}

@@ -23,6 +23,8 @@ interface VeiculoFormProps {
   unidadeId: string;
   vagaId: string | null;
   vagaEstaAlugada?: boolean;
+  veiculosNaVagaPropria?: number;
+  veiculoEstaNaVagaPropria?: boolean;
   vagaAlugadaId?: string | null;
   veiculosNaVagaAlugada?: number;
   veiculoId?: string | null;
@@ -36,6 +38,8 @@ export function VeiculoForm({
   unidadeId,
   vagaId,
   vagaEstaAlugada = false,
+  veiculosNaVagaPropria = 0,
+  veiculoEstaNaVagaPropria = false,
   vagaAlugadaId,
   veiculosNaVagaAlugada = 0,
   veiculoId,
@@ -48,6 +52,15 @@ export function VeiculoForm({
   const [error, setError] = useState('');
   const temVagaAlugada = !!vagaAlugadaId;
   const vagaPropriaEstaAlugada = vagaEstaAlugada;
+  
+  // Vaga própria está disponível se:
+  // - Não tem veículos na vaga própria, OU
+  // - Está editando o veículo que já está na vaga própria (pode manter ele lá)
+  const veiculosNaVagaPropriaSemEste = veiculoEstaNaVagaPropria 
+    ? Math.max(0, veiculosNaVagaPropria - 1) 
+    : veiculosNaVagaPropria;
+  const vagaPropriaDisponivel = vagaId && !vagaPropriaEstaAlugada && veiculosNaVagaPropriaSemEste === 0;
+  
   // Vaga alugada está disponível se:
   // - Não tem veículos na vaga alugada, OU
   // - Está editando o veículo que já está na vaga alugada (pode manter ele lá)
@@ -259,7 +272,7 @@ export function VeiculoForm({
       </div>
 
       {/* Seleção de Vaga */}
-      {(vagaId || vagaAlugadaId) && (
+      {(vagaId || vagaAlugadaId || temDireitoVaga) && (
         <div className="space-y-3">
           <label className="block text-sm font-medium text-gray-700">
             Estacionar em vaga
@@ -282,77 +295,174 @@ export function VeiculoForm({
             </div>
           </label>
 
-          {/* Opção: Vaga própria - mostra se tem direito e tem vaga cadastrada */}
-          {temDireitoVaga && vagaId && (
-            <label className={`flex items-center p-3 rounded-md border ${
-              vagaPropriaEstaAlugada 
-                ? 'border-red-300 bg-red-50 opacity-60 cursor-not-allowed' 
-                : 'border-green-300 hover:bg-green-50 cursor-pointer'
-            }`}>
-              <input
-                type="radio"
-                name="vaga_selecao"
-                checked={usarVaga === vagaId}
-                onChange={() => {
-                  if (!vagaPropriaEstaAlugada) {
-                    setValue('vaga_id', vagaId);
-                  }
-                }}
-                disabled={vagaPropriaEstaAlugada}
-                className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
-              />
-              <div className="ml-3 flex-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-gray-900">Vaga própria</span>
-                  <span className="inline-flex rounded-full bg-green-100 px-2 text-xs font-medium text-green-800">
-                    Própria
-                  </span>
-                  {vagaPropriaEstaAlugada && (
-                    <span className="inline-flex rounded-full bg-red-100 px-2 text-xs font-medium text-red-800">
-                      Alugada
-                    </span>
-                  )}
-                </div>
-                <p className="text-xs text-gray-500 mt-1">
-                  {vagaPropriaEstaAlugada 
-                    ? 'Esta vaga está alugada para outra unidade e não pode ser usada'
-                    : 'Estacionar na vaga própria desta unidade'}
-                </p>
-              </div>
-            </label>
+          {/* Opção: Vaga própria - sempre mostra se tem direito, mas pode estar desabilitada */}
+          {temDireitoVaga && (
+            <>
+              {/* Se está disponível OU se está editando o veículo que já está lá, mostra habilitada */}
+              {vagaPropriaDisponivel || veiculoEstaNaVagaPropria ? (
+                <label className="flex items-center p-3 rounded-md border border-green-300 hover:bg-green-50 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="vaga_selecao"
+                    checked={usarVaga === vagaId}
+                    onChange={() => {
+                      if (vagaId) {
+                        setValue('vaga_id', vagaId);
+                      }
+                    }}
+                    className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300"
+                  />
+                  <div className="ml-3 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-gray-900">Vaga própria</span>
+                      <span className="inline-flex rounded-full bg-green-100 px-2 text-xs font-medium text-green-800">
+                        Própria
+                      </span>
+                      {veiculosNaVagaPropria > 0 && !veiculoEstaNaVagaPropria && (
+                        <span className="text-xs text-gray-500">
+                          ({veiculosNaVagaPropria} veículo{veiculosNaVagaPropria !== 1 ? 's' : ''} já estacionado{veiculosNaVagaPropria !== 1 ? 's' : ''})
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">Estacionar na vaga própria desta unidade</p>
+                  </div>
+                </label>
+              ) : !vagaId ? (
+                /* Se não tem vaga cadastrada */
+                <label className="flex items-center p-3 rounded-md border border-yellow-300 bg-yellow-50 opacity-60 cursor-not-allowed">
+                  <input
+                    type="radio"
+                    name="vaga_selecao"
+                    checked={false}
+                    disabled
+                    className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                  />
+                  <div className="ml-3 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-gray-700">Vaga própria</span>
+                      <span className="inline-flex rounded-full bg-green-100 px-2 text-xs font-medium text-green-800">
+                        Própria
+                      </span>
+                      <span className="inline-flex rounded-full bg-yellow-100 px-2 text-xs font-medium text-yellow-800">
+                        Não cadastrada
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Esta unidade não possui vaga própria cadastrada. Cadastre uma vaga primeiro.
+                    </p>
+                  </div>
+                </label>
+              ) : vagaPropriaEstaAlugada ? (
+                /* Se a vaga está alugada */
+                <label className="flex items-center p-3 rounded-md border border-red-300 bg-red-50 opacity-60 cursor-not-allowed">
+                  <input
+                    type="radio"
+                    name="vaga_selecao"
+                    checked={false}
+                    disabled
+                    className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                  />
+                  <div className="ml-3 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-gray-700">Vaga própria</span>
+                      <span className="inline-flex rounded-full bg-green-100 px-2 text-xs font-medium text-green-800">
+                        Própria
+                      </span>
+                      <span className="inline-flex rounded-full bg-red-100 px-2 text-xs font-medium text-red-800">
+                        Alugada
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Esta vaga está alugada para outra unidade e não pode ser usada.
+                    </p>
+                  </div>
+                </label>
+              ) : (
+                /* Se a vaga está cheia */
+                <label className="flex items-center p-3 rounded-md border border-gray-300 bg-gray-50 opacity-60 cursor-not-allowed">
+                  <input
+                    type="radio"
+                    name="vaga_selecao"
+                    checked={false}
+                    disabled
+                    className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                  />
+                  <div className="ml-3 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-gray-700">Vaga própria</span>
+                      <span className="inline-flex rounded-full bg-green-100 px-2 text-xs font-medium text-green-800">
+                        Própria
+                      </span>
+                      <span className="inline-flex rounded-full bg-red-100 px-2 text-xs font-medium text-red-800">
+                        Cheia
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">
+                      A vaga própria já possui {veiculosNaVagaPropria} veículo{veiculosNaVagaPropria !== 1 ? 's' : ''} estacionado{veiculosNaVagaPropria !== 1 ? 's' : ''} e não está disponível para mais veículos.
+                    </p>
+                  </div>
+                </label>
+              )}
+            </>
           )}
 
-          {/* Opção: Vaga alugada - mostra se disponível OU se já está usando */}
-          {vagaAlugadaId && (vagaAlugadaDisponivel || veiculoEstaNaVagaAlugada) && (
-            <label className="flex items-center p-3 rounded-md border border-blue-300 hover:bg-blue-50 cursor-pointer">
-              <input
-                type="radio"
-                name="vaga_selecao"
-                checked={usarVaga === vagaAlugadaId}
-                onChange={() => {
-                  setValue('vaga_id', vagaAlugadaId);
-                }}
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-              />
-              <div className="ml-3 flex-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-gray-900">Vaga alugada</span>
-                  <span className="inline-flex rounded-full bg-blue-100 px-2 text-xs font-medium text-blue-800">
-                    Alugada
-                  </span>
-                </div>
-                <p className="text-xs text-gray-500 mt-1">Estacionar na vaga alugada desta unidade</p>
-              </div>
-            </label>
-          )}
-
-          {/* Aviso se tem vaga alugada mas não está disponível */}
-          {vagaAlugadaId && !vagaAlugadaDisponivel && !veiculoEstaNaVagaAlugada && (
-            <div className="rounded-md bg-gray-50 border border-gray-200 p-3">
-              <p className="text-sm text-gray-600">
-                A vaga alugada já possui {veiculosNaVagaAlugada} veículo{veiculosNaVagaAlugada !== 1 ? 's' : ''} estacionado{veiculosNaVagaAlugada !== 1 ? 's' : ''} e não está disponível.
-              </p>
-            </div>
+          {/* Opção: Vaga alugada - sempre mostra se existe, mas pode estar desabilitada se cheia */}
+          {vagaAlugadaId && (
+            <>
+              {/* Se está disponível OU se está editando o veículo que já está lá, mostra habilitada */}
+              {(vagaAlugadaDisponivel || veiculoEstaNaVagaAlugada) ? (
+                <label className="flex items-center p-3 rounded-md border border-blue-300 hover:bg-blue-50 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="vaga_selecao"
+                    checked={usarVaga === vagaAlugadaId}
+                    onChange={() => {
+                      setValue('vaga_id', vagaAlugadaId);
+                    }}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                  />
+                  <div className="ml-3 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-gray-900">Vaga alugada</span>
+                      <span className="inline-flex rounded-full bg-blue-100 px-2 text-xs font-medium text-blue-800">
+                        Alugada
+                      </span>
+                      {veiculosNaVagaAlugada > 0 && !veiculoEstaNaVagaAlugada && (
+                        <span className="text-xs text-gray-500">
+                          ({veiculosNaVagaAlugada} veículo{veiculosNaVagaAlugada !== 1 ? 's' : ''} já estacionado{veiculosNaVagaAlugada !== 1 ? 's' : ''})
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">Estacionar na vaga alugada desta unidade</p>
+                  </div>
+                </label>
+              ) : (
+                /* Se não está disponível e não está editando, mostra desabilitada com informação */
+                <label className="flex items-center p-3 rounded-md border border-gray-300 bg-gray-50 opacity-60 cursor-not-allowed">
+                  <input
+                    type="radio"
+                    name="vaga_selecao"
+                    checked={false}
+                    disabled
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                  />
+                  <div className="ml-3 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-gray-700">Vaga alugada</span>
+                      <span className="inline-flex rounded-full bg-blue-100 px-2 text-xs font-medium text-blue-800">
+                        Alugada
+                      </span>
+                      <span className="inline-flex rounded-full bg-red-100 px-2 text-xs font-medium text-red-800">
+                        Cheia
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">
+                      A vaga alugada já possui {veiculosNaVagaAlugada} veículo{veiculosNaVagaAlugada !== 1 ? 's' : ''} estacionado{veiculosNaVagaAlugada !== 1 ? 's' : ''} e não está disponível para mais veículos.
+                    </p>
+                  </div>
+                </label>
+              )}
+            </>
           )}
         </div>
       )}
