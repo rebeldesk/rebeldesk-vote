@@ -15,9 +15,11 @@ interface MobileMenuProps {
     href: string;
     label: string;
   }>;
+  userName?: string;
+  userProfile?: string;
 }
 
-export function MobileMenu({ links }: MobileMenuProps) {
+export function MobileMenu({ links, userName, userProfile }: MobileMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
 
@@ -96,6 +98,16 @@ export function MobileMenu({ links }: MobileMenuProps) {
       {isOpen && (
         <div className="absolute left-0 right-0 top-16 z-50 border-t border-gray-200 bg-white shadow-lg">
           <div className="px-2 pt-2 pb-3 space-y-1">
+            {/* Informações do usuário */}
+            {userName && (
+              <div className="px-3 py-2 border-b border-gray-200 mb-2">
+                <p className="text-sm font-medium text-gray-900">{userName}</p>
+                {userProfile && (
+                  <p className="text-xs text-gray-500 mt-0.5">{userProfile}</p>
+                )}
+              </div>
+            )}
+            {/* Links do menu */}
             {links.map((link) => {
               const isActive = pathname === link.href || pathname.startsWith(link.href + '/');
               return (

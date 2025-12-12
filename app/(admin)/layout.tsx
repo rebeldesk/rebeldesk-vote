@@ -80,9 +80,6 @@ export default async function AdminLayout({
               <span className="hidden sm:inline-block text-sm text-gray-700">
                 {session.user?.name} ({perfil})
               </span>
-              <span className="sm:hidden text-xs text-gray-700 truncate max-w-[100px]">
-                {session.user?.name}
-              </span>
               {/* Menu hambúrguer mobile */}
               <MobileMenu
                 links={[
@@ -94,6 +91,8 @@ export default async function AdminLayout({
                     ? [{ href: '/participar', label: 'Participar' }]
                     : []),
                 ]}
+                userName={session.user?.name || ''}
+                userProfile={perfil}
               />
               <form
                 action={async () => {

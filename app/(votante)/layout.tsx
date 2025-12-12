@@ -54,9 +54,6 @@ export default async function VotanteLayout({
               <span className="hidden sm:inline-block text-sm text-gray-700">
                 {session.user?.name} ({session.user?.perfil})
               </span>
-              <span className="sm:hidden text-xs text-gray-700 truncate max-w-[100px]">
-                {session.user?.name}
-              </span>
               {/* Menu hambúrguer mobile */}
               <MobileMenu
                 links={[
@@ -65,6 +62,8 @@ export default async function VotanteLayout({
                     ? [{ href: '/dashboard', label: 'Administração' }]
                     : []),
                 ]}
+                userName={session.user?.name || ''}
+                userProfile={session.user?.perfil || ''}
               />
               <form
                 action={async () => {
