@@ -1,860 +1,1572 @@
 {
-  "data": "2025-12-12T18:07:40.979Z",
+  "data": "2025-12-12T18:34:41.563Z",
   "total": 142,
-  "sucesso": 142,
+  "sucesso": 128,
   "erros": 0,
   "usuarios": [
     {
       "nome": "Bruna de Oliveira Freitas",
       "email": "fariasolivierabruna@hotmail.com",
-      "unidade": "1-101",
-      "senha": "MTRJ75Mz"
+      "unidades": [
+        "1-101"
+      ],
+      "unidadesVinculadas": [
+        "1-101"
+      ],
+      "senha": "H66bH071",
+      "criado": true
     },
     {
       "nome": "Gilson Lopes Lima",
       "email": "cdmlima@yahoo.com.br",
-      "unidade": "1-102",
-      "senha": "OvrGRdmV"
+      "unidades": [
+        "1-102"
+      ],
+      "unidadesVinculadas": [
+        "1-102"
+      ],
+      "senha": "I2fDMefp",
+      "criado": true
     },
     {
       "nome": "Edna Santos de Oliveira",
       "email": "edna.varzedod@gmail.com",
-      "unidade": "1-104",
-      "senha": "e0ViB564"
+      "unidades": [
+        "1-104"
+      ],
+      "unidadesVinculadas": [
+        "1-104"
+      ],
+      "senha": "dgK5oiGm",
+      "criado": true
     },
     {
       "nome": "Yonara Andrade Macêdo",
       "email": "yonara_macedo@yahoo.com.br",
-      "unidade": "1-105",
-      "senha": "3mpAik4Y"
+      "unidades": [
+        "1-105"
+      ],
+      "unidadesVinculadas": [
+        "1-105"
+      ],
+      "senha": "i6egwPw3",
+      "criado": true
     },
     {
       "nome": "Marcela de oliveira Dias",
       "email": "marceladiaslavu@yahoo.com",
-      "unidade": "1-106",
-      "senha": "2bsptMj6"
+      "unidades": [
+        "1-106"
+      ],
+      "unidadesVinculadas": [
+        "1-106"
+      ],
+      "senha": "UvmsBwkB",
+      "criado": true
     },
     {
       "nome": "Marcia Regina Florentino do Nascimento",
       "email": "mrfnascimento2009@gmail.com",
-      "unidade": "1-108",
-      "senha": "K3V0300y"
+      "unidades": [
+        "1-108"
+      ],
+      "unidadesVinculadas": [
+        "1-108"
+      ],
+      "senha": "bSB8bEtu",
+      "criado": true
     },
     {
       "nome": "Luciano Pacheco",
       "email": "pacheco.luciano@icloud.com",
-      "unidade": "1-109",
-      "senha": "WzjLloHt"
+      "unidades": [
+        "1-109"
+      ],
+      "unidadesVinculadas": [
+        "1-109"
+      ],
+      "senha": "NpxqICBy",
+      "criado": true
     },
     {
       "nome": "Monica Cristina Firmino de Paula",
       "email": "monikacdepaula@yahoo.com.br",
-      "unidade": "1-201",
-      "senha": "CS6kQlVF"
+      "unidades": [
+        "1-201"
+      ],
+      "unidadesVinculadas": [
+        "1-201"
+      ],
+      "senha": "ddGbg3cr",
+      "criado": true
     },
     {
       "nome": "Renato Gabriel Thomaz",
       "email": "renatthomaz@gmail.com",
-      "unidade": "1-202",
-      "senha": "hKkGCu6b"
+      "unidades": [
+        "1-202"
+      ],
+      "unidadesVinculadas": [
+        "1-202"
+      ],
+      "senha": "H3XmmQoy",
+      "criado": true
     },
     {
       "nome": "Rejane da Conceição Pessanha",
       "email": "admrejanepessanha@gmail.com",
-      "unidade": "1-203",
-      "senha": "kMeNbUKc"
+      "unidades": [
+        "1-203"
+      ],
+      "unidadesVinculadas": [
+        "1-203"
+      ],
+      "senha": "9RVq8g1X",
+      "criado": true
     },
     {
       "nome": "Cristiane Correa Barbosa da Fonseca",
       "email": "cristianefveras@gmail.com",
-      "unidade": "1-204",
-      "senha": "1VO2Vvq6"
+      "unidades": [
+        "1-204"
+      ],
+      "unidadesVinculadas": [
+        "1-204"
+      ],
+      "senha": "L4pvnCcm",
+      "criado": true
     },
     {
       "nome": "Simone Carmo de Souza",
       "email": "simone.carmo390@gmail.com",
-      "unidade": "1-205",
-      "senha": "PRHrBzK1"
+      "unidades": [
+        "1-205"
+      ],
+      "unidadesVinculadas": [
+        "1-205"
+      ],
+      "senha": "9eDBwsjc",
+      "criado": true
     },
     {
       "nome": "Adriana Lima Bernardo",
       "email": "rededrikaedino@gmail.com",
-      "unidade": "1-206",
-      "senha": "rbx05GMw"
+      "unidades": [
+        "1-206"
+      ],
+      "unidadesVinculadas": [
+        "1-206"
+      ],
+      "senha": "8bBUl4hL",
+      "criado": true
     },
     {
       "nome": "Tamara da Costa Ribeiro Gonçalves Nogueira",
       "email": "tamararibero14@hotmail.com",
-      "unidade": "1-207",
-      "senha": "8Jgy1lr1"
+      "unidades": [
+        "1-207"
+      ],
+      "unidadesVinculadas": [
+        "1-207"
+      ],
+      "senha": "vyjCPCzS",
+      "criado": true
     },
     {
       "nome": "Carlos Eduardo Fausto Olimpio",
       "email": "car.olimpio@yahoo.com.br",
-      "unidade": "1-208",
-      "senha": "nv2w3key"
+      "unidades": [
+        "1-208"
+      ],
+      "unidadesVinculadas": [
+        "1-208"
+      ],
+      "senha": "PwIZBLFd",
+      "criado": true
     },
     {
       "nome": "Vanessa da N. Martins",
       "email": "vama05052023@yahoo.com",
-      "unidade": "1-209",
-      "senha": "na7CPX5K"
+      "unidades": [
+        "1-209"
+      ],
+      "unidadesVinculadas": [
+        "1-209"
+      ],
+      "senha": "SGKWhzby",
+      "criado": true
     },
     {
       "nome": "Nerice Gomes Correa",
       "email": "nerice.correa@bol.com.br",
-      "unidade": "1-210",
-      "senha": "7zL0NQx1"
-    },
-    {
-      "nome": "Millena C. S. de Andrade Gonçalves",
-      "email": "nerice.correa.1301@bol.com.br",
-      "unidade": "1-301",
-      "senha": "XEyue6St"
+      "unidades": [
+        "1-210",
+        "1-301"
+      ],
+      "unidadesVinculadas": [
+        "1-210",
+        "1-301"
+      ],
+      "senha": "51cWs07r",
+      "criado": true
     },
     {
       "nome": "Thaina Lima Bernardo",
       "email": "thai.lima05@gmail.com",
-      "unidade": "1-302",
-      "senha": "1oGGd69Z"
+      "unidades": [
+        "1-302"
+      ],
+      "unidadesVinculadas": [
+        "1-302"
+      ],
+      "senha": "y3LL4c49",
+      "criado": true
     },
     {
       "nome": "Levi Cordeiro",
       "email": "levicordeiro@uol.com.br",
-      "unidade": "1-303",
-      "senha": "pkrNTOrx"
+      "unidades": [
+        "1-303"
+      ],
+      "unidadesVinculadas": [
+        "1-303"
+      ],
+      "senha": "0wSTubUz",
+      "criado": true
     },
     {
       "nome": "Waldete Araujo dos Santos Ré",
       "email": "mareis0508@hotmail.com",
-      "unidade": "1-304",
-      "senha": "Oxb8vS2K"
+      "unidades": [
+        "1-304"
+      ],
+      "unidadesVinculadas": [
+        "1-304"
+      ],
+      "senha": "4VWWkedc",
+      "criado": true
     },
     {
       "nome": "Jonathan C de Souza",
       "email": "-",
-      "unidade": "1-305",
-      "senha": "dRcroYLy"
+      "unidades": [
+        "1-305",
+        "1-409",
+        "1-1407"
+      ],
+      "unidadesVinculadas": [
+        "1-305",
+        "1-409",
+        "1-1407"
+      ],
+      "senha": "1tO1hpVp",
+      "criado": true
     },
     {
       "nome": "Amanda Cristina Luz Pereira",
       "email": "amandacryss180@gmail.com",
-      "unidade": "1-306",
-      "senha": "2SsTX7GQ"
+      "unidades": [
+        "1-306"
+      ],
+      "unidadesVinculadas": [
+        "1-306"
+      ],
+      "senha": "mrig1sAZ",
+      "criado": true
     },
     {
       "nome": "Marcio Cesar Miranda Correa",
       "email": "raquel.miranda@hotmail.com",
-      "unidade": "1-307",
-      "senha": "qGLWrU9K"
+      "unidades": [
+        "1-307"
+      ],
+      "unidadesVinculadas": [
+        "1-307"
+      ],
+      "senha": "hfwn6RMC",
+      "criado": true
     },
     {
       "nome": "Angelica Carvalho da Silva",
       "email": "anlitera@hotmail.com",
-      "unidade": "1-308",
-      "senha": "bzn7Vi1g"
+      "unidades": [
+        "1-308"
+      ],
+      "unidadesVinculadas": [
+        "1-308"
+      ],
+      "senha": "6VCRbmVL",
+      "criado": true
     },
     {
       "nome": "Ana Beatriz Monteiro da Silva",
       "email": "anabeatrizmonteiro74@gmail.com",
-      "unidade": "1-309",
-      "senha": "WqtDIhpQ"
+      "unidades": [
+        "1-309"
+      ],
+      "unidadesVinculadas": [
+        "1-309"
+      ],
+      "senha": "5HZeMTFw",
+      "criado": true
     },
     {
       "nome": "Luis Paulo da Silva Maia",
       "email": "luispaulosmaia@gmail.com",
-      "unidade": "1-310",
-      "senha": "gjdCBxoe"
+      "unidades": [
+        "1-310"
+      ],
+      "unidadesVinculadas": [
+        "1-310"
+      ],
+      "senha": "dhkufmUR",
+      "criado": true
     },
     {
       "nome": "Luciana Pires M. S. Real",
       "email": "lucianamartinelli200@hotmail.com",
-      "unidade": "1-401",
-      "senha": "TPEGZAoW"
+      "unidades": [
+        "1-401"
+      ],
+      "unidadesVinculadas": [
+        "1-401"
+      ],
+      "senha": "Vqcqjygl",
+      "criado": true
     },
     {
       "nome": "Maria Aparecida Nogueira Diniz",
       "email": "nogueiradinizm@gmail.com",
-      "unidade": "1-402",
-      "senha": "JacO04hj"
+      "unidades": [
+        "1-402"
+      ],
+      "unidadesVinculadas": [
+        "1-402"
+      ],
+      "senha": "H3bPZnsC",
+      "criado": true
     },
     {
       "nome": "Rose Vitória Macedo",
       "email": "rosevitoriam@hotmail.com",
-      "unidade": "1-403",
-      "senha": "7ELbb9T7"
+      "unidades": [
+        "1-403"
+      ],
+      "unidadesVinculadas": [
+        "1-403"
+      ],
+      "senha": "WMhku3Mq",
+      "criado": true
     },
     {
       "nome": "Margareth Gomes Correia",
       "email": "margarethge52@gmail.com",
-      "unidade": "1-404",
-      "senha": "Y39Lq94Y"
+      "unidades": [
+        "1-404"
+      ],
+      "unidadesVinculadas": [
+        "1-404"
+      ],
+      "senha": "Z9r2QLcD",
+      "criado": true
     },
     {
       "nome": "Sergio Barboza Marinho",
       "email": "sergiobarbozamarinho@gmail.com",
-      "unidade": "1-405",
-      "senha": "LQeCtiL8"
+      "unidades": [
+        "1-405"
+      ],
+      "unidadesVinculadas": [
+        "1-405"
+      ],
+      "senha": "J3Ld9sTT",
+      "criado": true
     },
     {
       "nome": "Marilena Claudia Coutinho",
       "email": "marilenaclaudia@hotmail.com",
-      "unidade": "1-406",
-      "senha": "YcCq1Xih"
+      "unidades": [
+        "1-406"
+      ],
+      "unidadesVinculadas": [
+        "1-406"
+      ],
+      "senha": "YFJlo2hv",
+      "criado": true
     },
     {
       "nome": "Marco Aurelio B. Dos Santos",
       "email": "edu-rrj@uol.com.br",
-      "unidade": "1-407",
-      "senha": "6I8vzXwP"
+      "unidades": [
+        "1-407"
+      ],
+      "unidadesVinculadas": [
+        "1-407"
+      ],
+      "senha": "07OHc3sq",
+      "criado": true
     },
     {
       "nome": "Chantrel Koko Massmua",
       "email": "chantrelkoko@gmail.com",
-      "unidade": "1-408",
-      "senha": "hKxFT7cH"
-    },
-    {
-      "nome": "Fatima Dias Polonia",
-      "email": "-.1409@undefined",
-      "unidade": "1-409",
-      "senha": "7gAEXTj6"
+      "unidades": [
+        "1-408"
+      ],
+      "unidadesVinculadas": [
+        "1-408"
+      ],
+      "senha": "f0Cs3t61",
+      "criado": true
     },
     {
       "nome": "Cleber Batista da Silva",
       "email": "cb$brand@gmail.com",
-      "unidade": "1-410",
-      "senha": "uyuS7kBq"
+      "unidades": [
+        "1-410"
+      ],
+      "unidadesVinculadas": [
+        "1-410"
+      ],
+      "senha": "szFCb1mn",
+      "criado": true
     },
     {
       "nome": "Nathalia Luzia T. Lima",
       "email": "nathalialuzia@gmail.com",
-      "unidade": "1-501",
-      "senha": "zIeSPhJU"
+      "unidades": [
+        "1-501"
+      ],
+      "unidadesVinculadas": [
+        "1-501"
+      ],
+      "senha": "4RPyIhv3",
+      "criado": true
     },
     {
       "nome": "Aline Alves de Oliveira Nunes",
       "email": "admaline@hotmail.com",
-      "unidade": "1-502",
-      "senha": "QmrETsZp"
+      "unidades": [
+        "1-502"
+      ],
+      "unidadesVinculadas": [
+        "1-502"
+      ],
+      "senha": "HA0ulk0f",
+      "criado": true
     },
     {
       "nome": "Marcia Dias de Andrade",
       "email": "subchefegeg@gmail.com",
-      "unidade": "1-503",
-      "senha": "f1yHlEnO"
+      "unidades": [
+        "1-503"
+      ],
+      "unidadesVinculadas": [
+        "1-503"
+      ],
+      "senha": "PqopgWQ7",
+      "criado": true
     },
     {
       "nome": "Raphael Mauricio Sanches de Jesus",
       "email": "raphael.mauricio@gmail.com",
-      "unidade": "1-504",
-      "senha": "8MsAK9yO"
+      "unidades": [
+        "1-504"
+      ],
+      "unidadesVinculadas": [
+        "1-504"
+      ],
+      "senha": "0ZTwbaor",
+      "criado": true
     },
     {
       "nome": "Patricia Moreira Soares",
       "email": "psoares@sebraerj.com.br",
-      "unidade": "1-505",
-      "senha": "QPoMcrUd"
+      "unidades": [
+        "1-505"
+      ],
+      "unidadesVinculadas": [
+        "1-505"
+      ],
+      "senha": "CXcqwsx7",
+      "criado": true
     },
     {
       "nome": "Maria de Fátima Martins de Carvalho",
       "email": "mariacm1004@gmail.com",
-      "unidade": "1-506",
-      "senha": "b2TWUuE8"
-    },
-    {
-      "nome": "Erica Louro da Fonseca",
-      "email": "mariacm1004.1507@gmail.com",
-      "unidade": "1-507",
-      "senha": "Ti4xrVEz"
+      "unidades": [
+        "1-506",
+        "1-507"
+      ],
+      "unidadesVinculadas": [
+        "1-506",
+        "1-507"
+      ],
+      "senha": "lMB8ZRLS",
+      "criado": true
     },
     {
       "nome": "Moises Peixoto Soares",
       "email": "peixoto_moises@yahoo.com.br",
-      "unidade": "1-508",
-      "senha": "UOl2ml0Y"
+      "unidades": [
+        "1-508"
+      ],
+      "unidadesVinculadas": [
+        "1-508"
+      ],
+      "senha": "N4THMbop",
+      "criado": true
     },
     {
       "nome": "Mirian Pereira dos Prazeres",
       "email": "divinaveneranda@gmail.com",
-      "unidade": "1-509",
-      "senha": "7YmlCGMG"
+      "unidades": [
+        "1-509"
+      ],
+      "unidadesVinculadas": [
+        "1-509"
+      ],
+      "senha": "6xLgsyRX",
+      "criado": true
     },
     {
       "nome": "Luiz Felipe de O. Ferreira",
       "email": "foliveira224@gmail.com",
-      "unidade": "1-510",
-      "senha": "rZJ59SIp"
+      "unidades": [
+        "1-510"
+      ],
+      "unidadesVinculadas": [
+        "1-510"
+      ],
+      "senha": "Toaewzm8",
+      "criado": true
     },
     {
       "nome": "Jaqueline Santos da Silva",
       "email": "jaque_edf2010@hotmail.com",
-      "unidade": "1-601",
-      "senha": "pzi1sC35"
+      "unidades": [
+        "1-601"
+      ],
+      "unidadesVinculadas": [
+        "1-601"
+      ],
+      "senha": "677YjEqm",
+      "criado": true
     },
     {
       "nome": "Claudia Cabral Tavares",
       "email": "cacaubiorj@hotmail.com",
-      "unidade": "1-602",
-      "senha": "EBSiR3PN"
+      "unidades": [
+        "1-602"
+      ],
+      "unidadesVinculadas": [
+        "1-602"
+      ],
+      "senha": "ZTHC2V5r",
+      "criado": true
     },
     {
       "nome": "Marilson Soares do Nascimento",
       "email": "rilsontmvgs@gmail.com",
-      "unidade": "1-603",
-      "senha": "EL9Ee9tl"
+      "unidades": [
+        "1-603"
+      ],
+      "unidadesVinculadas": [
+        "1-603"
+      ],
+      "senha": "D4oKcWxg",
+      "criado": true
     },
     {
       "nome": "Tereza Maria da Silva",
       "email": "tetemodasrio@gmail.com",
-      "unidade": "1-604",
-      "senha": "q5vcuIy5"
+      "unidades": [
+        "1-604",
+        "1-902"
+      ],
+      "unidadesVinculadas": [
+        "1-604",
+        "1-902"
+      ],
+      "senha": "zYwoBhNo",
+      "criado": true
     },
     {
       "nome": "Louise de Rezende Pitta",
       "email": "louisepitta@gmail.com",
-      "unidade": "1-605",
-      "senha": "I3VkPAks"
+      "unidades": [
+        "1-605"
+      ],
+      "unidadesVinculadas": [
+        "1-605"
+      ],
+      "senha": "ZRxnlif1",
+      "criado": true
     },
     {
       "nome": "Arthur Gonçalves Leitão",
       "email": "arthur.stf@hotmail.com",
-      "unidade": "1-606",
-      "senha": "ElC1npQL"
+      "unidades": [
+        "1-606"
+      ],
+      "unidadesVinculadas": [
+        "1-606"
+      ],
+      "senha": "mjXTKojk",
+      "criado": true
     },
     {
       "nome": "Melquisedeque Bernardes Pereira",
       "email": "melquisedeque.bernardes@outlook.com",
-      "unidade": "1-607",
-      "senha": "dlxRY98S"
+      "unidades": [
+        "1-607"
+      ],
+      "unidadesVinculadas": [
+        "1-607"
+      ],
+      "senha": null,
+      "criado": false
     },
     {
       "nome": "Ana Lucia Miranda da Silva",
       "email": "sebeth08@gmail.com",
-      "unidade": "1-609",
-      "senha": "0LDLfiCW"
+      "unidades": [
+        "1-609"
+      ],
+      "unidadesVinculadas": [
+        "1-609"
+      ],
+      "senha": "QhToId9A",
+      "criado": true
     },
     {
       "nome": "Fire Systens Gestão Integrada",
       "email": "bergrio.imobiliaria@gmail.com",
-      "unidade": "1-610",
-      "senha": "G8YPa2V6"
-    },
-    {
-      "nome": "Alcir Ernesto souza",
-      "email": "bergrio.imobiliaria.1702@gmail.com",
-      "unidade": "1-702",
-      "senha": "uJwVceIv"
+      "unidades": [
+        "1-610",
+        "1-702"
+      ],
+      "unidadesVinculadas": [
+        "1-610",
+        "1-702"
+      ],
+      "senha": "tZi5NXR4",
+      "criado": true
     },
     {
       "nome": "Neuza Maria S. de Paula",
       "email": "nspatila@gmail.com",
-      "unidade": "1-701",
-      "senha": "AdNoDUJ5"
+      "unidades": [
+        "1-701"
+      ],
+      "unidadesVinculadas": [
+        "1-701"
+      ],
+      "senha": "VE10RqtE",
+      "criado": true
     },
     {
       "nome": "José A. Moraes da Costa",
       "email": "postoviatene@gmail.com",
-      "unidade": "1-703",
-      "senha": "36iQd2rn"
+      "unidades": [
+        "1-703"
+      ],
+      "unidadesVinculadas": [
+        "1-703"
+      ],
+      "senha": "4zOR63cm",
+      "criado": true
     },
     {
       "nome": "Flavia Bruno Machado Calheiros",
       "email": "flavia.bruno.machado@gmail.com",
-      "unidade": "1-704",
-      "senha": "p9Qgvj9l"
+      "unidades": [
+        "1-704"
+      ],
+      "unidadesVinculadas": [
+        "1-704"
+      ],
+      "senha": "LB26RW4P",
+      "criado": true
     },
     {
       "nome": "Maxuel Romualdo Rodrigues",
       "email": "max.rodrigues2015@yahoo.com",
-      "unidade": "1-705",
-      "senha": "ucq2aD2A"
+      "unidades": [
+        "1-705"
+      ],
+      "unidadesVinculadas": [
+        "1-705"
+      ],
+      "senha": "OCPvP8Nu",
+      "criado": true
     },
     {
       "nome": "Alan Dantas Cavalcante Silva",
       "email": "alancartorio@hotmail.com",
-      "unidade": "1-706",
-      "senha": "TaulvdEr"
+      "unidades": [
+        "1-706"
+      ],
+      "unidadesVinculadas": [
+        "1-706"
+      ],
+      "senha": "LMx1CXUM",
+      "criado": true
     },
     {
       "nome": "Raianne Coelho da Silva Carneiro",
       "email": "raianne.coelho@gmail.com",
-      "unidade": "1-707",
-      "senha": "DVHcRaNz"
-    },
-    {
-      "nome": "Odelir Mantuano Bocks Junior",
-      "email": "raianne.coelho.1708@gmail.com",
-      "unidade": "1-708",
-      "senha": "nlv5O2h3"
+      "unidades": [
+        "1-707",
+        "1-708"
+      ],
+      "unidadesVinculadas": [
+        "1-707",
+        "1-708"
+      ],
+      "senha": "TbQUh4Ma",
+      "criado": true
     },
     {
       "nome": "Vera Lucia Alves dos Santos",
       "email": "vera_las@hotmail.com",
-      "unidade": "1-709",
-      "senha": "Bm5j45iA"
+      "unidades": [
+        "1-709"
+      ],
+      "unidadesVinculadas": [
+        "1-709"
+      ],
+      "senha": "KOuVLWgF",
+      "criado": true
     },
     {
       "nome": "Suely Trilho da Silva",
       "email": "suelytrilho@gmail.com",
-      "unidade": "1-710",
-      "senha": "hzbHsohx"
+      "unidades": [
+        "1-710"
+      ],
+      "unidadesVinculadas": [
+        "1-710"
+      ],
+      "senha": "5OuRWAkm",
+      "criado": true
     },
     {
       "nome": "Rayane de O. Guerra",
       "email": "rayanedeoliveiraguerra@yahoo.com.br",
-      "unidade": "1-801",
-      "senha": "0FNNrKDH"
+      "unidades": [
+        "1-801"
+      ],
+      "unidadesVinculadas": [
+        "1-801"
+      ],
+      "senha": "MzwbDidy",
+      "criado": true
     },
     {
       "nome": "Fernanda Ribeiro da Luz Cordeiro",
       "email": "frl.fernanda@hotmail.com",
-      "unidade": "1-802",
-      "senha": "7DdATkHR"
+      "unidades": [
+        "1-802"
+      ],
+      "unidadesVinculadas": [
+        "1-802"
+      ],
+      "senha": "R6TE4O7M",
+      "criado": true
     },
     {
       "nome": "Bruno Sergio Pinto Cruz",
       "email": "brunoscruz@gmail.com",
-      "unidade": "1-803",
-      "senha": "D2hMVM5k"
-    },
-    {
-      "nome": "Thiago Luis Santos Da Silva",
-      "email": "brunoscruz.1804@gmail.com",
-      "unidade": "1-804",
-      "senha": "TTEFkStD"
+      "unidades": [
+        "1-803",
+        "1-804"
+      ],
+      "unidadesVinculadas": [
+        "1-803",
+        "1-804"
+      ],
+      "senha": "IYiWWTdL",
+      "criado": true
     },
     {
       "nome": "Hargeisa Lorena Martins Felix",
       "email": "hargeisafelix@unigranrio.br",
-      "unidade": "1-805",
-      "senha": "kZun4r8l"
+      "unidades": [
+        "1-805"
+      ],
+      "unidadesVinculadas": [
+        "1-805"
+      ],
+      "senha": "PwBrJF0R",
+      "criado": true
     },
     {
       "nome": "Arlindo Caetano da Silva",
       "email": "arlindocs46@hotmail.com",
-      "unidade": "1-806",
-      "senha": "Jj4klp43"
-    },
-    {
-      "nome": "Arlindo Caetano da Silva",
-      "email": "arlindocs46.1807@hotmail.com",
-      "unidade": "1-807",
-      "senha": "RK5pnBOQ"
+      "unidades": [
+        "1-806",
+        "1-807"
+      ],
+      "unidadesVinculadas": [
+        "1-806",
+        "1-807"
+      ],
+      "senha": "6uOMZNoa",
+      "criado": true
     },
     {
       "nome": "Wellington Souza dos Santos",
       "email": "wsrj82@gmail.com",
-      "unidade": "1-808",
-      "senha": "csTZdKDG"
+      "unidades": [
+        "1-808"
+      ],
+      "unidadesVinculadas": [
+        "1-808"
+      ],
+      "senha": "Y2Yp1K5Z",
+      "criado": true
     },
     {
       "nome": "Jonh Lenon Luciano",
       "email": "renatinha_neves95@hotmail.com",
-      "unidade": "1-809",
-      "senha": "80nWQapw"
-    },
-    {
-      "nome": "Jonh Lenon Luciano",
-      "email": "renatinha_neves95.1810@hotmail.com",
-      "unidade": "1-810",
-      "senha": "Gk5tJFHA"
+      "unidades": [
+        "1-809",
+        "1-810"
+      ],
+      "unidadesVinculadas": [
+        "1-809",
+        "1-810"
+      ],
+      "senha": "t3KnM8hG",
+      "criado": true
     },
     {
       "nome": "Mariana Merlim Ribeiro da Paixão Bastos",
       "email": "marianamrpbastos@gmail.com",
-      "unidade": "1-901",
-      "senha": "LM9CVVFe"
-    },
-    {
-      "nome": "Teresa Maria da Silva",
-      "email": "tetemodasrio.1902@gmail.com",
-      "unidade": "1-902",
-      "senha": "9R4kbUFT"
+      "unidades": [
+        "1-901"
+      ],
+      "unidadesVinculadas": [
+        "1-901"
+      ],
+      "senha": "NhEAxdsN",
+      "criado": true
     },
     {
       "nome": "José dos Santos da Paz",
       "email": "analu55paz@hotmail.com",
-      "unidade": "1-903",
-      "senha": "iHAtONy4"
+      "unidades": [
+        "1-903"
+      ],
+      "unidadesVinculadas": [
+        "1-903"
+      ],
+      "senha": "0k9N5MJu",
+      "criado": true
     },
     {
       "nome": "Leide Saraiva Cardoso",
       "email": "leidescardoso@gmail.com",
-      "unidade": "1-904",
-      "senha": "qKgCzS5Z"
+      "unidades": [
+        "1-904"
+      ],
+      "unidadesVinculadas": [
+        "1-904"
+      ],
+      "senha": "d0hgm1LL",
+      "criado": true
     },
     {
       "nome": "Pablo Dantas",
       "email": "pablo.dantas@grupowqs.com.br",
-      "unidade": "1-905",
-      "senha": "fiX7VDFU"
-    },
-    {
-      "nome": "Arthur Nascimento Dantas",
-      "email": "pablo.dantas.1906@grupowqs.com.br",
-      "unidade": "1-906",
-      "senha": "6C9Wflzk"
+      "unidades": [
+        "1-905",
+        "1-906"
+      ],
+      "unidadesVinculadas": [
+        "1-905",
+        "1-906"
+      ],
+      "senha": "Z0EIfwMl",
+      "criado": true
     },
     {
       "nome": "Lucia Helena Ribeiro Bittar",
       "email": "lucia.bittar@hotmail.com",
-      "unidade": "1-907",
-      "senha": "1qBcrEeq"
+      "unidades": [
+        "1-907"
+      ],
+      "unidadesVinculadas": [
+        "1-907"
+      ],
+      "senha": "swbWsu43",
+      "criado": true
     },
     {
       "nome": "Michele Barbosa da Silva",
       "email": "michelecandidomendes@gmail.com",
-      "unidade": "1-908",
-      "senha": "i708CLOq"
+      "unidades": [
+        "1-908"
+      ],
+      "unidadesVinculadas": [
+        "1-908"
+      ],
+      "senha": "Zr6QKwfw",
+      "criado": true
     },
     {
       "nome": "Guilherme Rocha dos Santos",
       "email": "devguilhermerocha@gmail.com",
-      "unidade": "1-909",
-      "senha": "qSktgIww"
+      "unidades": [
+        "1-909"
+      ],
+      "unidadesVinculadas": [
+        "1-909"
+      ],
+      "senha": "HRiOXgio",
+      "criado": true
     },
     {
       "nome": "Vinicius Souza de Albuquerque",
       "email": "vinsouza10@gmail.com",
-      "unidade": "1-910",
-      "senha": "zvfaH5U8"
+      "unidades": [
+        "1-910"
+      ],
+      "unidadesVinculadas": [
+        "1-910"
+      ],
+      "senha": "12ykVtbj",
+      "criado": true
     },
     {
       "nome": "Caroline Panini Domingos",
       "email": "carolinepaninidomingos@gmail.com",
-      "unidade": "1-1001",
-      "senha": "jaNTAMoF"
+      "unidades": [
+        "1-1001"
+      ],
+      "unidadesVinculadas": [
+        "1-1001"
+      ],
+      "senha": "1NwnKCyR",
+      "criado": true
     },
     {
       "nome": "Priscila Freire Marsano",
       "email": "priscila@grupoak.com.br",
-      "unidade": "1-1002",
-      "senha": "JqovnS7Z"
+      "unidades": [
+        "1-1002"
+      ],
+      "unidadesVinculadas": [
+        "1-1002"
+      ],
+      "senha": "3ZEV0xud",
+      "criado": true
     },
     {
       "nome": "Sthefany Dionísio M. Alves",
       "email": "sdmalves@hotmail.com",
-      "unidade": "1-1003",
-      "senha": "D7VwKI8P"
+      "unidades": [
+        "1-1003"
+      ],
+      "unidadesVinculadas": [
+        "1-1003"
+      ],
+      "senha": "WjLSnTLp",
+      "criado": true
     },
     {
       "nome": "Heres Pereira Silva",
       "email": "heres.hps@gmail.com",
-      "unidade": "1-1004",
-      "senha": "nw8Bx4E0"
+      "unidades": [
+        "1-1004"
+      ],
+      "unidadesVinculadas": [
+        "1-1004"
+      ],
+      "senha": "IO1VtTmv",
+      "criado": true
     },
     {
       "nome": "Jonathan de Oliveira Domingues",
       "email": "jon_oliveiradomingues@yahoo.com.br",
-      "unidade": "1-1005",
-      "senha": "hCTpWE4a"
+      "unidades": [
+        "1-1005"
+      ],
+      "unidadesVinculadas": [
+        "1-1005"
+      ],
+      "senha": "scWhil9v",
+      "criado": true
     },
     {
       "nome": "Gustavo Augusto",
       "email": "ggustavo.augusto@gmail.com",
-      "unidade": "1-1006",
-      "senha": "uNFw3UPG"
+      "unidades": [
+        "1-1006"
+      ],
+      "unidadesVinculadas": [
+        "1-1006"
+      ],
+      "senha": "LCW7YFQN",
+      "criado": true
     },
     {
       "nome": "Renan Farias Garcia da Silva",
       "email": "renanfariasg@gmail.com",
-      "unidade": "1-1007",
-      "senha": "DALuU19l"
+      "unidades": [
+        "1-1007"
+      ],
+      "unidadesVinculadas": [
+        "1-1007"
+      ],
+      "senha": "2ZxpmHQR",
+      "criado": true
     },
     {
       "nome": "Juliana Mendonça dos Santos Bandeira",
       "email": "julianamsbandeira@hotmail.com",
-      "unidade": "1-1009",
-      "senha": "2YuxIXU8"
+      "unidades": [
+        "1-1009"
+      ],
+      "unidadesVinculadas": [
+        "1-1009"
+      ],
+      "senha": "Mdz8VsuB",
+      "criado": true
     },
     {
       "nome": "Maria Mirtes Gonçalves da Silva",
       "email": "igorbrauna144@gmail.com",
-      "unidade": "1-1010",
-      "senha": "Romcj2wH"
+      "unidades": [
+        "1-1010"
+      ],
+      "unidadesVinculadas": [
+        "1-1010"
+      ],
+      "senha": "JWzw1bU0",
+      "criado": true
     },
     {
       "nome": "Diego Leopoldo dos Santos",
       "email": "diego_abf@hotmail.com",
-      "unidade": "1-1101",
-      "senha": "vHFRlzE6"
+      "unidades": [
+        "1-1101"
+      ],
+      "unidadesVinculadas": [
+        "1-1101"
+      ],
+      "senha": "mgOYSjmO",
+      "criado": true
     },
     {
       "nome": "Luciana Carlos da Silva Campello",
       "email": "luciana-silva@hotmail.com",
-      "unidade": "1-1102",
-      "senha": "ACZ3OH1F"
+      "unidades": [
+        "1-1102"
+      ],
+      "unidadesVinculadas": [
+        "1-1102"
+      ],
+      "senha": "FJ7HbQuQ",
+      "criado": true
     },
     {
       "nome": "Tassio De oliveira Lima Ferreira",
       "email": "gege.jero.silva@gmail.com",
-      "unidade": "1-1103",
-      "senha": "ijuaT2Ta"
+      "unidades": [
+        "1-1103"
+      ],
+      "unidadesVinculadas": [
+        "1-1103"
+      ],
+      "senha": "vu4Mxlnn",
+      "criado": true
     },
     {
       "nome": "Alexandra Chagas dos Santos",
       "email": "alexanutri8@gmail.com",
-      "unidade": "1-1104",
-      "senha": "Yz1vYUBi"
+      "unidades": [
+        "1-1104"
+      ],
+      "unidadesVinculadas": [
+        "1-1104"
+      ],
+      "senha": "qTC9jlHX",
+      "criado": true
     },
     {
       "nome": "Maria Celeste Lopes Serra",
       "email": "celeste.pedrj@gmail.com",
-      "unidade": "1-1105",
-      "senha": "VKm524c4"
+      "unidades": [
+        "1-1105"
+      ],
+      "unidadesVinculadas": [
+        "1-1105"
+      ],
+      "senha": "utIvTDSM",
+      "criado": true
     },
     {
       "nome": "Alexandre da Silva Azevedo",
       "email": "alexandre@construming.com.br",
-      "unidade": "1-1106",
-      "senha": "HMhMn0v8"
+      "unidades": [
+        "1-1106",
+        "1-1504"
+      ],
+      "unidadesVinculadas": [
+        "1-1106",
+        "1-1504"
+      ],
+      "senha": "jqoVJxFM",
+      "criado": true
     },
     {
       "nome": "Fernanda R. Boaventura",
       "email": "fboaventura50@gmail.com",
-      "unidade": "1-1107",
-      "senha": "rkb9ufXe"
+      "unidades": [
+        "1-1107"
+      ],
+      "unidadesVinculadas": [
+        "1-1107"
+      ],
+      "senha": "uuhSAU1P",
+      "criado": true
     },
     {
       "nome": "Danielle de Freitas Fernandes Thomaz",
       "email": "daniellethomaz@hotmail.com",
-      "unidade": "1-1109",
-      "senha": "SHkNZnpN"
+      "unidades": [
+        "1-1109"
+      ],
+      "unidadesVinculadas": [
+        "1-1109"
+      ],
+      "senha": "LxhBmWFB",
+      "criado": true
     },
     {
       "nome": "Ana Carolinne Lopes da Cunha",
       "email": "acarolinne447@gmail.com",
-      "unidade": "1-1110",
-      "senha": "gh4cMph5"
+      "unidades": [
+        "1-1110"
+      ],
+      "unidadesVinculadas": [
+        "1-1110"
+      ],
+      "senha": "Depd2uLC",
+      "criado": true
     },
     {
       "nome": "Paula Azevedo da Silva",
       "email": "paula.azevedo.silva@outlook.com",
-      "unidade": "1-1201",
-      "senha": "AJsdmKPP"
+      "unidades": [
+        "1-1201"
+      ],
+      "unidadesVinculadas": [
+        "1-1201"
+      ],
+      "senha": "03kPmMsa",
+      "criado": true
     },
     {
       "nome": "Maria do Socorro Lira Monteiro",
       "email": "maria58.slira@gmail.com",
-      "unidade": "1-1202",
-      "senha": "K0FvRfWS"
+      "unidades": [
+        "1-1202"
+      ],
+      "unidadesVinculadas": [
+        "1-1202"
+      ],
+      "senha": "FRhBzkLU",
+      "criado": true
     },
     {
       "nome": "Suleyva Santos da Silva",
       "email": "suleyva@hotmail.com",
-      "unidade": "1-1203",
-      "senha": "B2ugkwzB"
+      "unidades": [
+        "1-1203"
+      ],
+      "unidadesVinculadas": [
+        "1-1203"
+      ],
+      "senha": "2aejwpwP",
+      "criado": true
     },
     {
       "nome": "Leandro Rodrigues Santin",
       "email": "drlopan@gmail.com",
-      "unidade": "1-1204",
-      "senha": "kAfNQMCE"
+      "unidades": [
+        "1-1204"
+      ],
+      "unidadesVinculadas": [
+        "1-1204"
+      ],
+      "senha": "U7Oww0BU",
+      "criado": true
     },
     {
       "nome": "Bruna Rocco Bandeira de Menezes",
       "email": "bruninhavascain@yahoo.com.br",
-      "unidade": "1-1206",
-      "senha": "8lTcsckv"
+      "unidades": [
+        "1-1206"
+      ],
+      "unidadesVinculadas": [
+        "1-1206"
+      ],
+      "senha": "DYyyz7lp",
+      "criado": true
     },
     {
       "nome": "Juliana Ramos Buçard do Carmo",
       "email": "julianabucard@gmail.com",
-      "unidade": "1-1207",
-      "senha": "RHuZA4RJ"
+      "unidades": [
+        "1-1207"
+      ],
+      "unidadesVinculadas": [
+        "1-1207"
+      ],
+      "senha": "tQFMWfJO",
+      "criado": true
     },
     {
       "nome": "Luciano Peixoto Santos",
       "email": "lucianopeixoto.peixoto@gmail.com",
-      "unidade": "1-1208",
-      "senha": "Uj7cqnAh"
+      "unidades": [
+        "1-1208"
+      ],
+      "unidadesVinculadas": [
+        "1-1208"
+      ],
+      "senha": "J2E1YYCW",
+      "criado": true
     },
     {
       "nome": "Romulo Alves Oliveira dos Santos",
       "email": "romulo.aosantos@hotmail.com",
-      "unidade": "1-1209",
-      "senha": "A8jezb5G"
+      "unidades": [
+        "1-1209"
+      ],
+      "unidadesVinculadas": [
+        "1-1209"
+      ],
+      "senha": "LKXa7Kg8",
+      "criado": true
     },
     {
       "nome": "Tais Lima Ribeiro",
       "email": "taislima@gmail.com",
-      "unidade": "1-1210",
-      "senha": "cSGnli0G"
+      "unidades": [
+        "1-1210"
+      ],
+      "unidadesVinculadas": [
+        "1-1210"
+      ],
+      "senha": "NmF904OM",
+      "criado": true
     },
     {
       "nome": "Rejane M. Andrade T. Pereira",
       "email": "rpgtavares@hotmail.com",
-      "unidade": "1-1301",
-      "senha": "chpwCppM"
+      "unidades": [
+        "1-1301"
+      ],
+      "unidadesVinculadas": [
+        "1-1301"
+      ],
+      "senha": "l3ELPH9D",
+      "criado": true
     },
     {
       "nome": "Romulo Claudino Santos de Souza",
       "email": "hdclaudino@gmail.com",
-      "unidade": "1-1302",
-      "senha": "iNlDKsZL"
-    },
-    {
-      "nome": "Romulo Claudino Santos de Souza",
-      "email": "hdclaudino.11303@gmail.com",
-      "unidade": "1-1303",
-      "senha": "XapTnqmQ"
+      "unidades": [
+        "1-1302",
+        "1-1303"
+      ],
+      "unidadesVinculadas": [
+        "1-1302",
+        "1-1303"
+      ],
+      "senha": "CFtRAyk5",
+      "criado": true
     },
     {
       "nome": "Jose Alexandre Barbosa de Farias",
       "email": "alexfariasb28@gmail.com",
-      "unidade": "1-1304",
-      "senha": "AfsOlo8i"
+      "unidades": [
+        "1-1304"
+      ],
+      "unidadesVinculadas": [
+        "1-1304"
+      ],
+      "senha": "h5BHjnVw",
+      "criado": true
     },
     {
       "nome": "Celina Bomfim Cunha",
       "email": "alfredocunha@gmail.com",
-      "unidade": "1-1305",
-      "senha": "AH8M28cJ"
+      "unidades": [
+        "1-1305"
+      ],
+      "unidadesVinculadas": [
+        "1-1305"
+      ],
+      "senha": "oCaQeH41",
+      "criado": true
     },
     {
       "nome": "Lucas Costa Peres",
       "email": "lucascperes98@gmail.com",
-      "unidade": "1-1306",
-      "senha": "7Z6MYI7i"
+      "unidades": [
+        "1-1306"
+      ],
+      "unidadesVinculadas": [
+        "1-1306"
+      ],
+      "senha": "YvuX8zm3",
+      "criado": true
     },
     {
       "nome": "Adriana dos Reis X Raus",
       "email": "adriachavier@gmail.com",
-      "unidade": "1-1307",
-      "senha": "2f4dMGXQ"
+      "unidades": [
+        "1-1307"
+      ],
+      "unidadesVinculadas": [
+        "1-1307"
+      ],
+      "senha": "GFd2YyW6",
+      "criado": true
     },
     {
       "nome": "Romulo Sant'Ana Gonçalves",
       "email": "romuloservo@yahoo.com.br",
-      "unidade": "1-1308",
-      "senha": "KNNtXl7X"
+      "unidades": [
+        "1-1308"
+      ],
+      "unidadesVinculadas": [
+        "1-1308"
+      ],
+      "senha": "vIAeCfb1",
+      "criado": true
     },
     {
       "nome": "Constancia Almeida Garcia Barros da Fonseca",
       "email": "constancia.garcia2@gmail.com",
-      "unidade": "1-1309",
-      "senha": "pzEfEs5M"
+      "unidades": [
+        "1-1309"
+      ],
+      "unidadesVinculadas": [
+        "1-1309"
+      ],
+      "senha": "lQ3jeTD3",
+      "criado": true
     },
     {
       "nome": "Adriano Feitosa Rodrigues",
       "email": "adrianacarla4733@gmail.com",
-      "unidade": "1-1310",
-      "senha": "Rwkbakoa"
+      "unidades": [
+        "1-1310"
+      ],
+      "unidadesVinculadas": [
+        "1-1310"
+      ],
+      "senha": "XuOwo8Pv",
+      "criado": true
     },
     {
       "nome": "Carlos Magno Nogueira de Castro",
       "email": "carloscastroadu.pb@gmail.com",
-      "unidade": "1-1401",
-      "senha": "o4MylW5E"
+      "unidades": [
+        "1-1401"
+      ],
+      "unidadesVinculadas": [
+        "1-1401"
+      ],
+      "senha": "1IIPRrDg",
+      "criado": true
     },
     {
       "nome": "Diego de Oliveira Neves",
       "email": "doneves@gmail.com",
-      "unidade": "1-1402",
-      "senha": "lIebwYnV"
+      "unidades": [
+        "1-1402"
+      ],
+      "unidadesVinculadas": [
+        "1-1402"
+      ],
+      "senha": "lw4ICq1Q",
+      "criado": true
     },
     {
       "nome": "Raphael Dantas Ferreira",
       "email": "raphael.crf17@gmail.com",
-      "unidade": "1-1403",
-      "senha": "pLUi79Ku"
+      "unidades": [
+        "1-1403"
+      ],
+      "unidadesVinculadas": [
+        "1-1403"
+      ],
+      "senha": "nWMs4utG",
+      "criado": true
     },
     {
       "nome": "Raphael Correia da Silva Rodrigues",
       "email": "raphael.plrodrigues@hotmail.com",
-      "unidade": "1-1404",
-      "senha": "Geo5Qm4A"
+      "unidades": [
+        "1-1404"
+      ],
+      "unidadesVinculadas": [
+        "1-1404"
+      ],
+      "senha": "poXiZpDK",
+      "criado": true
     },
     {
       "nome": "Marlon Fagundes Pereira",
       "email": "marlonmarlonmarlon@gmail.com",
-      "unidade": "1-1405",
-      "senha": "XZ3k8dZk"
+      "unidades": [
+        "1-1405"
+      ],
+      "unidadesVinculadas": [
+        "1-1405"
+      ],
+      "senha": "sWICi6SA",
+      "criado": true
     },
     {
       "nome": "Rafael Neves da Costa",
       "email": "costarafaelpsi@gmail.com",
-      "unidade": "1-1406",
-      "senha": "bpm8MJvr"
-    },
-    {
-      "nome": "Mario Benedito Betti",
-      "email": "-.11407@undefined",
-      "unidade": "1-1407",
-      "senha": "9qh2YLTV"
+      "unidades": [
+        "1-1406"
+      ],
+      "unidadesVinculadas": [
+        "1-1406"
+      ],
+      "senha": "FH3aKOjV",
+      "criado": true
     },
     {
       "nome": "Gabriela Mello C. de Souza",
       "email": "gabimcsouza@gmail.com",
-      "unidade": "1-1408",
-      "senha": "c5Icudsd"
+      "unidades": [
+        "1-1408"
+      ],
+      "unidadesVinculadas": [
+        "1-1408"
+      ],
+      "senha": "K1MrtkeF",
+      "criado": true
     },
     {
       "nome": "Matheus Faria De Carvalho Ramires",
       "email": "matheus.fariasrf@gmail.com",
-      "unidade": "1-1409",
-      "senha": "VTrsf6af"
+      "unidades": [
+        "1-1409"
+      ],
+      "unidadesVinculadas": [
+        "1-1409"
+      ],
+      "senha": "RvBldcyA",
+      "criado": true
     },
     {
       "nome": "Ana Paula Custodio de Oliveira",
       "email": "anapaulaoliveira.1498@gmail.com",
-      "unidade": "1-1410",
-      "senha": "kP31He0Z"
+      "unidades": [
+        "1-1410"
+      ],
+      "unidadesVinculadas": [
+        "1-1410"
+      ],
+      "senha": "TNufcfNl",
+      "criado": true
     },
     {
       "nome": "Marcelo Santos Cardosos",
       "email": "mcardosos@illuminae-rj.com.br",
-      "unidade": "1-1501",
-      "senha": "qPIvJ6q0"
+      "unidades": [
+        "1-1501"
+      ],
+      "unidadesVinculadas": [
+        "1-1501"
+      ],
+      "senha": "YrwnKQOd",
+      "criado": true
     },
     {
       "nome": "Vitor Mascarena Peres",
       "email": "vitormascarenhasperes@gmail.com",
-      "unidade": "1-1502",
-      "senha": "hplqMqAX"
-    },
-    {
-      "nome": "Alexandre da Silva Azevedo",
-      "email": "alexandre.11504@construming.com.br",
-      "unidade": "1-1504",
-      "senha": "mADtthgG"
+      "unidades": [
+        "1-1502"
+      ],
+      "unidadesVinculadas": [
+        "1-1502"
+      ],
+      "senha": "CuO56Aqy",
+      "criado": true
     },
     {
       "nome": "Marcio Machado Silva",
       "email": "marcio_machado99@hotmail.com",
-      "unidade": "1-1505",
-      "senha": "NmBop9nI"
+      "unidades": [
+        "1-1505"
+      ],
+      "unidadesVinculadas": [
+        "1-1505"
+      ],
+      "senha": "iIaKOftn",
+      "criado": true
     },
     {
       "nome": "Gabriella Barros Guedes da Costa",
       "email": "gabriellacosta.2601@gmail.com",
-      "unidade": "1-1507",
-      "senha": "KeahCwR8"
-    },
-    {
-      "nome": "Gabriella Barros Guedes da Costa",
-      "email": "gabriellacosta.2601.11506@gmail.com",
-      "unidade": "1-1506",
-      "senha": "ildmvtAO"
+      "unidades": [
+        "1-1507",
+        "1-1506"
+      ],
+      "unidadesVinculadas": [
+        "1-1507",
+        "1-1506"
+      ],
+      "senha": "KqjcGZ3L",
+      "criado": true
     },
     {
       "nome": "Rodolfo Santana de Carvalho",
       "email": "rodolfosc.info@gmail.com",
-      "unidade": "1-1508",
-      "senha": "jU1mjbDG"
+      "unidades": [
+        "1-1508"
+      ],
+      "unidadesVinculadas": [
+        "1-1508"
+      ],
+      "senha": "szFmEn1H",
+      "criado": true
     },
     {
       "nome": "Caroline Almeira Lima",
       "email": "caalmeidadesigner@gmail.com",
-      "unidade": "1-1509",
-      "senha": "0AznsQPh"
+      "unidades": [
+        "1-1509"
+      ],
+      "unidadesVinculadas": [
+        "1-1509"
+      ],
+      "senha": "F7VcDoXt",
+      "criado": true
     },
     {
       "nome": "Paulo Vitor Ximenes de Melo Lima",
       "email": "paulovitorximenes@gmail.com",
-      "unidade": "1-1510",
-      "senha": "aRQCNdEM"
+      "unidades": [
+        "1-1510"
+      ],
+      "unidadesVinculadas": [
+        "1-1510"
+      ],
+      "senha": "RmfRyFzJ",
+      "criado": true
     }
   ],
   "erros_detalhados": []
