@@ -11,11 +11,13 @@ import type { Votacao, OpcaoVotacao } from '@/types';
 interface VotingCardProps {
   votacao: Votacao;
   opcoes: OpcaoVotacao[];
+  opcoesVotadas?: string[];
+  jaVotou?: boolean;
 }
 
-export function VotingCard({ votacao, opcoes }: VotingCardProps) {
+export function VotingCard({ votacao, opcoes, opcoesVotadas = [], jaVotou = false }: VotingCardProps) {
   const router = useRouter();
-  const [selecionadas, setSelecionadas] = useState<string[]>([]);
+  const [selecionadas, setSelecionadas] = useState<string[]>(opcoesVotadas);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -62,9 +64,9 @@ export function VotingCard({ votacao, opcoes }: VotingCardProps) {
         throw new Error(errorData.error || 'Erro ao registrar voto');
       }
 
-      // Redireciona para a página de participação após votar com sucesso
+      // Recarrega a página para mostrar o voto atualizado
       // Usa window.location para garantir navegação completa e evitar loops
-      window.location.href = '/participar';
+      window.location.reload();
     } catch (err: any) {
       setError(err.message || 'Erro ao registrar voto');
       setLoading(false);
@@ -120,7 +122,10 @@ export function VotingCard({ votacao, opcoes }: VotingCardProps) {
           disabled={loading || selecionadas.length === 0}
           className="rounded-md bg-blue-600 px-6 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {loading ? 'Registrando voto...' : 'Confirmar Voto'}
+          {loading 
+            ? (jaVotou ? 'Alterando voto...' : 'Registrando voto...')
+            : (jaVotou ? 'Alterar Voto' : 'Confirmar Voto')
+          }
         </button>
       </div>
     </form>

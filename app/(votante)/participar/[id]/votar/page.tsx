@@ -55,8 +55,8 @@ export default async function VotarPage({
     }
   }
 
-  // Se já votou ou votação encerrada, apenas mostra detalhes
-  if (jaVotou || votacao.status !== 'aberta') {
+  // Se votação encerrada, apenas mostra detalhes
+  if (votacao.status !== 'aberta') {
     return (
       <div>
         <h1 className="text-3xl font-bold text-gray-900">{votacao.titulo}</h1>
@@ -67,7 +67,7 @@ export default async function VotarPage({
           {jaVotou && (
             <div className="mb-4 rounded-md bg-green-50 p-4">
               <p className="text-sm font-medium text-green-800">
-                ✓ Você já votou nesta votação.
+                ✓ Você votou nesta votação.
               </p>
               {votoUnidade && (
                 <p className="mt-2 text-sm text-green-700">
@@ -76,13 +76,11 @@ export default async function VotarPage({
               )}
             </div>
           )}
-          {votacao.status !== 'aberta' && (
-            <div className="mb-4 rounded-md bg-gray-50 p-4">
-              <p className="text-sm text-gray-800">
-                Esta votação está {votacao.status === 'encerrada' ? 'encerrada' : 'em rascunho'}.
-              </p>
-            </div>
-          )}
+          <div className="mb-4 rounded-md bg-gray-50 p-4">
+            <p className="text-sm text-gray-800">
+              Esta votação está {votacao.status === 'encerrada' ? 'encerrada' : 'em rascunho'}.
+            </p>
+          </div>
           <div className="space-y-2">
             <h2 className="text-lg font-semibold">Opções:</h2>
             {opcoes.map((opcao) => {
@@ -137,7 +135,24 @@ export default async function VotarPage({
         <p className="mt-2 text-gray-600">{votacao.descricao}</p>
       )}
       <div className="mt-8">
-        <VotingCard votacao={votacao} opcoes={opcoes} />
+        {jaVotou && (
+          <div className="mb-4 rounded-md bg-blue-50 p-4">
+            <p className="text-sm font-medium text-blue-800">
+              ℹ️ Você já votou nesta votação. Você pode alterar seu voto até o fim do período.
+            </p>
+            {votoUnidade && (
+              <p className="mt-1 text-xs text-blue-700">
+                Último voto registrado em {new Date(votoUnidade.created_at).toLocaleString('pt-BR')}.
+              </p>
+            )}
+          </div>
+        )}
+        <VotingCard 
+          votacao={votacao} 
+          opcoes={opcoes} 
+          opcoesVotadas={opcoesVotadas}
+          jaVotou={jaVotou}
+        />
         {votacao.mostrar_parcial && votacao.status === 'aberta' && (
           <ResultadoParcial votacaoId={votacao.id} />
         )}

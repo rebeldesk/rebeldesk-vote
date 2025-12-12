@@ -31,7 +31,7 @@ Este é um sistema de votação para condomínios desenvolvido em Next.js 14+ co
 - Use comentários para decisões arquiteturais importantes
 
 ### Regras de Negócio Importantes
-1. **Voto por Unidade**: Uma unidade só pode votar uma vez por votação (não por usuário)
+1. **Voto por Unidade**: Uma unidade pode alterar seu voto até o fim da votação. O último voto registrado é o que conta (não por usuário)
 2. **Histórico Preservado**: Quando morador muda, unidade mantém histórico
 3. **Perfis**: Staff e Conselho têm acesso admin; Conselho e Auditor podem votar
 4. **Auditoria**: Anônimo (sem rastreamento) ou Rastreado (vinculado ao usuário)

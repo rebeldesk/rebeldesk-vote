@@ -40,7 +40,7 @@ projeto-votacao/
 
 ## Regras de Negócio Principais
 
-1. **Voto por Unidade**: Uma unidade só pode votar uma vez por votação (não por usuário)
+1. **Voto por Unidade**: Uma unidade pode alterar seu voto até o fim da votação. O último voto registrado é o que conta (não por usuário)
 2. **Histórico de Unidade**: Quando um morador muda (aluguel/venda), a unidade mantém seu histórico de votos
 3. **Perfis de Acesso**:
    - **Staff**: Acesso administrativo completo

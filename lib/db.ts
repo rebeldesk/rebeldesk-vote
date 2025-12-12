@@ -249,7 +249,7 @@ export async function buscarVotacaoCompleta(id: string): Promise<{
 /**
  * Verifica se uma unidade já votou em uma votação.
  * 
- * IMPORTANTE: Uma unidade só pode votar uma vez por votação.
+ * IMPORTANTE: Uma unidade pode alterar seu voto até o fim da votação.
  * 
  * @param votacaoId - ID da votação
  * @param unidadeId - ID da unidade
@@ -307,19 +307,20 @@ export async function buscarVotoUnidade(
 }
 
 /**
- * Registra um voto de uma unidade.
+ * Registra ou atualiza um voto de uma unidade.
  * 
  * Regras de negócio:
- * - Uma unidade só pode votar uma vez por votação
- * - O voto deve ser registrado antes da data de encerramento
+ * - Uma unidade pode alterar seu voto até o fim da votação
+ * - O voto deve ser registrado/atualizado antes da data de encerramento
  * - Se a votação for rastreada, o user_id é obrigatório
+ * - Se já existe voto, ele é atualizado (permite mudança de voto)
  * 
  * @param votacaoId - ID da votação
  * @param unidadeId - ID da unidade
  * @param opcoesIds - IDs das opções selecionadas
  * @param userId - ID do usuário (obrigatório se modo_auditoria = 'rastreado')
- * @returns Voto criado
- * @throws {Error} Se a unidade já votou ou se a votação estiver encerrada
+ * @returns Voto criado ou atualizado
+ * @throws {Error} Se a votação estiver encerrada ou dados inválidos
  */
 export async function registrarVoto(
   votacaoId: string,
@@ -348,12 +349,6 @@ export async function registrarVoto(
     throw new Error('Período de votação encerrado');
   }
 
-  // Verifica se já votou
-  const jaVotou = await unidadeJaVotou(votacaoId, unidadeId);
-  if (jaVotou) {
-    throw new Error('Esta unidade já votou nesta votação');
-  }
-
   // Valida tipo de votação
   if (votacao.tipo === 'escolha_unica' && opcoesIds.length !== 1) {
     throw new Error('Votação de escolha única permite apenas uma opção');
@@ -368,28 +363,76 @@ export async function registrarVoto(
     throw new Error('User ID é obrigatório para votações rastreadas');
   }
 
-  // Prepara dados do voto
-  const dadosVoto: Prisma.VotoCreateInput = {
-    votacao: {
-      connect: { id: votacaoId },
+  // Verifica se já existe voto
+  const votoExistente = await prisma.voto.findUnique({
+    where: {
+      votacaoId_unidadeId: {
+        votacaoId,
+        unidadeId,
+      },
     },
-    unidade: {
-      connect: { id: unidadeId },
-    },
-    opcoesIds: opcoesIds.length > 1 ? (opcoesIds as Prisma.InputJsonValue) : undefined,
-    user: userId ? { connect: { id: userId } } : undefined,
-  };
+  });
 
-  // Para escolha única, também conecta a opção
+  // Prepara dados do voto (para create ou update)
+  let dadosVoto: Prisma.VotoCreateInput | Prisma.VotoUpdateInput;
+
   if (votacao.tipo === 'escolha_unica') {
-    dadosVoto.opcao = {
-      connect: { id: opcoesIds[0] },
-    };
+    // Escolha única: usa opcaoId
+    if (votoExistente) {
+      dadosVoto = {
+        opcao: { connect: { id: opcoesIds[0] } },
+        opcoesIds: Prisma.JsonNull, // Limpa opcoesIds para escolha única
+        user: userId ? { connect: { id: userId } } : undefined,
+      } as Prisma.VotoUpdateInput;
+    } else {
+      dadosVoto = {
+        opcao: { connect: { id: opcoesIds[0] } },
+        user: userId ? { connect: { id: userId } } : undefined,
+      } as Prisma.VotoCreateInput;
+    }
+  } else {
+    // Múltipla escolha: usa opcoesIds
+    if (votoExistente) {
+      dadosVoto = {
+        opcao: { disconnect: true }, // Remove opcaoId para múltipla escolha
+        opcoesIds: opcoesIds as Prisma.InputJsonValue,
+        user: userId ? { connect: { id: userId } } : undefined,
+      } as Prisma.VotoUpdateInput;
+    } else {
+      dadosVoto = {
+        opcoesIds: opcoesIds as Prisma.InputJsonValue,
+        user: userId ? { connect: { id: userId } } : undefined,
+      } as Prisma.VotoCreateInput;
+    }
   }
 
-  const voto = await prisma.voto.create({
-    data: dadosVoto,
-  });
+  let voto;
+
+  if (votoExistente) {
+    // Atualiza voto existente (permite mudança de voto)
+    voto = await prisma.voto.update({
+      where: {
+        votacaoId_unidadeId: {
+          votacaoId,
+          unidadeId,
+        },
+      },
+      data: dadosVoto as Prisma.VotoUpdateInput,
+    });
+  } else {
+    // Cria novo voto
+    voto = await prisma.voto.create({
+      data: {
+        ...(dadosVoto as Prisma.VotoCreateInput),
+        votacao: {
+          connect: { id: votacaoId },
+        },
+        unidade: {
+          connect: { id: unidadeId },
+        },
+      },
+    });
+  }
 
   // Formata para o tipo Voto esperado
   return {
@@ -399,7 +442,7 @@ export async function registrarVoto(
     opcao_id: voto.opcaoId,
     opcoes_ids: voto.opcoesIds as string[] | null,
     user_id: voto.userId,
-      created_at: voto.createdAt?.toISOString() || new Date().toISOString(),
+    created_at: voto.createdAt?.toISOString() || new Date().toISOString(),
   } as Voto;
 }
 

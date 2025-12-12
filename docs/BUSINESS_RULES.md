@@ -97,7 +97,7 @@ Este documento detalha todas as regras de negócio do sistema de votação condo
 
 1. **Período**: Voto só é aceito entre data_inicio e data_fim
 2. **Status**: Voto só é aceito se status = 'aberta'
-3. **Unicidade**: Uma unidade só pode votar uma vez por votação
+3. **Alteração de Voto**: Uma unidade pode alterar seu voto até o fim do período de votação. O último voto registrado é o que conta para o resultado final.
 4. **Validação de Opções**:
    - Escolha única: exatamente 1 opção deve ser selecionada
    - Múltipla escolha: pelo menos 1 opção deve ser selecionada
