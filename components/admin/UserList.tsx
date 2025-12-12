@@ -1,0 +1,195 @@
+/**
+ * Componente client-side para listagem de usuários com busca e ações.
+ * 
+ * Gerencia a busca local e ações de deletar.
+ */
+
+'use client';
+
+import { useState, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+
+interface Usuario {
+  id: string;
+  nome: string;
+  email: string;
+  telefone: string | null;
+  perfil: string;
+  unidades?: {
+    id: string;
+    numero: string;
+  } | null;
+}
+
+interface UserListProps {
+  usuarios: Usuario[];
+  currentUserId?: string;
+  canDelete?: boolean; // Apenas staff pode deletar
+}
+
+export function UserList({ usuarios, currentUserId, canDelete = false }: UserListProps) {
+  const router = useRouter();
+  const [busca, setBusca] = useState('');
+  const [usuarioParaDeletar, setUsuarioParaDeletar] = useState<string | null>(null);
+  const [deletando, setDeletando] = useState(false);
+
+  // Filtra usuários baseado na busca
+  const usuariosFiltrados = useMemo(() => {
+    if (!busca.trim()) {
+      return usuarios;
+    }
+
+    const termoBusca = busca.toLowerCase();
+    return usuarios.filter(
+      (usuario) =>
+        usuario.nome.toLowerCase().includes(termoBusca) ||
+        usuario.email.toLowerCase().includes(termoBusca) ||
+        usuario.telefone?.toLowerCase().includes(termoBusca) ||
+        usuario.perfil.toLowerCase().includes(termoBusca) ||
+        usuario.unidades?.numero.toLowerCase().includes(termoBusca)
+    );
+  }, [usuarios, busca]);
+
+  const handleDeletar = async (usuarioId: string) => {
+    if (!confirm('Tem certeza que deseja excluir este usuário? Esta ação não pode ser desfeita.')) {
+      return;
+    }
+
+    setUsuarioParaDeletar(usuarioId);
+    setDeletando(true);
+    try {
+      const response = await fetch(`/api/usuarios/${usuarioId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Erro ao excluir usuário');
+      }
+
+      // Recarrega a página para atualizar a lista
+      router.refresh();
+    } catch (error: any) {
+      alert(error.message || 'Erro ao excluir usuário');
+      setDeletando(false);
+      setUsuarioParaDeletar(null);
+    }
+  };
+
+  return (
+    <div>
+      {/* Campo de busca */}
+      <div className="mb-4">
+        <div className="relative">
+          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+            <svg
+              className="h-5 w-5 text-gray-400"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
+          </div>
+          <input
+            type="text"
+            placeholder="Buscar por nome, email, telefone, perfil ou unidade..."
+            value={busca}
+            onChange={(e) => setBusca(e.target.value)}
+            className="block w-full rounded-md border border-gray-300 bg-white py-2 pl-10 pr-3 text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
+          />
+        </div>
+        {busca && (
+          <p className="mt-2 text-sm text-gray-500">
+            {usuariosFiltrados.length} usuário{usuariosFiltrados.length !== 1 ? 's' : ''} encontrado{usuariosFiltrados.length !== 1 ? 's' : ''}
+          </p>
+        )}
+      </div>
+
+      {/* Tabela de usuários */}
+      <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
+        <table className="min-w-full divide-y divide-gray-300">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500">
+                Nome
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500">
+                Email
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500">
+                Telefone
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500">
+                Perfil
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500">
+                Unidade
+              </th>
+              <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wide text-gray-500">
+                Ações
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-200 bg-white">
+            {usuariosFiltrados.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="px-6 py-4 text-center text-sm text-gray-500">
+                  {busca ? 'Nenhum usuário encontrado com os critérios de busca.' : 'Nenhum usuário cadastrado.'}
+                </td>
+              </tr>
+            ) : (
+              usuariosFiltrados.map((usuario) => (
+                <tr key={usuario.id}>
+                  <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
+                    {usuario.nome}
+                  </td>
+                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                    {usuario.email}
+                  </td>
+                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                    {usuario.telefone || '-'}
+                  </td>
+                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                    <span className="inline-flex rounded-full bg-blue-100 px-2 text-xs font-semibold leading-5 text-blue-800">
+                      {usuario.perfil}
+                    </span>
+                  </td>
+                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                    {usuario.unidades?.numero || '-'}
+                  </td>
+                  <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
+                    <div className="flex justify-end gap-2">
+                      <Link
+                        href={`/usuarios/${usuario.id}`}
+                        className="text-blue-600 hover:text-blue-900"
+                      >
+                        Editar
+                      </Link>
+                      {canDelete && usuario.id !== currentUserId && (
+                        <button
+                          onClick={() => handleDeletar(usuario.id)}
+                          disabled={deletando}
+                          className="text-red-600 hover:text-red-900 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {deletando && usuarioParaDeletar === usuario.id ? 'Excluindo...' : 'Excluir'}
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+

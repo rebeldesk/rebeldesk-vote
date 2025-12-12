@@ -9,6 +9,7 @@ import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
+import { UserList } from '@/components/admin/UserList';
 
 async function buscarUsuarios() {
   const usuarios = await prisma.usuario.findMany({
@@ -49,6 +50,7 @@ export default async function UsuariosPage() {
   }
 
   const usuarios = await buscarUsuarios();
+  const canDelete = session.user?.perfil === 'staff';
 
   return (
     <div>
@@ -62,62 +64,12 @@ export default async function UsuariosPage() {
         </Link>
       </div>
 
-      <div className="mt-8 overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
-        <table className="min-w-full divide-y divide-gray-300">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500">
-                Nome
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500">
-                Email
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500">
-                Telefone
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500">
-                Perfil
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500">
-                Unidade
-              </th>
-              <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wide text-gray-500">
-                Ações
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200 bg-white">
-            {usuarios.map((usuario: any) => (
-              <tr key={usuario.id}>
-                <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
-                  {usuario.nome}
-                </td>
-                <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                  {usuario.email}
-                </td>
-                <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                  {usuario.telefone || '-'}
-                </td>
-                <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                  <span className="inline-flex rounded-full bg-blue-100 px-2 text-xs font-semibold leading-5 text-blue-800">
-                    {usuario.perfil}
-                  </span>
-                </td>
-                <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                  {usuario.unidades?.numero || '-'}
-                </td>
-                <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
-                  <Link
-                    href={`/usuarios/${usuario.id}`}
-                    className="text-blue-600 hover:text-blue-900"
-                  >
-                    Editar
-                  </Link>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="mt-8">
+        <UserList
+          usuarios={usuarios}
+          currentUserId={session.user?.id}
+          canDelete={canDelete}
+        />
       </div>
     </div>
   );
