@@ -150,6 +150,16 @@ export default async function DashboardPage() {
               </div>
             </div>
           </div>
+          <div className="bg-gray-50 px-5 py-3">
+            <div className="text-sm">
+              <Link
+                href="/unidades"
+                className="font-medium text-blue-700 hover:text-blue-900"
+              >
+                Ver todas
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -162,6 +172,12 @@ export default async function DashboardPage() {
             className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
           >
             Novo Usuário
+          </Link>
+          <Link
+            href="/unidades/nova"
+            className="rounded-md bg-purple-600 px-4 py-2 text-sm font-medium text-white hover:bg-purple-700"
+          >
+            Nova Unidade
           </Link>
           <Link
             href="/votacoes/nova"
