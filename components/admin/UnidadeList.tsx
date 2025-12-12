@@ -6,6 +6,7 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Pagination } from '@/components/ui/Pagination';
 import { QuickFilters } from '@/components/ui/QuickFilters';
 
@@ -196,7 +197,12 @@ export function UnidadeList({ unidades, canDelete = false }: UnidadeListProps) {
               unidadesPaginadas.map((unidade) => (
                 <tr key={unidade.id} className="hover:bg-gray-50">
                   <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
-                    {unidade.numero}
+                    <Link
+                      href={`/unidades/${unidade.id}`}
+                      className="text-blue-600 hover:text-blue-900 hover:underline cursor-pointer"
+                    >
+                      {unidade.numero}
+                    </Link>
                   </td>
                   <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
                     {unidade.total_usuarios}

@@ -14,6 +14,9 @@ model Unidade {
   users           Usuario[]
   usuarioUnidades UsuarioUnidade[]
   votos           Voto[]
+  vaga            Vaga?
+  vagasAlugadas   Vaga[]           @relation("VagasAlugadas")
+  veiculos        Veiculo[]
 
   @@map("unidades")
 }
@@ -138,4 +141,46 @@ model UsuarioUnidade {
   @@index([usuarioId], map: "idx_usuario_unidades_usuario_id")
   @@index([unidadeId], map: "idx_usuario_unidades_unidade_id")
   @@map("usuario_unidades")
+}
+
+model Vaga {
+  id               String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  unidadeId        String    @unique @map("unidade_id") @db.Uuid
+  estaAlugada      Boolean   @default(false) @map("esta_alugada")
+  unidadeAlugadaId String?   @map("unidade_alugada_id") @db.Uuid
+  createdAt        DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime? @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  unidade          Unidade   @relation(fields: [unidadeId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  unidadeAlugada   Unidade?  @relation("VagasAlugadas", fields: [unidadeAlugadaId], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  veiculos         Veiculo[]
+
+  @@index([unidadeId], map: "idx_vagas_unidade_id")
+  @@index([unidadeAlugadaId], map: "idx_vagas_unidade_alugada_id")
+  @@map("vagas")
+}
+
+model Veiculo {
+  id        String      @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  unidadeId String      @map("unidade_id") @db.Uuid
+  vagaId    String?     @map("vaga_id") @db.Uuid
+  placa     String      @unique @db.VarChar(10)
+  modelo    String      @db.VarChar(100)
+  marca     String      @db.VarChar(100)
+  tipo      TipoVeiculo
+  createdAt DateTime?   @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime?   @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  unidade   Unidade     @relation(fields: [unidadeId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  vaga      Vaga?       @relation(fields: [vagaId], references: [id], onDelete: SetNull, onUpdate: NoAction)
+
+  @@index([unidadeId], map: "idx_veiculos_unidade_id")
+  @@index([vagaId], map: "idx_veiculos_vaga_id")
+  @@index([placa], map: "idx_veiculos_placa")
+  @@map("veiculos")
+}
+
+enum TipoVeiculo {
+  carro
+  moto
+
+  @@map("tipo_veiculo")
 }
