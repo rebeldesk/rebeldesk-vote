@@ -25,13 +25,14 @@ export default async function VotanteLayout({
       <nav className="bg-white shadow">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 justify-between">
-            <div className="flex">
+            <div className="flex flex-1 items-center">
               <div className="flex flex-shrink-0 items-center">
-                <Link href="/participar" className="text-xl font-bold text-gray-900">
+                <Link href="/participar" className="text-lg sm:text-xl font-bold text-gray-900">
                   Sistema de Votação
                 </Link>
               </div>
-              <div className="ml-6 flex space-x-8">
+              {/* Menu desktop - oculto em mobile */}
+              <div className="hidden md:ml-6 md:flex md:space-x-8">
                 <Link
                   href="/participar"
                   className="inline-flex items-center border-b-2 border-blue-500 px-1 pt-1 text-sm font-medium text-gray-900"
@@ -48,9 +49,12 @@ export default async function VotanteLayout({
                 )}
               </div>
             </div>
-            <div className="flex items-center">
-              <span className="text-sm text-gray-700">
+            <div className="flex items-center gap-2 sm:gap-4">
+              <span className="hidden sm:inline-block text-sm text-gray-700">
                 {session.user?.name} ({session.user?.perfil})
+              </span>
+              <span className="sm:hidden text-xs text-gray-700 truncate max-w-[100px]">
+                {session.user?.name}
               </span>
               <form
                 action={async () => {
@@ -58,15 +62,34 @@ export default async function VotanteLayout({
                   const { signOut: signOutFn } = await import('@/lib/auth');
                   await signOutFn({ redirectTo: '/login' });
                 }}
-                className="ml-4"
+                className="ml-2 sm:ml-4"
               >
                 <button
                   type="submit"
-                  className="rounded-md bg-gray-100 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200"
+                  className="rounded-md bg-gray-100 px-2 sm:px-3 py-2 text-xs sm:text-sm font-medium text-gray-700 hover:bg-gray-200"
                 >
                   Sair
                 </button>
               </form>
+            </div>
+          </div>
+          {/* Menu mobile - dropdown simples */}
+          <div className="md:hidden border-t border-gray-200">
+            <div className="px-2 pt-2 pb-3 space-y-1">
+              <Link
+                href="/participar"
+                className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 rounded-md"
+              >
+                Votações
+              </Link>
+              {(session.user?.perfil === 'staff' || session.user?.perfil === 'conselho') && (
+                <Link
+                  href="/dashboard"
+                  className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 rounded-md"
+                >
+                  Administração
+                </Link>
+              )}
             </div>
           </div>
         </div>

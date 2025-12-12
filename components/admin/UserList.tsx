@@ -113,26 +113,28 @@ export function UserList({ usuarios, currentUserId, canDelete = false }: UserLis
       </div>
 
       {/* Tabela de usuários */}
-      <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
-        <table className="min-w-full divide-y divide-gray-300">
+      <div className="overflow-x-auto -mx-4 sm:mx-0">
+        <div className="inline-block min-w-full align-middle sm:px-0">
+          <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
+            <table className="min-w-full divide-y divide-gray-300">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500">
+              <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500">
                 Nome
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500">
+              <th className="hidden sm:table-cell px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500">
                 Email
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500">
+              <th className="hidden md:table-cell px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500">
                 Telefone
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500">
+              <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500">
                 Perfil
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500">
+              <th className="hidden lg:table-cell px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500">
                 Unidade
               </th>
-              <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wide text-gray-500">
+              <th className="px-3 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wide text-gray-500">
                 Ações
               </th>
             </tr>
@@ -140,31 +142,34 @@ export function UserList({ usuarios, currentUserId, canDelete = false }: UserLis
           <tbody className="divide-y divide-gray-200 bg-white">
             {usuariosFiltrados.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-6 py-4 text-center text-sm text-gray-500">
+                <td colSpan={6} className="px-3 sm:px-6 py-4 text-center text-sm text-gray-500">
                   {busca ? 'Nenhum usuário encontrado com os critérios de busca.' : 'Nenhum usuário cadastrado.'}
                 </td>
               </tr>
             ) : (
               usuariosFiltrados.map((usuario) => (
                 <tr key={usuario.id}>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
-                    {usuario.nome}
+                  <td className="whitespace-nowrap px-3 sm:px-6 py-4 text-sm font-medium text-gray-900">
+                    <div>
+                      <div className="font-medium">{usuario.nome}</div>
+                      <div className="sm:hidden text-xs text-gray-500 mt-1">{usuario.email}</div>
+                    </div>
                   </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                  <td className="hidden sm:table-cell whitespace-nowrap px-6 py-4 text-sm text-gray-500">
                     {usuario.email}
                   </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                  <td className="hidden md:table-cell whitespace-nowrap px-6 py-4 text-sm text-gray-500">
                     {usuario.telefone || '-'}
                   </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                  <td className="whitespace-nowrap px-3 sm:px-6 py-4 text-sm text-gray-500">
                     <span className="inline-flex rounded-full bg-blue-100 px-2 text-xs font-semibold leading-5 text-blue-800">
                       {usuario.perfil}
                     </span>
                   </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                  <td className="hidden lg:table-cell whitespace-nowrap px-6 py-4 text-sm text-gray-500">
                     {usuario.unidades?.numero || '-'}
                   </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
+                  <td className="whitespace-nowrap px-3 sm:px-6 py-4 text-right text-sm font-medium">
                     <div className="flex justify-end gap-2">
                       <Link
                         href={`/usuarios/${usuario.id}`}
@@ -188,6 +193,8 @@ export function UserList({ usuarios, currentUserId, canDelete = false }: UserLis
             )}
           </tbody>
         </table>
+          </div>
+        </div>
       </div>
     </div>
   );

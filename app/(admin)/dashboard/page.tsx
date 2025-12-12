@@ -165,23 +165,23 @@ export default async function DashboardPage() {
 
       {/* Ações Rápidas */}
       <div className="mt-8">
-        <h2 className="text-xl font-semibold text-gray-900">Ações Rápidas</h2>
-        <div className="mt-4 flex space-x-4">
+        <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Ações Rápidas</h2>
+        <div className="mt-4 flex flex-col sm:flex-row gap-3 sm:gap-4">
           <Link
             href="/usuarios/novo"
-            className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+            className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 text-center"
           >
             Novo Usuário
           </Link>
           <Link
             href="/unidades/nova"
-            className="rounded-md bg-purple-600 px-4 py-2 text-sm font-medium text-white hover:bg-purple-700"
+            className="rounded-md bg-purple-600 px-4 py-2 text-sm font-medium text-white hover:bg-purple-700 text-center"
           >
             Nova Unidade
           </Link>
           <Link
             href="/votacoes/nova"
-            className="rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700"
+            className="rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 text-center"
           >
             Nova Votação
           </Link>

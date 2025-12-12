@@ -64,7 +64,7 @@ export default async function VotacoesDisponiveisPage() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-gray-900">Votações Disponíveis</h1>
+      <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Votações Disponíveis</h1>
       <p className="mt-2 text-sm text-gray-600">
         Visualize e participe das votações do condomínio
       </p>

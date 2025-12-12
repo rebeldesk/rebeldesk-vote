@@ -54,11 +54,11 @@ export default async function UsuariosPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-gray-900">Usuários</h1>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Usuários</h1>
         <Link
           href="/usuarios/novo"
-          className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+          className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 w-full sm:w-auto text-center"
         >
           Novo Usuário
         </Link>
