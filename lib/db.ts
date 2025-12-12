@@ -463,7 +463,7 @@ export async function calcularResultado(
       opcoes: {
         orderBy: { ordem: 'asc' },
       },
-      votos: incluirDetalhes,
+      votos: true, // Sempre inclui votos para calcular resultados
     },
   });
 

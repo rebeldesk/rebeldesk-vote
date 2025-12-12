@@ -23,6 +23,8 @@ export function ResultadoParcial({ votacaoId }: ResultadoParcialProps) {
     const buscarParcial = async () => {
       try {
         setLoading(true);
+        setError(''); // Limpa erro anterior
+        
         const response = await fetch(`/api/votacoes/${votacaoId}/resultado`);
         
         if (!response.ok) {
@@ -30,14 +32,25 @@ export function ResultadoParcial({ votacaoId }: ResultadoParcialProps) {
           if (response.status === 403) {
             setError('');
             setResultado(null);
+            setLoading(false);
             return;
           }
-          let errorMessage = 'Erro ao buscar resultados parciais';
+          
+          // Se for erro 404, votação não encontrada
+          if (response.status === 404) {
+            setError('');
+            setResultado(null);
+            setLoading(false);
+            return;
+          }
+          
+          let errorMessage = 'Erro ao buscar resultados';
           try {
             const errorData = await response.json();
             errorMessage = errorData.error || errorMessage;
           } catch {
             // Ignora erro ao parsear JSON
+            errorMessage = `Erro ${response.status}: ${response.statusText}`;
           }
           throw new Error(errorMessage);
         }
@@ -48,6 +61,7 @@ export function ResultadoParcial({ votacaoId }: ResultadoParcialProps) {
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Erro ao carregar resultados parciais';
         setError(errorMessage);
+        console.error('Erro ao buscar resultados parciais:', err);
       } finally {
         setLoading(false);
       }

@@ -58,8 +58,10 @@ export async function GET(
 
     return NextResponse.json(resultado);
   } catch (error) {
+    console.error('Erro ao buscar resultados da votação:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Erro ao buscar resultados';
     return NextResponse.json(
-      { error: 'Erro ao buscar resultados' },
+      { error: errorMessage },
       { status: 500 }
     );
   }
