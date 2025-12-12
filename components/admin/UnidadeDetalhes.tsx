@@ -373,7 +373,7 @@ export function UnidadeDetalhes({ unidade, todasUnidades, isStaff }: UnidadeDeta
                     <div className="flex items-center justify-between">
                       <div>
                         <label className="text-sm font-medium text-gray-700">
-                          Tem Direito a Vaga
+                          Tem direito a Vaga
                         </label>
                         <p className="text-xs text-gray-500 mt-1">
                           Define se esta unidade tem direito a uma vaga de estacionamento
