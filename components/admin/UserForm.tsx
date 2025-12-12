@@ -109,7 +109,7 @@ export function UserForm({ usuarioId, initialData }: UserFormProps) {
           {...register('nome')}
           type="text"
           id="nome"
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
+          className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
         />
         {errors.nome && (
           <p className="mt-1 text-sm text-red-600">{errors.nome.message}</p>
@@ -124,7 +124,7 @@ export function UserForm({ usuarioId, initialData }: UserFormProps) {
           {...register('email')}
           type="email"
           id="email"
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
+          className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
         />
         {errors.email && (
           <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
@@ -139,7 +139,7 @@ export function UserForm({ usuarioId, initialData }: UserFormProps) {
           {...register('senha')}
           type="password"
           id="senha"
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
+          className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
         />
         {errors.senha && (
           <p className="mt-1 text-sm text-red-600">{errors.senha.message}</p>
@@ -154,7 +154,7 @@ export function UserForm({ usuarioId, initialData }: UserFormProps) {
           {...register('telefone')}
           type="tel"
           id="telefone"
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
+          className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
         />
       </div>
 
@@ -165,7 +165,7 @@ export function UserForm({ usuarioId, initialData }: UserFormProps) {
         <select
           {...register('perfil')}
           id="perfil"
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
+          className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
         >
           <option value="morador">Morador</option>
           <option value="auditor">Auditor</option>
@@ -184,7 +184,7 @@ export function UserForm({ usuarioId, initialData }: UserFormProps) {
         <select
           {...register('unidade_id')}
           id="unidade_id"
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
+          className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
         >
           <option value="">Nenhuma</option>
           {unidades.map((unidade) => (

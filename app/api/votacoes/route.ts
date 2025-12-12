@@ -16,8 +16,21 @@ const criarVotacaoSchema = z.object({
   descricao: z.string().optional(),
   tipo: z.enum(['escolha_unica', 'multipla_escolha']),
   modo_auditoria: z.enum(['anonimo', 'rastreado']),
-  data_inicio: z.string().datetime(),
-  data_fim: z.string().datetime(),
+  // Aceita formato datetime-local (YYYY-MM-DDTHH:mm) ou datetime ISO completo
+  data_inicio: z.string().refine(
+    (val) => {
+      const date = new Date(val);
+      return !isNaN(date.getTime());
+    },
+    { message: 'Data de início inválida' }
+  ),
+  data_fim: z.string().refine(
+    (val) => {
+      const date = new Date(val);
+      return !isNaN(date.getTime());
+    },
+    { message: 'Data de término inválida' }
+  ),
   opcoes: z.array(z.string().min(1, 'Opção não pode ser vazia')).min(2, 'Deve ter pelo menos 2 opções'),
 });
 

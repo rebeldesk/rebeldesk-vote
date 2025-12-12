@@ -101,7 +101,11 @@ export function VotingForm({ votacaoId, initialData }: VotingFormProps) {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Erro ao salvar votação');
+        // Mostra detalhes de validação se disponíveis
+        const errorMessage = errorData.details 
+          ? `${errorData.error}: ${errorData.details.map((d: any) => d.message).join(', ')}`
+          : errorData.error || 'Erro ao salvar votação';
+        throw new Error(errorMessage);
       }
 
       router.push('/votacoes');
@@ -128,7 +132,7 @@ export function VotingForm({ votacaoId, initialData }: VotingFormProps) {
           {...register('titulo')}
           type="text"
           id="titulo"
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
+          className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
         />
         {errors.titulo && (
           <p className="mt-1 text-sm text-red-600">{errors.titulo.message}</p>
@@ -143,7 +147,7 @@ export function VotingForm({ votacaoId, initialData }: VotingFormProps) {
           {...register('descricao')}
           id="descricao"
           rows={3}
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
+          className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
         />
       </div>
 
@@ -155,7 +159,7 @@ export function VotingForm({ votacaoId, initialData }: VotingFormProps) {
           <select
             {...register('tipo')}
             id="tipo"
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
+            className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
           >
             <option value="escolha_unica">Escolha Única</option>
             <option value="multipla_escolha">Múltipla Escolha</option>
@@ -169,7 +173,7 @@ export function VotingForm({ votacaoId, initialData }: VotingFormProps) {
           <select
             {...register('modo_auditoria')}
             id="modo_auditoria"
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
+            className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
           >
             <option value="anonimo">Anônimo</option>
             <option value="rastreado">Rastreado</option>
@@ -186,7 +190,7 @@ export function VotingForm({ votacaoId, initialData }: VotingFormProps) {
             {...register('data_inicio')}
             type="datetime-local"
             id="data_inicio"
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
+            className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
           />
           {errors.data_inicio && (
             <p className="mt-1 text-sm text-red-600">{errors.data_inicio.message}</p>
@@ -201,7 +205,7 @@ export function VotingForm({ votacaoId, initialData }: VotingFormProps) {
             {...register('data_fim')}
             type="datetime-local"
             id="data_fim"
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
+            className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
           />
           {errors.data_fim && (
             <p className="mt-1 text-sm text-red-600">{errors.data_fim.message}</p>
@@ -230,7 +234,7 @@ export function VotingForm({ votacaoId, initialData }: VotingFormProps) {
                 value={opcao}
                 onChange={(e) => atualizarOpcao(index, e.target.value)}
                 placeholder={`Opção ${index + 1}`}
-                className="block flex-1 rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
+                className="block flex-1 rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
               />
               {opcoes.length > 2 && (
                 <button

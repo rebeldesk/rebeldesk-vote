@@ -14,8 +14,23 @@ import { prisma } from '@/lib/prisma';
 const atualizarVotacaoSchema = z.object({
   titulo: z.string().min(1).optional(),
   descricao: z.string().optional(),
-  data_inicio: z.string().datetime().optional(),
-  data_fim: z.string().datetime().optional(),
+  // Aceita formato datetime-local (YYYY-MM-DDTHH:mm) ou datetime ISO completo
+  data_inicio: z.string().refine(
+    (val) => {
+      if (!val) return true; // opcional
+      const date = new Date(val);
+      return !isNaN(date.getTime());
+    },
+    { message: 'Data de início inválida' }
+  ).optional(),
+  data_fim: z.string().refine(
+    (val) => {
+      if (!val) return true; // opcional
+      const date = new Date(val);
+      return !isNaN(date.getTime());
+    },
+    { message: 'Data de término inválida' }
+  ).optional(),
   status: z.enum(['rascunho', 'aberta', 'encerrada']).optional(),
 });
 

@@ -23,10 +23,16 @@ const globalForPrisma = globalThis as unknown as {
  * Em produção, reutiliza a instância global.
  * 
  * NOTA: Prisma 7 requer um adapter PostgreSQL para conexão direta.
+ * Para Supabase, recomendamos usar connection pooling.
  */
 const pool = process.env.DATABASE_URL
   ? new Pool({
       connectionString: process.env.DATABASE_URL,
+      max: 10, // Limite de conexões no pool
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 10000,
+      // Configurações adicionais para Supabase
+      ssl: process.env.DATABASE_URL?.includes('supabase') ? { rejectUnauthorized: false } : undefined,
     })
   : undefined;
 
