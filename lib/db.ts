@@ -74,6 +74,45 @@ export async function buscarUsuarioPorId(id: string): Promise<Usuario | null> {
 }
 
 /**
+ * Busca um usuário por telefone.
+ * 
+ * @param telefone - Telefone do usuário (será normalizado)
+ * @returns Usuário encontrado ou null
+ */
+export async function buscarUsuarioPorTelefone(telefone: string): Promise<Usuario | null> {
+  // Normaliza o telefone removendo caracteres não numéricos
+  const telefoneNormalizado = telefone.replace(/\D/g, '');
+  
+  // Busca usuário com telefone que corresponda (pode ter diferentes formatos)
+  const usuarios = await prisma.usuario.findMany({
+    where: {
+      telefone: {
+        not: null,
+      },
+    },
+  });
+
+  // Encontra o usuário cujo telefone normalizado corresponde
+  const usuario = usuarios.find((u) => {
+    if (!u.telefone) return false;
+    const telefoneUsuarioNormalizado = u.telefone.replace(/\D/g, '');
+    return telefoneUsuarioNormalizado === telefoneNormalizado;
+  });
+
+  if (!usuario) {
+    return null;
+  }
+
+  const { passwordHash, unidadeId, createdAt, updatedAt, ...rest } = usuario;
+  return {
+    ...rest,
+    unidade_id: unidadeId,
+    created_at: createdAt?.toISOString() || new Date().toISOString(),
+    updated_at: updatedAt?.toISOString() || new Date().toISOString(),
+  } as Usuario;
+}
+
+/**
  * Cria um novo usuário no banco.
  * 
  * @param dados - Dados do usuário a ser criado

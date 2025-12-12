@@ -86,6 +86,10 @@ Preencha o `.env.local` com:
 - `NEXT_PUBLIC_SUPABASE_URL`: URL do seu projeto Supabase (opcional, para futuras integrações)
 - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY`: Publishable key do Supabase (opcional)
 - `SUPABASE_SERVICE_ROLE_KEY`: Service role key do Supabase (opcional)
+- `EVOLUTION_API_URL`: URL da Evolution API (ex: `http://localhost:8080` ou `https://api.evolution.com`)
+- `EVOLUTION_API_KEY`: API Key da Evolution API
+- `EVOLUTION_INSTANCE_NAME`: Nome da instância do Evolution API
+- `WHATSAPP_WEBHOOK_SECRET`: Secret para validar webhooks do WhatsApp (opcional)
 
 3. **Configure o banco de dados**:
    - Opção 1 (Recomendado): Use Prisma Migrate
@@ -144,6 +148,10 @@ Consulte a pasta `docs/` para documentação detalhada:
      - `NEXT_PUBLIC_SUPABASE_URL`: (opcional) URL do Supabase
      - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY`: (opcional)
      - `SUPABASE_SERVICE_ROLE_KEY`: (opcional)
+     - `EVOLUTION_API_URL`: URL da Evolution API (se usar integração WhatsApp)
+     - `EVOLUTION_API_KEY`: API Key da Evolution API
+     - `EVOLUTION_INSTANCE_NAME`: Nome da instância do Evolution API
+     - `WHATSAPP_WEBHOOK_SECRET`: Secret para validar webhooks (opcional)
 
 3. **O build será executado automaticamente**:
    - O script `build` já inclui `prisma generate` antes do build

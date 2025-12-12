@@ -30,6 +30,7 @@ model Usuario {
   unidade         Unidade?      @relation(fields: [unidadeId], references: [id], onUpdate: NoAction)
   votacoesCriadas Votacao[]     @relation("VotacoesCriadas")
   votos           Voto[]
+  whatsappSessions WhatsAppSession[]
 
   @@index([email], map: "idx_users_email")
   @@index([unidadeId], map: "idx_users_unidade_id")
@@ -82,6 +83,7 @@ model Voto {
   unidade   Unidade       @relation(fields: [unidadeId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   user      Usuario?      @relation(fields: [userId], references: [id], onUpdate: NoAction)
   votacao   Votacao       @relation(fields: [votacaoId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  whatsappVotos WhatsAppVoto[]
 
   @@unique([votacaoId, unidadeId])
   @@index([votacaoId], map: "idx_votos_votacao_id")
@@ -119,4 +121,35 @@ enum StatusVotacao {
   encerrada
 
   @@map("status_votacao")
+}
+
+model WhatsAppSession {
+  id                  String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  telefone            String    @unique @db.VarChar(20)
+  usuarioId           String?   @map("usuario_id") @db.Uuid
+  codigoVerificacao   String?   @map("codigo_verificacao") @db.VarChar(10)
+  codigoExpiraEm      DateTime? @map("codigo_expira_em") @db.Timestamptz(6)
+  verificadoEm        DateTime? @map("verificado_em") @db.Timestamptz(6)
+  tentativasVerificacao Int     @default(0) @map("tentativas_verificacao")
+  ultimaTentativaEm   DateTime? @map("ultima_tentativa_em") @db.Timestamptz(6)
+  createdAt           DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt           DateTime? @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  usuario             Usuario?  @relation(fields: [usuarioId], references: [id], onUpdate: NoAction, onDelete: SetNull)
+
+  @@index([telefone], map: "idx_whatsapp_sessions_telefone")
+  @@index([usuarioId], map: "idx_whatsapp_sessions_usuario_id")
+  @@map("whatsapp_sessions")
+}
+
+model WhatsAppVoto {
+  id              String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  votoId          String    @map("voto_id") @db.Uuid
+  telefone         String    @db.VarChar(20)
+  mensagemRecebida String?  @map("mensagem_recebida") @db.Text
+  createdAt       DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
+  voto            Voto      @relation(fields: [votoId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([votoId], map: "idx_whatsapp_votos_voto_id")
+  @@index([telefone], map: "idx_whatsapp_votos_telefone")
+  @@map("whatsapp_votos")
 }
