@@ -8,6 +8,7 @@ import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import { buscarVotacaoCompleta, unidadeJaVotou, buscarVotoUnidade } from '@/lib/db';
 import { VotingCard } from '@/components/votante/VotingCard';
+import { ResultadoParcial } from '@/components/votante/ResultadoParcial';
 
 export default async function VotarPage({
   params,
@@ -137,6 +138,9 @@ export default async function VotarPage({
       )}
       <div className="mt-8">
         <VotingCard votacao={votacao} opcoes={opcoes} />
+        {votacao.mostrar_parcial && votacao.status === 'aberta' && (
+          <ResultadoParcial votacaoId={votacao.id} />
+        )}
       </div>
     </div>
   );

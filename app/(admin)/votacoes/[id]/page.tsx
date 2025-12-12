@@ -84,6 +84,12 @@ export default async function VotacaoDetalhesPage({
               </dd>
             </div>
             <div>
+              <dt className="text-sm font-medium text-gray-500">Mostrar Parcial</dt>
+              <dd className="mt-1 text-sm text-gray-900">
+                {votacao.mostrar_parcial ? 'Sim' : 'Não'}
+              </dd>
+            </div>
+            <div>
               <dt className="text-sm font-medium text-gray-500">Data de Início</dt>
               <dd className="mt-1 text-sm text-gray-900">
                 {new Date(votacao.data_inicio).toLocaleString('pt-BR')}
