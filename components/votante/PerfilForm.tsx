@@ -260,11 +260,6 @@ export function PerfilForm({ usuario }: PerfilFormProps) {
                 {errors.telefone.message}
               </p>
             )}
-            {errors.telefone && (
-              <p className="mt-1 text-sm text-red-600">
-                {errors.telefone.message}
-              </p>
-            )}
             <p className="mt-1 text-xs text-gray-500">
               Você pode atualizar seu telefone. Formato: (11) 98765-4321 (celular) ou (11) 3456-7890 (fixo). DDD obrigatório.
             </p>
