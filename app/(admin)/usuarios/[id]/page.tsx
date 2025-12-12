@@ -17,6 +17,9 @@ async function buscarUsuario(id: string) {
       telefone: true,
       perfil: true,
       forcarTrocaSenha: true,
+      unidadeId: true,
+      createdAt: true,
+      updatedAt: true,
       unidade: {
         select: {
           id: true,
@@ -41,7 +44,7 @@ async function buscarUsuario(id: string) {
   }
 
   // Formata para manter compatibilidade
-  const { passwordHash, unidadeId, createdAt, updatedAt, usuarioUnidades, forcarTrocaSenha, ...rest } = usuario;
+  const { unidadeId, createdAt, updatedAt, usuarioUnidades, forcarTrocaSenha, ...rest } = usuario;
   const unidades = usuarioUnidades?.map(uu => ({
     id: uu.unidade.id,
     numero: uu.unidade.numero,
