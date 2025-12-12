@@ -9,10 +9,23 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { buscarUsuarioPorId, atualizarUsuario } from '@/lib/db';
 import { z } from 'zod';
+import { isValidTelefone } from '@/lib/utils/masks';
 
 // Schema de validação para atualizar perfil (apenas telefone)
 const atualizarPerfilSchema = z.object({
-  telefone: z.string().optional(),
+  telefone: z
+    .string()
+    .optional()
+    .refine(
+      (val) => {
+        if (!val || val.trim() === '') return true; // Telefone é opcional
+        const numbers = val.replace(/\D/g, '');
+        return isValidTelefone(numbers);
+      },
+      {
+        message: 'Telefone deve ter DDD + número completo (10 ou 11 dígitos)',
+      }
+    ),
 });
 
 export async function GET(request: NextRequest) {

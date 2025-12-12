@@ -13,7 +13,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import type { PerfilUsuario } from '@/types';
-import { maskTelefone, unmaskTelefone } from '@/lib/utils/masks';
+import { maskTelefone, unmaskTelefone, isValidTelefone } from '@/lib/utils/masks';
 import { MultiSelect } from '@/components/ui/MultiSelect';
 
 // Schema Zod com validação e transformação
@@ -21,7 +21,23 @@ const userSchema = z.object({
   email: z.string().email('Email inválido'),
   senha: z.string().min(6, 'Senha deve ter no mínimo 6 caracteres').optional().or(z.literal('')),
   nome: z.string().min(1, 'Nome é obrigatório'),
-  telefone: z.string().optional(),
+  telefone: z
+    .string()
+    .optional()
+    .transform((val) => {
+      // Remove máscara para validação
+      if (!val || val.trim() === '') return '';
+      return unmaskTelefone(val);
+    })
+    .refine(
+      (val) => {
+        if (!val || val.trim() === '') return true; // Telefone é opcional
+        return isValidTelefone(val);
+      },
+      {
+        message: 'Telefone deve ter DDD + número completo. Formato: (11) 98765-4321 ou (11) 3456-7890',
+      }
+    ),
   perfil: z.enum(['staff', 'conselho', 'auditor', 'morador']),
   // Array de IDs de unidades
   unidades_ids: z.array(z.string().uuid()).default([]),
@@ -126,6 +142,7 @@ export function UserForm({ usuarioId, initialData }: UserFormProps) {
       const method = usuarioId ? 'PUT' : 'POST';
 
       // Prepara dados para envio
+      // O telefone já vem sem máscara do schema (transform)
       const dadosEnvio: any = {
         email: data.email,
         nome: data.nome,
@@ -347,8 +364,11 @@ export function UserForm({ usuarioId, initialData }: UserFormProps) {
             maxLength={15}
           />
         </div>
+        {errors.telefone && (
+          <p className="mt-1 text-sm text-red-600">{errors.telefone.message}</p>
+        )}
         <p className="mt-1 text-xs text-gray-500">
-          Formato: (11) 98765-4321
+          Formato: (11) 98765-4321 (celular) ou (11) 3456-7890 (fixo). DDD obrigatório.
         </p>
       </div>
 

@@ -11,12 +11,25 @@ import { auth } from '@/lib/auth';
 import { buscarUsuarioPorId, atualizarUsuario } from '@/lib/db';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
+import { isValidTelefone } from '@/lib/utils/masks';
 
 // Schema de validação para atualizar usuário
 const atualizarUsuarioSchema = z.object({
   email: z.string().email('Email inválido').optional(),
   nome: z.string().min(1, 'Nome é obrigatório').optional(),
-  telefone: z.string().optional(),
+  telefone: z
+    .string()
+    .optional()
+    .refine(
+      (val) => {
+        if (!val || val.trim() === '') return true; // Telefone é opcional
+        const numbers = val.replace(/\D/g, '');
+        return isValidTelefone(numbers);
+      },
+      {
+        message: 'Telefone deve ter DDD + número completo (10 ou 11 dígitos)',
+      }
+    ),
   perfil: z.enum(['staff', 'conselho', 'auditor', 'morador']).optional(),
   // Aceita string vazia, UUID válido ou null/undefined (compatibilidade)
   unidade_id: z

@@ -12,10 +12,26 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { ChangePasswordModal } from '@/components/auth/ChangePasswordModal';
-import { maskTelefone, unmaskTelefone } from '@/lib/utils/masks';
+import { maskTelefone, unmaskTelefone, isValidTelefone } from '@/lib/utils/masks';
 
 const perfilSchema = z.object({
-  telefone: z.string().optional(),
+  telefone: z
+    .string()
+    .optional()
+    .transform((val) => {
+      // Remove máscara para validação
+      if (!val || val.trim() === '') return '';
+      return unmaskTelefone(val);
+    })
+    .refine(
+      (val) => {
+        if (!val || val.trim() === '') return true; // Telefone é opcional
+        return isValidTelefone(val);
+      },
+      {
+        message: 'Telefone deve ter DDD + número completo. Formato: (11) 98765-4321 ou (11) 3456-7890',
+      }
+    ),
 });
 
 type PerfilFormData = z.infer<typeof perfilSchema>;
@@ -83,13 +99,11 @@ export function PerfilForm({ usuario }: PerfilFormProps) {
     setSuccess(false);
 
     try {
-      // Envia telefone sem máscara
-      const telefoneSemMascara = data.telefone ? unmaskTelefone(data.telefone) : '';
-      
+      // O telefone já vem sem máscara do schema (transform)
       const response = await fetch('/api/perfil', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ telefone: telefoneSemMascara }),
+        body: JSON.stringify({ telefone: data.telefone || '' }),
       });
 
       const result = await response.json();
@@ -247,8 +261,13 @@ export function PerfilForm({ usuario }: PerfilFormProps) {
                 {errors.telefone.message}
               </p>
             )}
+            {errors.telefone && (
+              <p className="mt-1 text-sm text-red-600">
+                {errors.telefone.message}
+              </p>
+            )}
             <p className="mt-1 text-xs text-gray-500">
-              Você pode atualizar seu telefone
+              Você pode atualizar seu telefone. Formato: (11) 98765-4321 (celular) ou (11) 3456-7890 (fixo). DDD obrigatório.
             </p>
           </div>
 

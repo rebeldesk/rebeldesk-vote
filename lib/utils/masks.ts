@@ -55,3 +55,45 @@ export function isValidEmail(email: string): boolean {
   return emailRegex.test(email);
 }
 
+/**
+ * Valida telefone brasileiro.
+ * 
+ * Requer DDD (2 dígitos) + número (8 ou 9 dígitos).
+ * Total: 10 dígitos (fixo) ou 11 dígitos (celular).
+ * 
+ * @param telefone - Telefone sem máscara (apenas números)
+ * @returns true se válido
+ */
+export function isValidTelefone(telefone: string): boolean {
+  if (!telefone) return false;
+  
+  // Remove tudo que não é dígito
+  const numbers = telefone.replace(/\D/g, '');
+  
+  // Deve ter 10 dígitos (fixo) ou 11 dígitos (celular)
+  // DDD (2) + número (8 ou 9)
+  return numbers.length === 10 || numbers.length === 11;
+}
+
+/**
+ * Valida e normaliza telefone.
+ * 
+ * Se o telefone for fornecido, deve ter formato válido.
+ * Retorna string vazia se telefone vazio, ou telefone normalizado.
+ * 
+ * @param telefone - Telefone com ou sem máscara
+ * @returns Telefone normalizado (apenas números) ou string vazia
+ */
+export function normalizeTelefone(telefone: string | null | undefined): string {
+  if (!telefone) return '';
+  
+  const numbers = telefone.replace(/\D/g, '');
+  
+  // Se tem números mas não é válido, retorna vazio para forçar erro de validação
+  if (numbers.length > 0 && !isValidTelefone(numbers)) {
+    return '';
+  }
+  
+  return numbers;
+}
+

@@ -10,13 +10,26 @@ import { auth } from '@/lib/auth';
 import { criarUsuario } from '@/lib/db';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
+import { isValidTelefone } from '@/lib/utils/masks';
 
 // Schema de validação para criar usuário
 const criarUsuarioSchema = z.object({
   email: z.string().email('Email inválido'),
   senha: z.string().min(6, 'Senha deve ter no mínimo 6 caracteres'),
   nome: z.string().min(1, 'Nome é obrigatório'),
-  telefone: z.string().optional(),
+  telefone: z
+    .string()
+    .optional()
+    .refine(
+      (val) => {
+        if (!val || val.trim() === '') return true; // Telefone é opcional
+        const numbers = val.replace(/\D/g, '');
+        return isValidTelefone(numbers);
+      },
+      {
+        message: 'Telefone deve ter DDD + número completo (10 ou 11 dígitos)',
+      }
+    ),
   perfil: z.enum(['staff', 'conselho', 'auditor', 'morador']),
   // Aceita string vazia, UUID válido ou null/undefined (compatibilidade)
   unidade_id: z
