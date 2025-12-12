@@ -74,10 +74,15 @@ Preencha o `.env.local` com:
 - `NEXTAUTH_URL`: URL da aplicação (http://localhost:3000 para dev)
 - `NEXTAUTH_SECRET`: Gere com `openssl rand -base64 32`
 - `DATABASE_URL`: Connection string do PostgreSQL (Supabase)
-  - **Recomendado (Connection Pooling)**: `postgresql://postgres:[PASSWORD]@[HOST]:6543/postgres?pgbouncer=true`
+  - **Recomendado (Transaction Pooler)**: `postgresql://postgres:[PASSWORD]@[HOST]:6543/postgres?pgbouncer=true`
+    - Use "Connection pooling" > "Transaction mode" no Supabase Dashboard
+    - Ideal para Prisma + Next.js (serverless)
+    - Mais eficiente e escalável
   - **Alternativa (Direct Connection)**: `postgresql://postgres:[PASSWORD]@[HOST]:5432/postgres`
+    - Apenas para desenvolvimento local
+    - Não recomendado para produção
   - Encontre em: Supabase Dashboard > Settings > Database > Connection string
-  - **IMPORTANTE**: Use connection pooling (porta 6543) em produção para melhor performance e gerenciamento de conexões
+  - **IMPORTANTE**: Use Transaction Pooler (porta 6543) em produção para melhor performance e evitar "max clients reached"
 - `NEXT_PUBLIC_SUPABASE_URL`: URL do seu projeto Supabase (opcional, para futuras integrações)
 - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY`: Publishable key do Supabase (opcional)
 - `SUPABASE_SERVICE_ROLE_KEY`: Service role key do Supabase (opcional)

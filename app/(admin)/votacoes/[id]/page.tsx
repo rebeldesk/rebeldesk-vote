@@ -7,6 +7,7 @@
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import { buscarVotacaoCompleta } from '@/lib/db';
+import { prisma } from '@/lib/prisma';
 import Link from 'next/link';
 
 export default async function VotacaoDetalhesPage({
@@ -117,17 +118,21 @@ export default async function VotacaoDetalhesPage({
           <form
             action={async () => {
               'use server';
-              const { id: votacaoId } = await params;
-              const response = await fetch(
-                `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/votacoes/${votacaoId}`,
-                {
-                  method: 'PUT',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ status: 'aberta' }),
-                }
-              );
-              if (response.ok) {
-                redirect(`/votacoes/${votacaoId}`);
+              const session = await auth();
+              
+              if (!session || (session.user?.perfil !== 'staff' && session.user?.perfil !== 'conselho')) {
+                redirect('/dashboard');
+              }
+
+              try {
+                await prisma.votacao.update({
+                  where: { id },
+                  data: { status: 'aberta' },
+                });
+                redirect(`/votacoes/${id}`);
+              } catch (error) {
+                console.error('Erro ao abrir votação:', error);
+                redirect(`/votacoes/${id}?error=Erro ao abrir votação`);
               }
             }}
           >
@@ -146,17 +151,21 @@ export default async function VotacaoDetalhesPage({
           <form
             action={async () => {
               'use server';
-              const { id: votacaoId } = await params;
-              const response = await fetch(
-                `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/votacoes/${votacaoId}`,
-                {
-                  method: 'PUT',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ status: 'encerrada' }),
-                }
-              );
-              if (response.ok) {
-                redirect(`/votacoes/${votacaoId}`);
+              const session = await auth();
+              
+              if (!session || (session.user?.perfil !== 'staff' && session.user?.perfil !== 'conselho')) {
+                redirect('/dashboard');
+              }
+
+              try {
+                await prisma.votacao.update({
+                  where: { id },
+                  data: { status: 'encerrada' },
+                });
+                redirect(`/votacoes/${id}`);
+              } catch (error) {
+                console.error('Erro ao encerrar votação:', error);
+                redirect(`/votacoes/${id}?error=Erro ao encerrar votação`);
               }
             }}
           >

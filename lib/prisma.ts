@@ -27,8 +27,9 @@ const globalForPrisma = globalThis as unknown as {
  * Para Supabase, recomendamos usar connection pooling (porta 6543).
  */
 // Singleton do Pool para evitar múltiplas instâncias
-// IMPORTANTE: Para Supabase, use connection pooling (porta 6543) em produção
+// IMPORTANTE: Para Supabase, use Transaction Pooler (porta 6543) em produção
 // Formato: postgresql://postgres:[PASSWORD]@[HOST]:6543/postgres?pgbouncer=true
+// Transaction Pooler é recomendado para Prisma + Next.js (serverless)
 const getPool = () => {
   if (!process.env.DATABASE_URL) {
     return undefined;
