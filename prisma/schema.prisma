@@ -37,22 +37,22 @@ model Usuario {
 }
 
 model Votacao {
-  id                String         @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  titulo            String         @db.VarChar(255)
-  descricao         String?
-  tipo              TipoVotacao
-  modoAuditoria     ModoAuditoria  @default(anonimo) @map("modo_auditoria")
-  mostrarParcial    Boolean        @default(false) @map("mostrar_parcial")
-  permitirAlterarVoto Boolean      @default(true) @map("permitir_alterar_voto")
-  criadoPor         String         @map("criado_por") @db.Uuid
-  dataInicio        DateTime       @map("data_inicio") @db.Timestamptz(6)
-  dataFim           DateTime       @map("data_fim") @db.Timestamptz(6)
-  status            StatusVotacao  @default(rascunho)
-  createdAt         DateTime?      @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt         DateTime?      @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
-  opcoes            OpcaoVotacao[]
-  criadoPorUser     Usuario        @relation("VotacoesCriadas", fields: [criadoPor], references: [id], onUpdate: NoAction)
-  votos             Voto[]
+  id                  String         @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  titulo              String         @db.VarChar(255)
+  descricao           String?
+  tipo                TipoVotacao
+  modoAuditoria       ModoAuditoria  @default(anonimo) @map("modo_auditoria")
+  mostrarParcial      Boolean        @default(false) @map("mostrar_parcial")
+  permitirAlterarVoto Boolean        @default(true) @map("permitir_alterar_voto")
+  criadoPor           String         @map("criado_por") @db.Uuid
+  dataInicio          DateTime       @map("data_inicio") @db.Timestamptz(6)
+  dataFim             DateTime       @map("data_fim") @db.Timestamptz(6)
+  status              StatusVotacao  @default(rascunho)
+  createdAt           DateTime?      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt           DateTime?      @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  opcoes              OpcaoVotacao[]
+  criadoPorUser       Usuario        @relation("VotacoesCriadas", fields: [criadoPor], references: [id], onUpdate: NoAction)
+  votos               Voto[]
 
   @@index([status], map: "idx_votacoes_status")
   @@index([criadoPor], map: "idx_votacoes_criado_por")

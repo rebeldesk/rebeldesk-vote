@@ -8,6 +8,7 @@ import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
+import { UnidadeList } from '@/components/admin/UnidadeList';
 
 async function buscarUnidades() {
   const unidades = await prisma.unidade.findMany({
@@ -52,48 +53,8 @@ export default async function UnidadesPage() {
       </div>
 
       <div className="mt-8">
-        <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
-          <table className="min-w-full divide-y divide-gray-300">
-            <thead className="bg-gray-50">
-              <tr>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500"
-                >
-                  Número
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500"
-                >
-                  Total de Usuários
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500"
-                >
-                  Data de Cadastro
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200 bg-white">
-              {unidades.map((unidade) => (
-                <tr key={unidade.id} className="hover:bg-gray-50">
-                  <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
-                    {unidade.numero}
-                  </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                    {unidade.total_usuarios}
-                  </td>
-                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                    {new Date(unidade.created_at).toLocaleDateString('pt-BR')}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
+        <UnidadeList unidades={unidades} />
+        
         {unidades.length === 0 && (
           <div className="mt-8 text-center">
             <p className="text-gray-500">Nenhuma unidade cadastrada.</p>
