@@ -39,6 +39,7 @@ export default async function UnidadesPage() {
   }
 
   const unidades = await buscarUnidades();
+  const isStaff = session.user?.perfil === 'staff';
 
   return (
     <div>
@@ -53,7 +54,7 @@ export default async function UnidadesPage() {
       </div>
 
       <div className="mt-8">
-        <UnidadeList unidades={unidades} />
+        <UnidadeList unidades={unidades} canDelete={isStaff} />
         
         {unidades.length === 0 && (
           <div className="mt-8 text-center">

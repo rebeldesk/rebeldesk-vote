@@ -5,6 +5,7 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Pagination } from '@/components/ui/Pagination';
 import { QuickFilters } from '@/components/ui/QuickFilters';
 
@@ -18,13 +19,17 @@ interface Unidade {
 
 interface UnidadeListProps {
   unidades: Unidade[];
+  canDelete?: boolean; // Apenas staff pode deletar
 }
 
-export function UnidadeList({ unidades }: UnidadeListProps) {
+export function UnidadeList({ unidades, canDelete = false }: UnidadeListProps) {
+  const router = useRouter();
   const [busca, setBusca] = useState('');
   const [filtroUsuarios, setFiltroUsuarios] = useState<string>('todos');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 15;
+  const [unidadeParaDeletar, setUnidadeParaDeletar] = useState<string | null>(null);
+  const [deletando, setDeletando] = useState(false);
 
   // Conta unidades por filtro
   const contadores = useMemo(() => {
@@ -73,6 +78,38 @@ export function UnidadeList({ unidades }: UnidadeListProps) {
   useEffect(() => {
     setCurrentPage(1);
   }, [busca, filtroUsuarios]);
+
+  const handleDeletar = async (unidadeId: string, numeroUnidade: string, totalUsuarios: number) => {
+    let mensagem = `Tem certeza que deseja excluir a unidade "${numeroUnidade}"?`;
+    if (totalUsuarios > 0) {
+      mensagem += `\n\nEsta unidade possui ${totalUsuarios} usuário${totalUsuarios !== 1 ? 's' : ''} vinculado${totalUsuarios !== 1 ? 's' : ''}. Os relacionamentos serão removidos automaticamente.`;
+    }
+    mensagem += '\n\nEsta ação não pode ser desfeita.';
+
+    if (!confirm(mensagem)) {
+      return;
+    }
+
+    setUnidadeParaDeletar(unidadeId);
+    setDeletando(true);
+    try {
+      const response = await fetch(`/api/unidades/${unidadeId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Erro ao excluir unidade');
+      }
+
+      // Recarrega a página para atualizar a lista
+      router.refresh();
+    } catch (error: any) {
+      alert(error.message || 'Erro ao excluir unidade');
+      setDeletando(false);
+      setUnidadeParaDeletar(null);
+    }
+  };
 
   return (
     <div>
@@ -144,6 +181,14 @@ export function UnidadeList({ unidades }: UnidadeListProps) {
               >
                 Data de Cadastro
               </th>
+              {canDelete && (
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wide text-gray-500"
+                >
+                  Ações
+                </th>
+              )}
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200 bg-white">
@@ -159,11 +204,22 @@ export function UnidadeList({ unidades }: UnidadeListProps) {
                   <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
                     {new Date(unidade.created_at).toLocaleDateString('pt-BR')}
                   </td>
+                  {canDelete && (
+                    <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
+                      <button
+                        onClick={() => handleDeletar(unidade.id, unidade.numero, unidade.total_usuarios)}
+                        disabled={deletando}
+                        className="text-red-600 hover:text-red-900 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {deletando && unidadeParaDeletar === unidade.id ? 'Excluindo...' : 'Excluir'}
+                      </button>
+                    </td>
+                  )}
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan={3} className="px-6 py-4 text-center text-sm text-gray-500">
+                <td colSpan={canDelete ? 4 : 3} className="px-6 py-4 text-center text-sm text-gray-500">
                   {busca ? 'Nenhuma unidade encontrada' : 'Nenhuma unidade cadastrada'}
                 </td>
               </tr>
