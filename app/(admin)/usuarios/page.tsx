@@ -8,17 +8,37 @@
 import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import { prisma } from '@/lib/prisma';
 
 async function buscarUsuarios() {
-  const response = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/usuarios`, {
-    cache: 'no-store',
+  const usuarios = await prisma.usuario.findMany({
+    include: {
+      unidade: {
+        select: {
+          id: true,
+          numero: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
   });
 
-  if (!response.ok) {
-    return [];
-  }
-
-  return response.json();
+  // Formata para manter compatibilidade
+  return usuarios.map((u) => {
+    const { passwordHash, unidadeId, createdAt, updatedAt, ...rest } = u;
+    return {
+      ...rest,
+      unidade_id: unidadeId,
+      created_at: createdAt?.toISOString() || new Date().toISOString(),
+      updated_at: updatedAt?.toISOString() || new Date().toISOString(),
+      unidades: u.unidade ? {
+        id: u.unidade.id,
+        numero: u.unidade.numero,
+      } : null,
+    };
+  });
 }
 
 export default async function UsuariosPage() {
