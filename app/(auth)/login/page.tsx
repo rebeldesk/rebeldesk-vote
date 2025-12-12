@@ -12,7 +12,7 @@ import { LoginForm } from '@/components/auth/LoginForm';
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ callbackUrl?: string; error?: string }>;
+  searchParams: Promise<{ callbackUrl?: string; error?: string; senhaAlterada?: string }>;
 }) {
   const session = await auth();
   const params = await searchParams;
@@ -43,6 +43,13 @@ export default async function LoginPage({
             Faça login para continuar
           </p>
         </div>
+        {params.senhaAlterada && (
+          <div className="rounded-md bg-green-50 p-4 mb-4">
+            <p className="text-sm text-green-800">
+              ✅ Senha alterada com sucesso! Faça login com sua nova senha.
+            </p>
+          </div>
+        )}
         <LoginForm callbackUrl={params.callbackUrl} error={params.error} />
       </div>
     </div>

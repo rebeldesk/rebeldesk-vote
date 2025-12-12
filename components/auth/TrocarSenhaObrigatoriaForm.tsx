@@ -8,6 +8,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { signOut } from 'next-auth/react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -61,17 +62,27 @@ export function TrocarSenhaObrigatoriaForm() {
         }),
       });
 
-      const result = await response.json();
-
       if (!response.ok) {
+        const result = await response.json().catch(() => ({ error: 'Erro ao processar resposta' }));
+        throw new Error(result.error || `Erro ${response.status}: ${response.statusText}`);
+      }
+
+      const result = await response.json().catch(() => ({ success: true }));
+
+      if (!result.success) {
         throw new Error(result.error || 'Erro ao alterar senha');
       }
 
-      // Redireciona após sucesso
-      router.push('/');
-      router.refresh();
+      // Faz logout para invalidar a sessão atual (que ainda tem o flag antigo)
+      // Depois redireciona para login onde o usuário fará login novamente
+      // com a nova senha e sem o flag de forçar troca
+      await signOut({ redirect: false });
+      
+      // Redireciona para login com mensagem de sucesso
+      window.location.href = '/login?senhaAlterada=true';
     } catch (err: any) {
-      setError(err.message || 'Erro ao alterar senha');
+      console.error('Erro ao alterar senha:', err);
+      setError(err.message || 'Erro ao alterar senha. Verifique sua conexão e tente novamente.');
       setLoading(false);
     }
   };
