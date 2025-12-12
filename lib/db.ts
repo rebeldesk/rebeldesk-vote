@@ -130,8 +130,12 @@ export async function atualizarUsuario(
     nome: dados.nome,
     telefone: dados.telefone,
     perfil: dados.perfil,
-    unidadeId: dados.unidade_id ?? undefined,
   };
+
+  // Se unidade_id foi fornecido (incluindo null), atualiza
+  if (dados.unidade_id !== undefined) {
+    dadosUpdate.unidadeId = dados.unidade_id;
+  }
 
   // Se senha foi fornecida, atualiza o hash
   if (dados.senha) {

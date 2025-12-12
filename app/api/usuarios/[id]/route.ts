@@ -80,8 +80,12 @@ export async function PUT(
       nome: dados.nome,
       telefone: dados.telefone,
       perfil: dados.perfil,
-      unidade_id: dados.unidade_id, // Já normalizado pelo schema Zod
     };
+
+    // Sempre inclui unidade_id se foi fornecido (incluindo null para remover unidade)
+    if (dados.unidade_id !== undefined) {
+      dadosAtualizacao.unidade_id = dados.unidade_id;
+    }
 
     // Se senha foi fornecida, inclui na atualização
     if (dados.senha) {

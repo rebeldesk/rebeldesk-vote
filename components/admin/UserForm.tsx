@@ -63,26 +63,27 @@ export function UserForm({ usuarioId, initialData }: UserFormProps) {
 
   const senhaAtual = watch('senha');
   const unidadeIdAtual = watch('unidade_id');
+  const [unidadesCarregadas, setUnidadesCarregadas] = useState(false);
 
   useEffect(() => {
-    // Busca unidades
+    // Busca unidades apenas uma vez
+    if (unidadesCarregadas) return;
+
     fetch('/api/unidades')
       .then((res) => res.json())
       .then((data) => {
         setUnidades(data);
-        // Após carregar unidades, seta o valor da unidade se houver initialData
-        // e se ainda não foi setado
-        if (initialData?.unidade_id && !unidadeIdAtual) {
+        setUnidadesCarregadas(true);
+        // Após carregar unidades, seta o valor da unidade apenas uma vez
+        // se houver initialData
+        if (initialData?.unidade_id) {
           setValue('unidade_id', initialData.unidade_id);
-        } else if (
-          (initialData?.unidade_id === null || initialData?.unidade_id === undefined) &&
-          unidadeIdAtual === undefined
-        ) {
+        } else if (initialData?.unidade_id === null || initialData?.unidade_id === undefined) {
           setValue('unidade_id', null);
         }
       })
       .catch(() => setError('Erro ao carregar unidades'));
-  }, [initialData, setValue, unidadeIdAtual]);
+  }, [initialData, setValue, unidadesCarregadas]);
 
   /**
    * Gera uma senha aleatória segura.
@@ -111,7 +112,10 @@ export function UserForm({ usuarioId, initialData }: UserFormProps) {
       const dadosEnvio: any = {
         ...data,
         // Converte string vazia para null em unidade_id
-        unidade_id: data.unidade_id === '' || data.unidade_id === null ? null : data.unidade_id,
+        // Garante que null seja explicitamente enviado quando "Nenhuma" for selecionado
+        unidade_id: data.unidade_id === '' || data.unidade_id === null || data.unidade_id === undefined 
+          ? null 
+          : data.unidade_id,
       };
 
       // Remove senha se estiver vazia (edição)
@@ -279,13 +283,12 @@ export function UserForm({ usuarioId, initialData }: UserFormProps) {
           Unidade
         </label>
         <select
-          {...register('unidade_id')}
           id="unidade_id"
           className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
           value={unidadeIdAtual || ''}
           onChange={(e) => {
             const value = e.target.value === '' ? null : e.target.value;
-            setValue('unidade_id', value as any);
+            setValue('unidade_id', value as any, { shouldValidate: true });
           }}
         >
           <option value="">Nenhuma</option>
