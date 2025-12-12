@@ -10,6 +10,7 @@ import { auth } from '@/lib/auth';
 import Link from 'next/link';
 import { MobileMenu } from '@/components/admin/MobileMenu';
 import { ChangePasswordButton } from '@/components/auth/ChangePasswordButton';
+import { NavLink } from '@/components/admin/NavLink';
 
 export default async function AdminLayout({
   children,
@@ -43,37 +44,12 @@ export default async function AdminLayout({
               </div>
               {/* Menu desktop - oculto em mobile */}
               <div className="hidden md:ml-6 md:flex md:space-x-8">
-                <Link
-                  href="/dashboard"
-                  className="inline-flex items-center border-b-2 border-blue-500 px-1 pt-1 text-sm font-medium text-gray-900"
-                >
-                  Dashboard
-                </Link>
-                <Link
-                  href="/usuarios"
-                  className="inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
-                >
-                  Usuários
-                </Link>
-                <Link
-                  href="/unidades"
-                  className="inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
-                >
-                  Unidades
-                </Link>
-                <Link
-                  href="/votacoes"
-                  className="inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
-                >
-                  Votações
-                </Link>
+                <NavLink href="/dashboard">Dashboard</NavLink>
+                <NavLink href="/usuarios">Usuários</NavLink>
+                <NavLink href="/unidades">Unidades</NavLink>
+                <NavLink href="/votacoes">Votações</NavLink>
                 {perfil === 'conselho' && (
-                  <Link
-                    href="/participar"
-                    className="inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
-                  >
-                    Participar
-                  </Link>
+                  <NavLink href="/participar">Participar</NavLink>
                 )}
               </div>
             </div>

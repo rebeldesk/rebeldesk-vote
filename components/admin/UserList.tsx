@@ -19,7 +19,7 @@ interface Usuario {
   unidades?: {
     id: string;
     numero: string;
-  } | null;
+  }[];
 }
 
 interface UserListProps {
@@ -47,7 +47,7 @@ export function UserList({ usuarios, currentUserId, canDelete = false }: UserLis
         usuario.email.toLowerCase().includes(termoBusca) ||
         usuario.telefone?.toLowerCase().includes(termoBusca) ||
         usuario.perfil.toLowerCase().includes(termoBusca) ||
-        usuario.unidades?.numero.toLowerCase().includes(termoBusca)
+        usuario.unidades?.some(u => u.numero.toLowerCase().includes(termoBusca))
     );
   }, [usuarios, busca]);
 
@@ -132,7 +132,7 @@ export function UserList({ usuarios, currentUserId, canDelete = false }: UserLis
                 Perfil
               </th>
               <th className="hidden lg:table-cell px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500">
-                Unidade
+                Unidades
               </th>
               <th className="px-3 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wide text-gray-500">
                 Ações
@@ -166,8 +166,21 @@ export function UserList({ usuarios, currentUserId, canDelete = false }: UserLis
                       {usuario.perfil}
                     </span>
                   </td>
-                  <td className="hidden lg:table-cell whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                    {usuario.unidades?.numero || '-'}
+                  <td className="hidden lg:table-cell px-6 py-4 text-sm text-gray-500">
+                    {usuario.unidades && usuario.unidades.length > 0 ? (
+                      <div className="flex flex-wrap gap-1">
+                        {usuario.unidades.map((unidade) => (
+                          <span
+                            key={unidade.id}
+                            className="inline-flex rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800"
+                          >
+                            {unidade.numero}
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      '-'
+                    )}
                   </td>
                   <td className="whitespace-nowrap px-3 sm:px-6 py-4 text-right text-sm font-medium">
                     <div className="flex justify-end gap-2">

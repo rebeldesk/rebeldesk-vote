@@ -18,12 +18,14 @@ const criarUsuarioSchema = z.object({
   nome: z.string().min(1, 'Nome é obrigatório'),
   telefone: z.string().optional(),
   perfil: z.enum(['staff', 'conselho', 'auditor', 'morador']),
-  // Aceita string vazia, UUID válido ou null/undefined
+  // Aceita string vazia, UUID válido ou null/undefined (compatibilidade)
   unidade_id: z
     .union([z.string().uuid(), z.string().length(0), z.null(), z.undefined()])
     .optional()
     .nullable()
     .transform((val) => (val === '' || val === undefined ? null : val)),
+  // Array de IDs de unidades (novo)
+  unidades_ids: z.array(z.string().uuid()).optional(),
 });
 
 export async function GET() {
@@ -43,6 +45,16 @@ export async function GET() {
             numero: true,
           },
         },
+        usuarioUnidades: {
+          include: {
+            unidade: {
+              select: {
+                id: true,
+                numero: true,
+              },
+            },
+          },
+        },
       },
       orderBy: {
         createdAt: 'desc',
@@ -52,15 +64,20 @@ export async function GET() {
     // Remove passwordHash e formata resposta
     const usuariosFormatados = usuarios.map((u) => {
       const { passwordHash, ...rest } = u;
+      const unidades = rest.usuarioUnidades?.map(uu => ({
+        id: uu.unidade.id,
+        numero: uu.unidade.numero,
+      })) || [];
+      
       return {
         ...rest,
-        unidade_id: rest.unidadeId,
+        unidade_id: rest.unidadeId, // Mantido para compatibilidade
         created_at: rest.createdAt,
         updated_at: rest.updatedAt,
-        unidades: rest.unidade ? {
+        unidades: unidades.length > 0 ? unidades : (rest.unidade ? [{
           id: rest.unidade.id,
           numero: rest.unidade.numero,
-        } : null,
+        }] : []),
       };
     });
 
@@ -91,7 +108,8 @@ export async function POST(request: NextRequest) {
       nome: dados.nome,
       telefone: dados.telefone || '',
       perfil: dados.perfil,
-      unidade_id: dados.unidade_id, // Já normalizado pelo schema Zod
+      unidade_id: dados.unidade_id, // Mantido para compatibilidade
+      unidades_ids: dados.unidades_ids, // Novo: array de unidades
     });
 
     // Remove passwordHash da resposta

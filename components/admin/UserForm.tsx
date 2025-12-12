@@ -14,7 +14,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import type { PerfilUsuario } from '@/types';
 import { maskTelefone, unmaskTelefone } from '@/lib/utils/masks';
-import { SearchableSelect } from '@/components/ui/SearchableSelect';
+import { MultiSelect } from '@/components/ui/MultiSelect';
 
 // Schema Zod com validação e transformação
 const userSchema = z.object({
@@ -23,16 +23,12 @@ const userSchema = z.object({
   nome: z.string().min(1, 'Nome é obrigatório'),
   telefone: z.string().optional(),
   perfil: z.enum(['staff', 'conselho', 'auditor', 'morador']),
-  // Aceita string vazia, UUID válido ou null/undefined e transforma para string | null
-  unidade_id: z
-    .union([z.string().uuid(), z.string().length(0), z.null(), z.undefined()])
-    .transform((val) => (val === '' || val === undefined ? null : (val as string | null))),
+  // Array de IDs de unidades
+  unidades_ids: z.array(z.string().uuid()).default([]),
 });
 
-// Tipo do formulário - garante que unidade_id seja string | null (não undefined)
-type UserFormData = Omit<z.infer<typeof userSchema>, 'unidade_id'> & {
-  unidade_id: string | null;
-};
+// Tipo do formulário
+type UserFormData = z.infer<typeof userSchema>;
 
 interface UserFormProps {
   usuarioId?: string;
@@ -55,18 +51,20 @@ export function UserForm({ usuarioId, initialData }: UserFormProps) {
     watch,
   } = useForm<UserFormData>({
     resolver: zodResolver(userSchema) as any,
-    defaultValues: initialData || {
-      email: '',
-      senha: '',
-      nome: '',
-      telefone: '',
-      perfil: 'morador',
-      unidade_id: null,
+    defaultValues: {
+      email: initialData?.email || '',
+      senha: initialData?.senha || '',
+      nome: initialData?.nome || '',
+      telefone: initialData?.telefone || '',
+      perfil: initialData?.perfil || 'morador',
+      unidades_ids: (initialData as any)?.unidades?.map((u: any) => u.id) || 
+                    (initialData as any)?.unidades_ids || 
+                    (initialData?.unidade_id ? [initialData.unidade_id] : []),
     },
   });
 
   const senhaAtual = watch('senha');
-  const unidadeIdAtual = watch('unidade_id');
+  const unidadesIdsAtual = watch('unidades_ids');
   const [unidadesCarregadas, setUnidadesCarregadas] = useState(false);
   const [telefoneFormatado, setTelefoneFormatado] = useState(
     initialData?.telefone ? maskTelefone(initialData.telefone) : ''
@@ -88,12 +86,12 @@ export function UserForm({ usuarioId, initialData }: UserFormProps) {
       .then((data) => {
         setUnidades(data);
         setUnidadesCarregadas(true);
-        // Após carregar unidades, seta o valor da unidade apenas uma vez
-        // se houver initialData
-        if (initialData?.unidade_id) {
-          setValue('unidade_id', initialData.unidade_id);
-        } else if (initialData?.unidade_id === null || initialData?.unidade_id === undefined) {
-          setValue('unidade_id', null);
+        // Após carregar unidades, seta o valor das unidades se houver initialData
+        if (initialData) {
+          const unidadesIds = (initialData as any)?.unidades?.map((u: any) => u.id) || 
+                            (initialData as any)?.unidades_ids || 
+                            (initialData.unidade_id ? [initialData.unidade_id] : []);
+          setValue('unidades_ids', unidadesIds);
         }
       })
       .catch(() => setError('Erro ao carregar unidades'));
@@ -124,17 +122,18 @@ export function UserForm({ usuarioId, initialData }: UserFormProps) {
 
       // Prepara dados para envio
       const dadosEnvio: any = {
-        ...data,
-        // Converte string vazia para null em unidade_id
-        // Garante que null seja explicitamente enviado quando "Nenhuma" for selecionado
-        unidade_id: data.unidade_id === '' || data.unidade_id === null || data.unidade_id === undefined 
-          ? null 
-          : data.unidade_id,
+        email: data.email,
+        nome: data.nome,
+        telefone: data.telefone || '',
+        perfil: data.perfil,
+        unidades_ids: data.unidades_ids || [],
       };
 
       // Remove senha se estiver vazia (edição)
-      if (usuarioId && !dadosEnvio.senha) {
-        delete dadosEnvio.senha;
+      if (usuarioId && !data.senha) {
+        // Não inclui senha
+      } else if (data.senha) {
+        dadosEnvio.senha = data.senha;
       }
 
       const response = await fetch(url, {
@@ -351,22 +350,28 @@ export function UserForm({ usuarioId, initialData }: UserFormProps) {
       </div>
 
       <div>
-        <label htmlFor="unidade_id" className="block text-sm font-medium text-gray-700">
-          Unidade
+        <label htmlFor="unidades_ids" className="block text-sm font-medium text-gray-700">
+          Unidades
         </label>
-        <SearchableSelect
+        <p className="mt-1 text-xs text-gray-500 mb-2">
+          Selecione uma ou mais unidades para vincular ao usuário
+        </p>
+        <MultiSelect
           options={unidades.map((unidade) => ({
             value: unidade.id,
             label: unidade.numero,
           }))}
-          value={unidadeIdAtual}
+          value={unidadesIdsAtual || []}
           onChange={(value) => {
-            setValue('unidade_id', value, { shouldValidate: true });
+            setValue('unidades_ids', value, { shouldValidate: true });
           }}
-          placeholder="Selecione uma unidade ou busque..."
+          placeholder="Selecione as unidades..."
           emptyMessage="Nenhuma unidade encontrada"
           className="mt-1"
         />
+        {errors.unidades_ids && (
+          <p className="mt-1 text-sm text-red-600">{errors.unidades_ids.message}</p>
+        )}
       </div>
 
       <div className="flex justify-end space-x-4">

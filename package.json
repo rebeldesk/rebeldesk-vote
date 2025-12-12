@@ -10,7 +10,9 @@
     "postinstall": "prisma generate",
     "prisma:generate": "prisma generate",
     "migrate:mostrar-parcial": "node scripts/run-migration.js",
-    "migrate:permitir-alterar-voto": "node scripts/run-migration-permitir-alterar-voto.js"
+    "migrate:permitir-alterar-voto": "node scripts/run-migration-permitir-alterar-voto.js",
+    "migrate:usuario-unidades": "node scripts/run-migration-usuario-unidades.js",
+    "importar:usuarios": "node scripts/importar-usuarios.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

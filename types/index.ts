@@ -49,7 +49,8 @@ export interface Usuario {
   nome: string;
   telefone: string;
   perfil: PerfilUsuario;
-  unidade_id: string | null;
+  unidade_id: string | null; // Mantido para compatibilidade (deprecated)
+  unidades?: Unidade[]; // Array de unidades vinculadas (novo)
   created_at: string;
   updated_at: string;
 }
@@ -128,7 +129,8 @@ export interface CriarUsuarioDTO {
   nome: string;
   telefone: string;
   perfil: PerfilUsuario;
-  unidade_id: string | null;
+  unidade_id?: string | null; // Mantido para compatibilidade (deprecated)
+  unidades_ids?: string[]; // Array de IDs de unidades (novo)
 }
 
 /**
@@ -139,7 +141,8 @@ export interface AtualizarUsuarioDTO {
   nome?: string;
   telefone?: string;
   perfil?: PerfilUsuario;
-  unidade_id?: string | null;
+  unidade_id?: string | null; // Mantido para compatibilidade (deprecated)
+  unidades_ids?: string[]; // Array de IDs de unidades (novo)
 }
 
 /**

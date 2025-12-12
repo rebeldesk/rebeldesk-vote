@@ -13,9 +13,10 @@ interface VotingCardProps {
   opcoes: OpcaoVotacao[];
   opcoesVotadas?: string[];
   jaVotou?: boolean;
+  unidadeId?: string; // ID da unidade para votar (obrigatório se usuário tem múltiplas)
 }
 
-export function VotingCard({ votacao, opcoes, opcoesVotadas = [], jaVotou = false }: VotingCardProps) {
+export function VotingCard({ votacao, opcoes, opcoesVotadas = [], jaVotou = false, unidadeId }: VotingCardProps) {
   const router = useRouter();
   const [selecionadas, setSelecionadas] = useState<string[]>(opcoesVotadas);
   const [loading, setLoading] = useState(false);
@@ -51,12 +52,19 @@ export function VotingCard({ votacao, opcoes, opcoesVotadas = [], jaVotou = fals
     setError('');
 
     try {
+      const body: any = {
+        opcoes_ids: selecionadas,
+      };
+
+      // Se unidadeId foi fornecido, inclui no body
+      if (unidadeId) {
+        body.unidade_id = unidadeId;
+      }
+
       const response = await fetch(`/api/votacoes/${votacao.id}/votos`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          opcoes_ids: selecionadas,
-        }),
+        body: JSON.stringify(body),
       });
 
       if (!response.ok) {

@@ -17,6 +17,16 @@ async function buscarUsuario(id: string) {
           numero: true,
         },
       },
+      usuarioUnidades: {
+        include: {
+          unidade: {
+            select: {
+              id: true,
+              numero: true,
+            },
+          },
+        },
+      },
     },
   });
 
@@ -25,10 +35,21 @@ async function buscarUsuario(id: string) {
   }
 
   // Formata para manter compatibilidade
-  const { passwordHash, unidadeId, createdAt, updatedAt, ...rest } = usuario;
+  const { passwordHash, unidadeId, createdAt, updatedAt, usuarioUnidades, ...rest } = usuario;
+  const unidades = usuarioUnidades?.map(uu => ({
+    id: uu.unidade.id,
+    numero: uu.unidade.numero,
+  })) || [];
+  
+  // Se não tem unidades via relacionamento, usa a unidade antiga (compatibilidade)
+  const unidadesFormatadas = unidades.length > 0 
+    ? unidades 
+    : (usuario.unidade ? [{ id: usuario.unidade.id, numero: usuario.unidade.numero }] : []);
+  
   return {
     ...rest,
-    unidade_id: unidadeId || null,
+    unidade_id: unidadeId || null, // Mantido para compatibilidade
+    unidades: unidadesFormatadas,
     created_at: createdAt?.toISOString() || new Date().toISOString(),
     updated_at: updatedAt?.toISOString() || new Date().toISOString(),
   };
@@ -52,9 +73,6 @@ export default async function EditarUsuarioPage({
     redirect('/usuarios');
   }
 
-  // Garante que unidade_id seja string ou null (não undefined)
-  const unidadeId = usuario.unidade_id ? String(usuario.unidade_id) : null;
-
   return (
     <div>
       <h1 className="text-3xl font-bold text-gray-900">Editar Usuário</h1>
@@ -66,8 +84,8 @@ export default async function EditarUsuarioPage({
             nome: usuario.nome,
             telefone: usuario.telefone || '',
             perfil: usuario.perfil,
-            unidade_id: unidadeId,
-          }}
+            unidades: usuario.unidades,
+          } as any}
         />
       </div>
     </div>

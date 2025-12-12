@@ -6,10 +6,11 @@
 
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
-import { buscarVotacaoCompleta, unidadeJaVotou, buscarVotoUnidade } from '@/lib/db';
+import { buscarVotacaoCompleta, unidadeJaVotou, buscarVotoUnidade, buscarUnidadesUsuario } from '@/lib/db';
 import { VotingCard } from '@/components/votante/VotingCard';
 import { ResultadoParcial } from '@/components/votante/ResultadoParcial';
 import { ResultadoFinal } from '@/components/votante/ResultadoFinal';
+import { UnidadeSelectorWrapper } from '@/components/votante/UnidadeSelectorWrapper';
 
 export default async function VotarPage({
   params,
@@ -31,9 +32,15 @@ export default async function VotarPage({
 
   const { votacao, opcoes } = votacaoCompleta;
 
-  // Verifica se pode votar
-  const unidadeId = session.user?.unidade_id;
-  if (!unidadeId) {
+  // Busca todas as unidades do usuário
+  const userId = session.user?.id;
+  if (!userId) {
+    redirect('/login');
+  }
+
+  const unidadesUsuario = await buscarUnidadesUsuario(userId);
+  
+  if (unidadesUsuario.length === 0) {
     return (
       <div className="rounded-md bg-yellow-50 p-4">
         <p className="text-sm text-yellow-800">
@@ -43,8 +50,23 @@ export default async function VotarPage({
     );
   }
 
-  const jaVotou = await unidadeJaVotou(votacao.id, unidadeId);
-  const votoUnidade = jaVotou ? await buscarVotoUnidade(votacao.id, unidadeId) : null;
+  // Verifica quais unidades já votaram
+  const unidadesJaVotaram: string[] = [];
+  const votosPorUnidade: Record<string, any> = {};
+  
+  for (const unidade of unidadesUsuario) {
+    const jaVotou = await unidadeJaVotou(votacao.id, unidade.id);
+    if (jaVotou) {
+      unidadesJaVotaram.push(unidade.id);
+      votosPorUnidade[unidade.id] = await buscarVotoUnidade(votacao.id, unidade.id);
+    }
+  }
+
+  // Se tem apenas uma unidade, usa ela automaticamente
+  const unidadeIdUnica = unidadesUsuario.length === 1 ? unidadesUsuario[0].id : null;
+  const unidadeId = unidadeIdUnica;
+  const jaVotou = unidadeId ? unidadesJaVotaram.includes(unidadeId) : false;
+  const votoUnidade = unidadeId && jaVotou ? votosPorUnidade[unidadeId] : null;
 
   // Determina quais opções foram votadas
   const opcoesVotadas: string[] = [];
@@ -58,6 +80,8 @@ export default async function VotarPage({
 
   // Se votação encerrada, mostra resultados finais
   if (votacao.status === 'encerrada') {
+    const unidadesQueVotaram = unidadesUsuario.filter(u => unidadesJaVotaram.includes(u.id));
+    
     return (
       <div>
         <h1 className="text-3xl font-bold text-gray-900">{votacao.titulo}</h1>
@@ -65,16 +89,21 @@ export default async function VotarPage({
           <p className="mt-2 text-gray-600">{votacao.descricao}</p>
         )}
         <div className="mt-8">
-          {jaVotou && (
+          {unidadesQueVotaram.length > 0 && (
             <div className="mb-4 rounded-md bg-green-50 p-4">
               <p className="text-sm font-medium text-green-800">
-                ✓ Você votou nesta votação.
+                ✓ Você votou nesta votação com {unidadesQueVotaram.length} unidade{unidadesQueVotaram.length !== 1 ? 's' : ''}:
               </p>
-              {votoUnidade && (
-                <p className="mt-2 text-sm text-green-700">
-                  Seu voto foi registrado em {new Date(votoUnidade.created_at).toLocaleString('pt-BR')}.
-                </p>
-              )}
+              <ul className="mt-2 space-y-1">
+                {unidadesQueVotaram.map((unidade) => {
+                  const voto = votosPorUnidade[unidade.id];
+                  return (
+                    <li key={unidade.id} className="text-sm text-green-700">
+                      • Unidade {unidade.numero} - Voto registrado em {voto ? new Date(voto.created_at).toLocaleString('pt-BR') : 'N/A'}
+                    </li>
+                  );
+                })}
+              </ul>
             </div>
           )}
           <div className="mb-4 rounded-md bg-gray-50 p-4">
@@ -212,12 +241,25 @@ export default async function VotarPage({
             })}
           </div>
         ) : (
-          <VotingCard 
-            votacao={votacao} 
-            opcoes={opcoes} 
-            opcoesVotadas={opcoesVotadas}
-            jaVotou={jaVotou && votacao.permitir_alterar_voto}
-          />
+          <>
+            {unidadesUsuario.length > 1 ? (
+              <UnidadeSelectorWrapper
+                unidades={unidadesUsuario}
+                unidadesJaVotaram={unidadesJaVotaram}
+                votacao={votacao}
+                opcoes={opcoes}
+                votosPorUnidade={votosPorUnidade}
+              />
+            ) : (
+              <VotingCard 
+                votacao={votacao} 
+                opcoes={opcoes} 
+                opcoesVotadas={opcoesVotadas}
+                jaVotou={jaVotou && votacao.permitir_alterar_voto}
+                unidadeId={unidadeId || undefined}
+              />
+            )}
+          </>
         )}
         {votacao.mostrar_parcial && votacao.status === 'aberta' && (
           <ResultadoParcial votacaoId={votacao.id} />

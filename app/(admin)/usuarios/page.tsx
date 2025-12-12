@@ -20,6 +20,16 @@ async function buscarUsuarios() {
           numero: true,
         },
       },
+      usuarioUnidades: {
+        include: {
+          unidade: {
+            select: {
+              id: true,
+              numero: true,
+            },
+          },
+        },
+      },
     },
     orderBy: {
       createdAt: 'desc',
@@ -28,16 +38,23 @@ async function buscarUsuarios() {
 
   // Formata para manter compatibilidade
   return usuarios.map((u) => {
-    const { passwordHash, unidadeId, createdAt, updatedAt, ...rest } = u;
+    const { passwordHash, unidadeId, createdAt, updatedAt, usuarioUnidades, ...rest } = u;
+    const unidades = usuarioUnidades?.map(uu => ({
+      id: uu.unidade.id,
+      numero: uu.unidade.numero,
+    })) || [];
+    
+    // Se não tem unidades via relacionamento, usa a unidade antiga (compatibilidade)
+    const unidadesFormatadas = unidades.length > 0 
+      ? unidades 
+      : (u.unidade ? [{ id: u.unidade.id, numero: u.unidade.numero }] : []);
+    
     return {
       ...rest,
-      unidade_id: unidadeId,
+      unidade_id: unidadeId, // Mantido para compatibilidade
       created_at: createdAt?.toISOString() || new Date().toISOString(),
       updated_at: updatedAt?.toISOString() || new Date().toISOString(),
-      unidades: u.unidade ? {
-        id: u.unidade.id,
-        numero: u.unidade.numero,
-      } : null,
+      unidades: unidadesFormatadas,
     };
   });
 }

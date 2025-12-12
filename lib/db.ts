@@ -33,6 +33,13 @@ export { hashSenha, verificarSenha };
 export async function buscarUsuarioPorEmail(email: string): Promise<Usuario | null> {
   const usuario = await prisma.usuario.findUnique({
     where: { email },
+    include: {
+      usuarioUnidades: {
+        include: {
+          unidade: true,
+        },
+      },
+    },
   });
 
   if (!usuario) {
@@ -40,10 +47,16 @@ export async function buscarUsuarioPorEmail(email: string): Promise<Usuario | nu
   }
 
   // Converte para o tipo Usuario (sem passwordHash)
-  const { passwordHash, unidadeId, createdAt, updatedAt, ...rest } = usuario;
+  const { passwordHash, unidadeId, createdAt, updatedAt, usuarioUnidades, ...rest } = usuario;
   return {
     ...rest,
-    unidade_id: unidadeId,
+    unidade_id: unidadeId, // Mantido para compatibilidade
+    unidades: usuarioUnidades?.map(uu => ({
+      id: uu.unidade.id,
+      numero: uu.unidade.numero,
+      created_at: uu.unidade.createdAt?.toISOString() || new Date().toISOString(),
+      updated_at: uu.unidade.updatedAt?.toISOString() || new Date().toISOString(),
+    })) || [],
     created_at: createdAt?.toISOString() || new Date().toISOString(),
     updated_at: updatedAt?.toISOString() || new Date().toISOString(),
   } as Usuario;
@@ -58,19 +71,76 @@ export async function buscarUsuarioPorEmail(email: string): Promise<Usuario | nu
 export async function buscarUsuarioPorId(id: string): Promise<Usuario | null> {
   const usuario = await prisma.usuario.findUnique({
     where: { id },
+    include: {
+      usuarioUnidades: {
+        include: {
+          unidade: true,
+        },
+      },
+    },
   });
 
   if (!usuario) {
     return null;
   }
 
-  const { passwordHash, unidadeId, createdAt, updatedAt, ...rest } = usuario;
+  const { passwordHash, unidadeId, createdAt, updatedAt, usuarioUnidades, ...rest } = usuario;
   return {
     ...rest,
-    unidade_id: unidadeId,
+    unidade_id: unidadeId, // Mantido para compatibilidade
+    unidades: usuarioUnidades?.map(uu => ({
+      id: uu.unidade.id,
+      numero: uu.unidade.numero,
+      created_at: uu.unidade.createdAt?.toISOString() || new Date().toISOString(),
+      updated_at: uu.unidade.updatedAt?.toISOString() || new Date().toISOString(),
+    })) || [],
     created_at: createdAt?.toISOString() || new Date().toISOString(),
     updated_at: updatedAt?.toISOString() || new Date().toISOString(),
   } as Usuario;
+}
+
+/**
+ * Busca todas as unidades de um usuário.
+ * 
+ * @param userId - ID do usuário
+ * @returns Lista de unidades do usuário
+ */
+export async function buscarUnidadesUsuario(userId: string): Promise<Unidade[]> {
+  const usuario = await prisma.usuario.findUnique({
+    where: { id: userId },
+    include: {
+      usuarioUnidades: {
+        include: {
+          unidade: true,
+        },
+      },
+      unidade: true, // Unidade antiga (compatibilidade)
+    },
+  });
+
+  if (!usuario) {
+    return [];
+  }
+
+  // Busca unidades do relacionamento novo
+  const unidadesNovas = usuario.usuarioUnidades?.map(uu => ({
+    id: uu.unidade.id,
+    numero: uu.unidade.numero,
+    created_at: uu.unidade.createdAt?.toISOString() || new Date().toISOString(),
+    updated_at: uu.unidade.updatedAt?.toISOString() || new Date().toISOString(),
+  })) || [];
+
+  // Se não tem unidades novas, usa a unidade antiga (compatibilidade)
+  if (unidadesNovas.length === 0 && usuario.unidade) {
+    return [{
+      id: usuario.unidade.id,
+      numero: usuario.unidade.numero,
+      created_at: usuario.unidade.createdAt?.toISOString() || new Date().toISOString(),
+      updated_at: usuario.unidade.updatedAt?.toISOString() || new Date().toISOString(),
+    }];
+  }
+
+  return unidadesNovas;
 }
 
 /**
@@ -93,6 +163,9 @@ export async function criarUsuario(dados: CriarUsuarioDTO): Promise<Usuario> {
   // Hash da senha
   const passwordHash = await hashSenha(dados.senha);
 
+  // Prepara unidades: usa unidades_ids se fornecido, senão usa unidade_id (compatibilidade)
+  const unidadesIds = dados.unidades_ids || (dados.unidade_id ? [dados.unidade_id] : []);
+
   const usuario = await prisma.usuario.create({
     data: {
       email: dados.email,
@@ -100,14 +173,32 @@ export async function criarUsuario(dados: CriarUsuarioDTO): Promise<Usuario> {
       nome: dados.nome,
       telefone: dados.telefone || null,
       perfil: dados.perfil,
-      unidadeId: dados.unidade_id || null,
+      unidadeId: dados.unidade_id || null, // Mantido para compatibilidade
+      usuarioUnidades: unidadesIds.length > 0 ? {
+        create: unidadesIds.map(unidadeId => ({
+          unidadeId,
+        })),
+      } : undefined,
+    },
+    include: {
+      usuarioUnidades: {
+        include: {
+          unidade: true,
+        },
+      },
     },
   });
 
-  const { passwordHash: _, unidadeId, createdAt, updatedAt, ...rest } = usuario;
+  const { passwordHash: _, unidadeId, createdAt, updatedAt, usuarioUnidades, ...rest } = usuario;
   return {
     ...rest,
-    unidade_id: unidadeId,
+    unidade_id: unidadeId, // Mantido para compatibilidade
+    unidades: usuarioUnidades?.map(uu => ({
+      id: uu.unidade.id,
+      numero: uu.unidade.numero,
+      created_at: uu.unidade.createdAt?.toISOString() || new Date().toISOString(),
+      updated_at: uu.unidade.updatedAt?.toISOString() || new Date().toISOString(),
+    })) || [],
     created_at: createdAt?.toISOString() || new Date().toISOString(),
     updated_at: updatedAt?.toISOString() || new Date().toISOString(),
   } as Usuario;
@@ -132,7 +223,7 @@ export async function atualizarUsuario(
     perfil: dados.perfil,
   };
 
-  // Se unidade_id foi fornecido (incluindo null), atualiza
+  // Se unidade_id foi fornecido (incluindo null), atualiza (compatibilidade)
   if (dados.unidade_id !== undefined) {
     dadosUpdate.unidadeId = dados.unidade_id;
   }
@@ -142,15 +233,45 @@ export async function atualizarUsuario(
     dadosUpdate.passwordHash = await hashSenha(dados.senha);
   }
 
+  // Se unidades_ids foi fornecido, atualiza relacionamentos
+  if (dados.unidades_ids !== undefined) {
+    // Remove todas as unidades existentes
+    await prisma.usuarioUnidade.deleteMany({
+      where: { usuarioId: id },
+    });
+
+    // Adiciona as novas unidades
+    if (dados.unidades_ids.length > 0) {
+      dadosUpdate.usuarioUnidades = {
+        create: dados.unidades_ids.map(unidadeId => ({
+          unidadeId,
+        })),
+      };
+    }
+  }
+
   const usuario = await prisma.usuario.update({
     where: { id },
     data: dadosUpdate,
+    include: {
+      usuarioUnidades: {
+        include: {
+          unidade: true,
+        },
+      },
+    },
   });
 
-  const { passwordHash, unidadeId, createdAt, updatedAt, ...rest } = usuario;
+  const { passwordHash, unidadeId, createdAt, updatedAt, usuarioUnidades, ...rest } = usuario;
   return {
     ...rest,
-    unidade_id: unidadeId,
+    unidade_id: unidadeId, // Mantido para compatibilidade
+    unidades: usuarioUnidades?.map(uu => ({
+      id: uu.unidade.id,
+      numero: uu.unidade.numero,
+      created_at: uu.unidade.createdAt?.toISOString() || new Date().toISOString(),
+      updated_at: uu.unidade.updatedAt?.toISOString() || new Date().toISOString(),
+    })) || [],
     created_at: createdAt?.toISOString() || new Date().toISOString(),
     updated_at: updatedAt?.toISOString() || new Date().toISOString(),
   } as Usuario;

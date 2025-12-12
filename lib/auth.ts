@@ -90,15 +90,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
+        // Quando há um novo login, atualiza o token com os dados do usuário
         token.id = user.id;
         token.perfil = (user as any).perfil;
         token.unidade_id = (user as any).unidade_id;
       }
+      // Retorna o token (mantém os dados mesmo em requisições subsequentes)
       return token;
     },
     async session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.id as string;
+      if (session.user && token.id) {
+        // Garante que o ID está presente e é uma string válida
+        session.user.id = String(token.id);
         session.user.perfil = token.perfil as PerfilUsuario;
         session.user.unidade_id = token.unidade_id as string | null;
       }

@@ -18,12 +18,14 @@ const atualizarUsuarioSchema = z.object({
   nome: z.string().min(1, 'Nome é obrigatório').optional(),
   telefone: z.string().optional(),
   perfil: z.enum(['staff', 'conselho', 'auditor', 'morador']).optional(),
-  // Aceita string vazia, UUID válido ou null/undefined
+  // Aceita string vazia, UUID válido ou null/undefined (compatibilidade)
   unidade_id: z
     .union([z.string().uuid(), z.string().length(0), z.null(), z.undefined()])
     .optional()
     .nullable()
     .transform((val) => (val === '' || val === undefined ? null : val)),
+  // Array de IDs de unidades (novo)
+  unidades_ids: z.array(z.string().uuid()).optional(),
   senha: z.string().min(6, 'Senha deve ter no mínimo 6 caracteres').optional(),
 });
 
@@ -82,9 +84,14 @@ export async function PUT(
       perfil: dados.perfil,
     };
 
-    // Sempre inclui unidade_id se foi fornecido (incluindo null para remover unidade)
+    // Sempre inclui unidade_id se foi fornecido (incluindo null para remover unidade) - compatibilidade
     if (dados.unidade_id !== undefined) {
       dadosAtualizacao.unidade_id = dados.unidade_id;
+    }
+
+    // Inclui unidades_ids se fornecido (novo)
+    if (dados.unidades_ids !== undefined) {
+      dadosAtualizacao.unidades_ids = dados.unidades_ids;
     }
 
     // Se senha foi fornecida, inclui na atualização

@@ -91,6 +91,27 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 403 });
     }
 
+    // Valida se o usuário existe e tem ID válido
+    if (!session.user?.id) {
+      return NextResponse.json(
+        { error: 'Usuário não identificado na sessão' },
+        { status: 401 }
+      );
+    }
+
+    // Verifica se o usuário existe no banco
+    const usuarioExiste = await prisma.usuario.findUnique({
+      where: { id: session.user.id },
+      select: { id: true },
+    });
+
+    if (!usuarioExiste) {
+      return NextResponse.json(
+        { error: 'Usuário não encontrado no banco de dados' },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
     const dados = criarVotacaoSchema.parse(body);
 
@@ -114,7 +135,7 @@ export async function POST(request: NextRequest) {
         modoAuditoria: dados.modo_auditoria,
         mostrarParcial: dados.mostrar_parcial ?? false,
         permitirAlterarVoto: dados.permitir_alterar_voto ?? true,
-        criadoPor: session.user!.id,
+        criadoPor: session.user.id,
         dataInicio: new Date(dados.data_inicio),
         dataFim: new Date(dados.data_fim),
         status: 'rascunho',
@@ -152,8 +173,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Log do erro para debug
+    console.error('Erro ao criar votação:', error);
+
+    // Verifica se é erro de foreign key
+    if (error instanceof Error && error.message.includes('Foreign key constraint')) {
+      return NextResponse.json(
+        { error: 'Erro ao criar votação: usuário não encontrado. Faça login novamente.' },
+        { status: 400 }
+      );
+    }
+
     return NextResponse.json(
-      { error: 'Erro ao criar votação' },
+      { error: 'Erro ao criar votação', details: error instanceof Error ? error.message : 'Erro desconhecido' },
       { status: 500 }
     );
   }

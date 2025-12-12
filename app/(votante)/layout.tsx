@@ -9,6 +9,7 @@ import { auth } from '@/lib/auth';
 import Link from 'next/link';
 import { MobileMenu } from '@/components/admin/MobileMenu';
 import { ChangePasswordButton } from '@/components/auth/ChangePasswordButton';
+import { NavLink } from '@/components/admin/NavLink';
 
 export default async function VotanteLayout({
   children,
@@ -35,19 +36,9 @@ export default async function VotanteLayout({
               </div>
               {/* Menu desktop - oculto em mobile */}
               <div className="hidden md:ml-6 md:flex md:space-x-8">
-                <Link
-                  href="/participar"
-                  className="inline-flex items-center border-b-2 border-blue-500 px-1 pt-1 text-sm font-medium text-gray-900"
-                >
-                  Votações
-                </Link>
+                <NavLink href="/participar">Votações</NavLink>
                 {(session.user?.perfil === 'staff' || session.user?.perfil === 'conselho') && (
-                  <Link
-                    href="/dashboard"
-                    className="inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
-                  >
-                    Administração
-                  </Link>
+                  <NavLink href="/dashboard">Administração</NavLink>
                 )}
               </div>
             </div>

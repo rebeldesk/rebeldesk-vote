@@ -7,28 +7,30 @@ datasource db {
 }
 
 model Unidade {
-  id        String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  numero    String    @unique @db.VarChar(50)
-  createdAt DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime? @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
-  users     Usuario[]
-  votos     Voto[]
+  id              String           @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  numero          String           @unique @db.VarChar(50)
+  createdAt       DateTime?        @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime?        @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  users           Usuario[]
+  usuarioUnidades UsuarioUnidade[]
+  votos           Voto[]
 
   @@map("unidades")
 }
 
 model Usuario {
-  id              String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  email           String        @unique @db.VarChar(255)
-  passwordHash    String        @map("password_hash")
-  nome            String        @db.VarChar(255)
-  telefone        String?       @db.VarChar(20)
-  perfil          PerfilUsuario @default(morador)
-  unidadeId       String?       @map("unidade_id") @db.Uuid
-  createdAt       DateTime?     @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt       DateTime?     @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
-  unidade         Unidade?      @relation(fields: [unidadeId], references: [id], onUpdate: NoAction)
-  votacoesCriadas Votacao[]     @relation("VotacoesCriadas")
+  id              String           @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  email           String           @unique @db.VarChar(255)
+  passwordHash    String           @map("password_hash")
+  nome            String           @db.VarChar(255)
+  telefone        String?          @db.VarChar(20)
+  perfil          PerfilUsuario    @default(morador)
+  unidadeId       String?          @map("unidade_id") @db.Uuid
+  createdAt       DateTime?        @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime?        @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  unidade         Unidade?         @relation(fields: [unidadeId], references: [id], onUpdate: NoAction)
+  usuarioUnidades UsuarioUnidade[]
+  votacoesCriadas Votacao[]        @relation("VotacoesCriadas")
   votos           Voto[]
 
   @@index([email], map: "idx_users_email")
@@ -121,4 +123,18 @@ enum StatusVotacao {
   encerrada
 
   @@map("status_votacao")
+}
+
+model UsuarioUnidade {
+  id        String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  usuarioId String    @map("usuario_id") @db.Uuid
+  unidadeId String    @map("unidade_id") @db.Uuid
+  createdAt DateTime? @default(now()) @map("created_at") @db.Timestamptz(6)
+  usuario   Usuario   @relation(fields: [usuarioId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  unidade   Unidade   @relation(fields: [unidadeId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([usuarioId, unidadeId])
+  @@index([usuarioId], map: "idx_usuario_unidades_usuario_id")
+  @@index([unidadeId], map: "idx_usuario_unidades_unidade_id")
+  @@map("usuario_unidades")
 }
