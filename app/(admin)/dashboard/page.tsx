@@ -60,16 +60,18 @@ export default async function DashboardPage() {
               </div>
             </div>
           </div>
-          <div className="bg-gray-50 px-5 py-3">
-            <div className="text-sm">
-              <Link
-                href="/usuarios"
-                className="font-medium text-blue-700 hover:text-blue-900"
-              >
-                Ver todos
-              </Link>
+          {session?.user?.perfil === 'staff' && (
+            <div className="bg-gray-50 px-5 py-3">
+              <div className="text-sm">
+                <Link
+                  href="/usuarios"
+                  className="font-medium text-blue-700 hover:text-blue-900"
+                >
+                  Ver todos
+                </Link>
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Card Votações */}
@@ -167,12 +169,14 @@ export default async function DashboardPage() {
       <div className="mt-8">
         <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Ações Rápidas</h2>
         <div className="mt-4 flex flex-col sm:flex-row gap-3 sm:gap-4">
-          <Link
-            href="/usuarios/novo"
-            className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 text-center"
-          >
-            Novo Usuário
-          </Link>
+          {session?.user?.perfil === 'staff' && (
+            <Link
+              href="/usuarios/novo"
+              className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 text-center"
+            >
+              Novo Usuário
+            </Link>
+          )}
           <Link
             href="/unidades/nova"
             className="rounded-md bg-purple-600 px-4 py-2 text-sm font-medium text-white hover:bg-purple-700 text-center"

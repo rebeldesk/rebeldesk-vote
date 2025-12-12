@@ -40,10 +40,17 @@ export async function middleware(request: NextRequest) {
 
   const perfil = session.user?.perfil;
 
-  // Rotas administrativas - apenas staff e conselho
-  if (pathname.startsWith('/dashboard') || pathname.startsWith('/usuarios') || pathname.startsWith('/votacoes') && pathname.includes('/nova') || pathname.includes('/resultado')) {
+  // Rotas de usuários - apenas staff
+  if (pathname.startsWith('/usuarios')) {
+    if (perfil !== 'staff') {
+      return NextResponse.redirect(new URL('/dashboard', request.url));
+    }
+  }
+
+  // Rotas administrativas - staff e conselho
+  if (pathname.startsWith('/dashboard') || (pathname.startsWith('/votacoes') && (pathname.includes('/nova') || pathname.includes('/resultado')))) {
     if (perfil !== 'staff' && perfil !== 'conselho') {
-      return NextResponse.redirect(new URL('/votacoes', request.url));
+      return NextResponse.redirect(new URL('/participar', request.url));
     }
   }
 
