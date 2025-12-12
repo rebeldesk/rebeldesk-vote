@@ -48,6 +48,19 @@ async function runMigration() {
     await client.query(migrationSQL);
     console.log('✅ Migration executada com sucesso!\n');
 
+    // Verifica se o campo foi criado
+    const checkResult = await client.query(`
+      SELECT column_name, data_type, column_default 
+      FROM information_schema.columns 
+      WHERE table_name = 'users' AND column_name = 'forcar_troca_senha'
+    `);
+    
+    if (checkResult.rows.length > 0) {
+      console.log('✅ Campo forcar_troca_senha confirmado no banco de dados');
+    } else {
+      console.log('⚠️  Campo forcar_troca_senha não encontrado. Verifique a migration.');
+    }
+
     await client.end();
   } catch (error) {
     console.error('❌ Erro ao executar migration:', error);
