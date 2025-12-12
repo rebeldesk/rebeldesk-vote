@@ -35,12 +35,15 @@ export function UserForm({ usuarioId, initialData }: UserFormProps) {
   const [unidades, setUnidades] = useState<Array<{ id: string; numero: string }>>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [senhaGerada, setSenhaGerada] = useState<string>('');
+  const [mostrarSenha, setMostrarSenha] = useState(false);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
     setValue,
+    watch,
   } = useForm<UserFormData>({
     resolver: zodResolver(userSchema),
     defaultValues: initialData || {
@@ -53,6 +56,8 @@ export function UserForm({ usuarioId, initialData }: UserFormProps) {
     },
   });
 
+  const senhaAtual = watch('senha');
+
   useEffect(() => {
     // Busca unidades
     fetch('/api/unidades')
@@ -60,6 +65,21 @@ export function UserForm({ usuarioId, initialData }: UserFormProps) {
       .then((data) => setUnidades(data))
       .catch(() => setError('Erro ao carregar unidades'));
   }, []);
+
+  /**
+   * Gera uma senha aleatória segura.
+   * Formato: 8 caracteres com letras maiúsculas, minúsculas e números
+   */
+  const gerarSenha = () => {
+    const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let senha = '';
+    for (let i = 0; i < 8; i++) {
+      senha += caracteres.charAt(Math.floor(Math.random() * caracteres.length));
+    }
+    setSenhaGerada(senha);
+    setValue('senha', senha, { shouldValidate: true });
+    setMostrarSenha(true);
+  };
 
   const onSubmit = async (data: UserFormData) => {
     setLoading(true);
@@ -132,15 +152,67 @@ export function UserForm({ usuarioId, initialData }: UserFormProps) {
       </div>
 
       <div>
-        <label htmlFor="senha" className="block text-sm font-medium text-gray-700">
-          Senha {usuarioId ? '(deixe em branco para não alterar)' : '*'}
-        </label>
-        <input
-          {...register('senha')}
-          type="password"
-          id="senha"
-          className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
-        />
+        <div className="flex items-center justify-between">
+          <label htmlFor="senha" className="block text-sm font-medium text-gray-700">
+            Senha {usuarioId ? '(deixe em branco para não alterar)' : '*'}
+          </label>
+          <button
+            type="button"
+            onClick={gerarSenha}
+            className="text-sm font-medium text-blue-600 hover:text-blue-900"
+          >
+            🔑 Gerar Senha
+          </button>
+        </div>
+        <div className="mt-1 flex gap-2">
+          <input
+            {...register('senha')}
+            type={mostrarSenha ? 'text' : 'password'}
+            id="senha"
+            className="block flex-1 rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
+            onChange={(e) => {
+              const valor = e.target.value;
+              // Se o usuário editar manualmente e não for a senha gerada, limpa a flag
+              if (senhaGerada && valor !== senhaGerada) {
+                setSenhaGerada('');
+                setMostrarSenha(false);
+              }
+            }}
+          />
+          {senhaAtual && senhaAtual.length > 0 && (
+            <button
+              type="button"
+              onClick={() => {
+                setMostrarSenha(!mostrarSenha);
+              }}
+              className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+              title={mostrarSenha ? 'Ocultar senha' : 'Mostrar senha'}
+            >
+              {mostrarSenha ? '👁️' : '👁️‍🗨️'}
+            </button>
+          )}
+        </div>
+        {senhaGerada && (
+          <div className="mt-2 rounded-md bg-blue-50 p-3">
+            <p className="text-xs text-gray-700">
+              <span className="font-medium">Senha gerada:</span>{' '}
+              <span className="font-mono font-semibold text-blue-900">{senhaGerada}</span>
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText(senhaGerada);
+                  alert('Senha copiada para a área de transferência!');
+                }}
+                className="ml-2 text-blue-600 hover:text-blue-900 underline"
+              >
+                📋 Copiar
+              </button>
+            </p>
+            <p className="mt-1 text-xs text-gray-600">
+              ⚠️ Anote esta senha antes de salvar. Ela não será exibida novamente.
+            </p>
+          </div>
+        )}
         {errors.senha && (
           <p className="mt-1 text-sm text-red-600">{errors.senha.message}</p>
         )}

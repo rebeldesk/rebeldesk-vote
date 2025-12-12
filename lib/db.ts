@@ -122,17 +122,25 @@ export async function criarUsuario(dados: CriarUsuarioDTO): Promise<Usuario> {
  */
 export async function atualizarUsuario(
   id: string,
-  dados: AtualizarUsuarioDTO
+  dados: AtualizarUsuarioDTO & { senha?: string }
 ): Promise<Usuario> {
+  // Prepara dados de atualização
+  const dadosUpdate: any = {
+    email: dados.email,
+    nome: dados.nome,
+    telefone: dados.telefone,
+    perfil: dados.perfil,
+    unidadeId: dados.unidade_id ?? undefined,
+  };
+
+  // Se senha foi fornecida, atualiza o hash
+  if (dados.senha) {
+    dadosUpdate.passwordHash = await hashSenha(dados.senha);
+  }
+
   const usuario = await prisma.usuario.update({
     where: { id },
-    data: {
-      email: dados.email,
-      nome: dados.nome,
-      telefone: dados.telefone,
-      perfil: dados.perfil,
-      unidadeId: dados.unidade_id ?? undefined,
-    },
+    data: dadosUpdate,
   });
 
   const { passwordHash, unidadeId, createdAt, updatedAt, ...rest } = usuario;

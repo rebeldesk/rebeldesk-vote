@@ -19,6 +19,7 @@ const atualizarUsuarioSchema = z.object({
   telefone: z.string().optional(),
   perfil: z.enum(['staff', 'conselho', 'auditor', 'morador']).optional(),
   unidade_id: z.string().uuid().nullable().optional(),
+  senha: z.string().min(6, 'Senha deve ter no mínimo 6 caracteres').optional(),
 });
 
 export async function GET(
@@ -68,7 +69,21 @@ export async function PUT(
     const body = await request.json();
     const dados = atualizarUsuarioSchema.parse(body);
 
-    const usuario = await atualizarUsuario(id, dados);
+    // Prepara dados para atualização (inclui senha se fornecida)
+    const dadosAtualizacao: any = {
+      email: dados.email,
+      nome: dados.nome,
+      telefone: dados.telefone,
+      perfil: dados.perfil,
+      unidade_id: dados.unidade_id,
+    };
+
+    // Se senha foi fornecida, inclui na atualização
+    if (dados.senha) {
+      dadosAtualizacao.senha = dados.senha;
+    }
+
+    const usuario = await atualizarUsuario(id, dadosAtualizacao);
 
     // Remove password_hash da resposta
     const { password_hash, ...usuarioSemSenha } = usuario as any;
