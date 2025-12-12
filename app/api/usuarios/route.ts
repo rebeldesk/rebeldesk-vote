@@ -26,14 +26,15 @@ const criarUsuarioSchema = z.object({
     .transform((val) => (val === '' || val === undefined ? null : val)),
   // Array de IDs de unidades (novo)
   unidades_ids: z.array(z.string().uuid()).optional(),
+  forcar_troca_senha: z.boolean().optional().default(false),
 });
 
 export async function GET() {
   try {
     const session = await auth();
 
-    // Apenas staff e conselho podem listar usuários
-    if (!session || (session.user?.perfil !== 'staff' && session.user?.perfil !== 'conselho')) {
+    // Apenas staff pode listar usuários
+    if (!session || session.user?.perfil !== 'staff') {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 403 });
     }
 
@@ -94,8 +95,8 @@ export async function POST(request: NextRequest) {
   try {
     const session = await auth();
 
-    // Apenas staff e conselho podem criar usuários
-    if (!session || (session.user?.perfil !== 'staff' && session.user?.perfil !== 'conselho')) {
+    // Apenas staff pode criar usuários
+    if (!session || session.user?.perfil !== 'staff') {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 403 });
     }
 
@@ -110,6 +111,7 @@ export async function POST(request: NextRequest) {
       perfil: dados.perfil,
       unidade_id: dados.unidade_id, // Mantido para compatibilidade
       unidades_ids: dados.unidades_ids, // Novo: array de unidades
+      forcar_troca_senha: dados.forcar_troca_senha || false,
     });
 
     // Remove passwordHash da resposta

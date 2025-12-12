@@ -19,19 +19,20 @@ model Unidade {
 }
 
 model Usuario {
-  id              String           @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  email           String           @unique @db.VarChar(255)
-  passwordHash    String           @map("password_hash")
-  nome            String           @db.VarChar(255)
-  telefone        String?          @db.VarChar(20)
-  perfil          PerfilUsuario    @default(morador)
-  unidadeId       String?          @map("unidade_id") @db.Uuid
-  createdAt       DateTime?        @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt       DateTime?        @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
-  unidade         Unidade?         @relation(fields: [unidadeId], references: [id], onUpdate: NoAction)
-  usuarioUnidades UsuarioUnidade[]
-  votacoesCriadas Votacao[]        @relation("VotacoesCriadas")
-  votos           Voto[]
+  id               String           @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  email            String           @unique @db.VarChar(255)
+  passwordHash     String           @map("password_hash")
+  nome             String           @db.VarChar(255)
+  telefone         String?          @db.VarChar(20)
+  perfil           PerfilUsuario    @default(morador)
+  unidadeId        String?          @map("unidade_id") @db.Uuid
+  forcarTrocaSenha Boolean          @default(false) @map("forcar_troca_senha")
+  createdAt        DateTime?        @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime?        @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  unidade          Unidade?         @relation(fields: [unidadeId], references: [id], onUpdate: NoAction)
+  usuarioUnidades  UsuarioUnidade[]
+  votacoesCriadas  Votacao[]        @relation("VotacoesCriadas")
+  votos            Voto[]
 
   @@index([email], map: "idx_users_email")
   @@index([unidadeId], map: "idx_users_unidade_id")

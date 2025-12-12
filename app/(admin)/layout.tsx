@@ -45,7 +45,9 @@ export default async function AdminLayout({
               {/* Menu desktop - oculto em mobile */}
               <div className="hidden md:ml-6 md:flex md:space-x-8">
                 <NavLink href="/dashboard">Dashboard</NavLink>
-                <NavLink href="/usuarios">Usuários</NavLink>
+                {perfil === 'staff' && (
+                  <NavLink href="/usuarios">Usuários</NavLink>
+                )}
                 <NavLink href="/unidades">Unidades</NavLink>
                 <NavLink href="/votacoes">Votações</NavLink>
                 {perfil === 'conselho' && (
@@ -54,15 +56,21 @@ export default async function AdminLayout({
               </div>
             </div>
             <div className="flex items-center gap-2 sm:gap-4">
-              <span className="hidden sm:inline-block text-sm text-gray-700">
+              <Link
+                href="/perfil"
+                className="hidden sm:inline-block text-sm text-gray-700 hover:text-blue-600 transition-colors cursor-pointer"
+                title="Ver meu perfil"
+              >
                 {session.user?.name} ({perfil})
-              </span>
+              </Link>
               <ChangePasswordButton className="hidden sm:inline-block text-sm text-gray-600 hover:text-gray-900" />
               {/* Menu hambúrguer mobile */}
               <MobileMenu
                 links={[
                   { href: '/dashboard', label: 'Dashboard' },
-                  { href: '/usuarios', label: 'Usuários' },
+                  ...(perfil === 'staff'
+                    ? [{ href: '/usuarios', label: 'Usuários' }]
+                    : []),
                   { href: '/unidades', label: 'Unidades' },
                   { href: '/votacoes', label: 'Votações' },
                   ...(perfil === 'conselho'

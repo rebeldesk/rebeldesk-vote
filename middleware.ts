@@ -16,7 +16,7 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Rotas públicas (não requerem autenticação)
-  const rotasPublicas = ['/login', '/api/auth'];
+  const rotasPublicas = ['/login', '/api/auth', '/trocar-senha-obrigatoria'];
   if (rotasPublicas.some((rota) => pathname.startsWith(rota))) {
     return NextResponse.next();
   }
@@ -26,6 +26,12 @@ export async function middleware(request: NextRequest) {
     const url = new URL('/login', request.url);
     url.searchParams.set('callbackUrl', pathname);
     return NextResponse.redirect(url);
+  }
+
+  // Se precisa trocar senha, redireciona para página de troca obrigatória
+  // (exceto se já estiver na página de trocar senha)
+  if (session.user?.forcar_troca_senha && !pathname.startsWith('/trocar-senha-obrigatoria')) {
+    return NextResponse.redirect(new URL('/trocar-senha-obrigatoria', request.url));
   }
 
   const perfil = session.user?.perfil;

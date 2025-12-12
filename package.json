@@ -12,6 +12,7 @@
     "migrate:mostrar-parcial": "node scripts/run-migration.js",
     "migrate:permitir-alterar-voto": "node scripts/run-migration-permitir-alterar-voto.js",
     "migrate:usuario-unidades": "node scripts/run-migration-usuario-unidades.js",
+    "migrate:forcar-troca-senha": "node scripts/run-migration-forcar-troca-senha.js",
     "importar:usuarios": "node scripts/importar-usuarios.js",
     "corrigir:unidades-ponto-zero": "node scripts/corrigir-unidades-ponto-zero.js",
     "atualizar:senhas-moradores": "node scripts/atualizar-senhas-moradores.js"

@@ -9,7 +9,7 @@ import { UserForm } from '@/components/admin/UserForm';
 export default async function NovoUsuarioPage() {
   const session = await auth();
 
-  if (!session || (session.user?.perfil !== 'staff' && session.user?.perfil !== 'conselho')) {
+  if (!session || session.user?.perfil !== 'staff') {
     redirect('/dashboard');
   }
 

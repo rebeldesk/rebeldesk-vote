@@ -46,6 +46,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               perfil: true,
               unidadeId: true,
               passwordHash: true,
+              forcarTrocaSenha: true,
             },
           });
 
@@ -79,6 +80,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             name: userData.nome,
             perfil: userData.perfil,
             unidade_id: userData.unidadeId,
+            forcar_troca_senha: userData.forcarTrocaSenha,
           };
         } catch (error) {
           console.error('[Auth] Erro na autenticação:', error);
@@ -94,6 +96,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.id = user.id;
         token.perfil = (user as any).perfil;
         token.unidade_id = (user as any).unidade_id;
+        token.forcar_troca_senha = (user as any).forcar_troca_senha;
       }
       // Retorna o token (mantém os dados mesmo em requisições subsequentes)
       return token;
@@ -104,6 +107,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.id = String(token.id);
         session.user.perfil = token.perfil as PerfilUsuario;
         session.user.unidade_id = token.unidade_id as string | null;
+        session.user.forcar_troca_senha = token.forcar_troca_senha as boolean | undefined;
       }
       return session;
     },

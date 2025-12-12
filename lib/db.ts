@@ -174,6 +174,7 @@ export async function criarUsuario(dados: CriarUsuarioDTO): Promise<Usuario> {
       telefone: dados.telefone || null,
       perfil: dados.perfil,
       unidadeId: dados.unidade_id || null, // Mantido para compatibilidade
+      forcarTrocaSenha: (dados as any).forcar_troca_senha || false,
       usuarioUnidades: unidadesIds.length > 0 ? {
         create: unidadesIds.map(unidadeId => ({
           unidadeId,
@@ -189,11 +190,11 @@ export async function criarUsuario(dados: CriarUsuarioDTO): Promise<Usuario> {
     },
   });
 
-  const { passwordHash: _, unidadeId, createdAt, updatedAt, usuarioUnidades, ...rest } = usuario;
+  const { passwordHash: _, unidadeId, createdAt, updatedAt, usuarioUnidades, ...rest } = usuario as any;
   return {
     ...rest,
     unidade_id: unidadeId, // Mantido para compatibilidade
-    unidades: usuarioUnidades?.map(uu => ({
+    unidades: usuarioUnidades?.map((uu: any) => ({
       id: uu.unidade.id,
       numero: uu.unidade.numero,
       created_at: uu.unidade.createdAt?.toISOString() || new Date().toISOString(),
@@ -222,6 +223,11 @@ export async function atualizarUsuario(
     telefone: dados.telefone,
     perfil: dados.perfil,
   };
+
+  // Se forcar_troca_senha foi fornecido, atualiza
+  if ((dados as any).forcar_troca_senha !== undefined) {
+    dadosUpdate.forcarTrocaSenha = (dados as any).forcar_troca_senha;
+  }
 
   // Se unidade_id foi fornecido (incluindo null), atualiza (compatibilidade)
   if (dados.unidade_id !== undefined) {

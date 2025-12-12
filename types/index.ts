@@ -131,6 +131,7 @@ export interface CriarUsuarioDTO {
   perfil: PerfilUsuario;
   unidade_id?: string | null; // Mantido para compatibilidade (deprecated)
   unidades_ids?: string[]; // Array de IDs de unidades (novo)
+  forcar_troca_senha?: boolean; // Força troca de senha no próximo login
 }
 
 /**
@@ -143,6 +144,7 @@ export interface AtualizarUsuarioDTO {
   perfil?: PerfilUsuario;
   unidade_id?: string | null; // Mantido para compatibilidade (deprecated)
   unidades_ids?: string[]; // Array de IDs de unidades (novo)
+  forcar_troca_senha?: boolean; // Força troca de senha no próximo login
 }
 
 /**

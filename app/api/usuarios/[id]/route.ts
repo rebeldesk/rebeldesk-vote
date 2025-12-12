@@ -27,6 +27,7 @@ const atualizarUsuarioSchema = z.object({
   // Array de IDs de unidades (novo)
   unidades_ids: z.array(z.string().uuid()).optional(),
   senha: z.string().min(6, 'Senha deve ter no mínimo 6 caracteres').optional(),
+  forcar_troca_senha: z.boolean().optional(),
 });
 
 export async function GET(
@@ -36,8 +37,8 @@ export async function GET(
   try {
     const session = await auth();
 
-    // Apenas staff e conselho podem ver usuários
-    if (!session || (session.user?.perfil !== 'staff' && session.user?.perfil !== 'conselho')) {
+    // Apenas staff pode ver usuários
+    if (!session || session.user?.perfil !== 'staff') {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 403 });
     }
 
@@ -67,8 +68,8 @@ export async function PUT(
   try {
     const session = await auth();
 
-    // Apenas staff e conselho podem atualizar usuários
-    if (!session || (session.user?.perfil !== 'staff' && session.user?.perfil !== 'conselho')) {
+    // Apenas staff pode atualizar usuários
+    if (!session || session.user?.perfil !== 'staff') {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 403 });
     }
 
@@ -83,6 +84,11 @@ export async function PUT(
       telefone: dados.telefone,
       perfil: dados.perfil,
     };
+
+    // Inclui forcar_troca_senha se fornecido
+    if (dados.forcar_troca_senha !== undefined) {
+      dadosAtualizacao.forcar_troca_senha = dados.forcar_troca_senha;
+    }
 
     // Sempre inclui unidade_id se foi fornecido (incluindo null para remover unidade) - compatibilidade
     if (dados.unidade_id !== undefined) {

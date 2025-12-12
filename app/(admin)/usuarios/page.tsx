@@ -62,7 +62,7 @@ async function buscarUsuarios() {
 export default async function UsuariosPage() {
   const session = await auth();
 
-  if (!session || (session.user?.perfil !== 'staff' && session.user?.perfil !== 'conselho')) {
+  if (!session || session.user?.perfil !== 'staff') {
     redirect('/dashboard');
   }
 

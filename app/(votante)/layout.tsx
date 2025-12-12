@@ -44,9 +44,13 @@ export default async function VotanteLayout({
               </div>
             </div>
             <div className="flex items-center gap-2 sm:gap-4">
-              <span className="hidden sm:inline-block text-sm text-gray-700">
+              <Link
+                href="/perfil"
+                className="hidden sm:inline-block text-sm text-gray-700 hover:text-blue-600 transition-colors cursor-pointer"
+                title="Ver meu perfil"
+              >
                 {session.user?.name} ({session.user?.perfil})
-              </span>
+              </Link>
               <ChangePasswordButton className="hidden sm:inline-block text-sm text-gray-600 hover:text-gray-900" />
               {/* Menu hambúrguer mobile */}
               <MobileMenu

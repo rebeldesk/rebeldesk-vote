@@ -74,11 +74,12 @@ export async function POST(request: NextRequest) {
     // Gera hash da nova senha
     const novoHash = await hashSenha(dados.novaSenha);
 
-    // Atualiza a senha
+    // Atualiza a senha e remove o flag de forçar troca (se existir)
     await prisma.usuario.update({
       where: { id: session.user.id },
       data: {
         passwordHash: novoHash,
+        forcarTrocaSenha: false, // Remove o flag após trocar
       },
     });
 

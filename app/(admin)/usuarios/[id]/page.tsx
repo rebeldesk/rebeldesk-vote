@@ -10,7 +10,13 @@ import { prisma } from '@/lib/prisma';
 async function buscarUsuario(id: string) {
   const usuario = await prisma.usuario.findUnique({
     where: { id },
-    include: {
+    select: {
+      id: true,
+      email: true,
+      nome: true,
+      telefone: true,
+      perfil: true,
+      forcarTrocaSenha: true,
       unidade: {
         select: {
           id: true,
@@ -35,7 +41,7 @@ async function buscarUsuario(id: string) {
   }
 
   // Formata para manter compatibilidade
-  const { passwordHash, unidadeId, createdAt, updatedAt, usuarioUnidades, ...rest } = usuario;
+  const { passwordHash, unidadeId, createdAt, updatedAt, usuarioUnidades, forcarTrocaSenha, ...rest } = usuario;
   const unidades = usuarioUnidades?.map(uu => ({
     id: uu.unidade.id,
     numero: uu.unidade.numero,
@@ -50,6 +56,7 @@ async function buscarUsuario(id: string) {
     ...rest,
     unidade_id: unidadeId || null, // Mantido para compatibilidade
     unidades: unidadesFormatadas,
+    forcar_troca_senha: forcarTrocaSenha || false,
     created_at: createdAt?.toISOString() || new Date().toISOString(),
     updated_at: updatedAt?.toISOString() || new Date().toISOString(),
   };
@@ -62,7 +69,7 @@ export default async function EditarUsuarioPage({
 }) {
   const session = await auth();
 
-  if (!session || (session.user?.perfil !== 'staff' && session.user?.perfil !== 'conselho')) {
+  if (!session || session.user?.perfil !== 'staff') {
     redirect('/dashboard');
   }
 
@@ -85,6 +92,7 @@ export default async function EditarUsuarioPage({
             telefone: usuario.telefone || '',
             perfil: usuario.perfil,
             unidades: usuario.unidades,
+            forcar_troca_senha: (usuario as any).forcar_troca_senha || false,
           } as any}
         />
       </div>

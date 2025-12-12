@@ -9,6 +9,7 @@ declare module 'next-auth' {
   interface User {
     perfil?: PerfilUsuario;
     unidade_id?: string | null;
+    forcar_troca_senha?: boolean;
   }
 
   interface Session {
@@ -18,6 +19,7 @@ declare module 'next-auth' {
       name: string;
       perfil: PerfilUsuario;
       unidade_id: string | null;
+      forcar_troca_senha?: boolean;
     };
   }
 }
@@ -27,6 +29,7 @@ declare module 'next-auth/jwt' {
     id: string;
     perfil: PerfilUsuario;
     unidade_id: string | null;
+    forcar_troca_senha?: boolean;
   }
 }
 

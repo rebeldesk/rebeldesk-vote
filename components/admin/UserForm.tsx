@@ -25,6 +25,7 @@ const userSchema = z.object({
   perfil: z.enum(['staff', 'conselho', 'auditor', 'morador']),
   // Array de IDs de unidades
   unidades_ids: z.array(z.string().uuid()).default([]),
+  forcar_troca_senha: z.boolean().default(false),
 });
 
 // Tipo do formulário
@@ -42,6 +43,9 @@ export function UserForm({ usuarioId, initialData }: UserFormProps) {
   const [error, setError] = useState('');
   const [senhaGerada, setSenhaGerada] = useState<string>('');
   const [mostrarSenha, setMostrarSenha] = useState(false);
+  const [forcarTrocaSenha, setForcarTrocaSenha] = useState(
+    (initialData as any)?.forcar_troca_senha || false
+  );
 
   const {
     register,
@@ -60,6 +64,7 @@ export function UserForm({ usuarioId, initialData }: UserFormProps) {
       unidades_ids: (initialData as any)?.unidades?.map((u: any) => u.id) || 
                     (initialData as any)?.unidades_ids || 
                     ((initialData as any)?.unidade_id ? [(initialData as any).unidade_id] : []),
+      forcar_troca_senha: (initialData as any)?.forcar_troca_senha || false,
     },
   });
 
@@ -127,6 +132,7 @@ export function UserForm({ usuarioId, initialData }: UserFormProps) {
         telefone: data.telefone || '',
         perfil: data.perfil,
         unidades_ids: data.unidades_ids || [],
+        forcar_troca_senha: forcarTrocaSenha,
       };
 
       // Remove senha se estiver vazia (edição)
@@ -287,6 +293,22 @@ export function UserForm({ usuarioId, initialData }: UserFormProps) {
           <p className="mt-1 text-sm text-red-600">{errors.senha.message}</p>
         )}
       </div>
+
+      <div className="flex items-center">
+        <input
+          type="checkbox"
+          id="forcar_troca_senha"
+          checked={forcarTrocaSenha}
+          onChange={(e) => setForcarTrocaSenha(e.target.checked)}
+          className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+        />
+        <label htmlFor="forcar_troca_senha" className="ml-2 block text-sm text-gray-700">
+          Forçar troca de senha no próximo login
+        </label>
+      </div>
+      <p className="text-xs text-gray-500 -mt-4 ml-6">
+        O usuário será obrigado a alterar a senha após fazer login
+      </p>
 
       <div>
         <label htmlFor="telefone" className="block text-sm font-medium text-gray-700">
