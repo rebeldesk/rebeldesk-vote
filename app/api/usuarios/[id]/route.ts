@@ -18,7 +18,12 @@ const atualizarUsuarioSchema = z.object({
   nome: z.string().min(1, 'Nome é obrigatório').optional(),
   telefone: z.string().optional(),
   perfil: z.enum(['staff', 'conselho', 'auditor', 'morador']).optional(),
-  unidade_id: z.string().uuid().nullable().optional(),
+  // Aceita string vazia, UUID válido ou null/undefined
+  unidade_id: z
+    .union([z.string().uuid(), z.string().length(0), z.null(), z.undefined()])
+    .optional()
+    .nullable()
+    .transform((val) => (val === '' || val === undefined ? null : val)),
   senha: z.string().min(6, 'Senha deve ter no mínimo 6 caracteres').optional(),
 });
 
@@ -75,7 +80,7 @@ export async function PUT(
       nome: dados.nome,
       telefone: dados.telefone,
       perfil: dados.perfil,
-      unidade_id: dados.unidade_id,
+      unidade_id: dados.unidade_id, // Já normalizado pelo schema Zod
     };
 
     // Se senha foi fornecida, inclui na atualização

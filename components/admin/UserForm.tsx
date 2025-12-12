@@ -20,7 +20,12 @@ const userSchema = z.object({
   nome: z.string().min(1, 'Nome é obrigatório'),
   telefone: z.string().optional(),
   perfil: z.enum(['staff', 'conselho', 'auditor', 'morador']),
-  unidade_id: z.string().uuid().nullable().optional(),
+  // Aceita string vazia, UUID válido ou null/undefined e transforma string vazia em null
+  unidade_id: z
+    .union([z.string().uuid(), z.string().length(0), z.null(), z.undefined()])
+    .optional()
+    .nullable()
+    .transform((val) => (val === '' || val === undefined ? null : val)),
 });
 
 type UserFormData = z.infer<typeof userSchema>;
@@ -89,15 +94,22 @@ export function UserForm({ usuarioId, initialData }: UserFormProps) {
       const url = usuarioId ? `/api/usuarios/${usuarioId}` : '/api/usuarios';
       const method = usuarioId ? 'PUT' : 'POST';
 
+      // Prepara dados para envio
+      const dadosEnvio: any = {
+        ...data,
+        // Converte string vazia para null em unidade_id
+        unidade_id: data.unidade_id === '' || data.unidade_id === null ? null : data.unidade_id,
+      };
+
       // Remove senha se estiver vazia (edição)
-      if (usuarioId && !data.senha) {
-        delete (data as any).senha;
+      if (usuarioId && !dadosEnvio.senha) {
+        delete dadosEnvio.senha;
       }
 
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify(dadosEnvio),
       });
 
       if (!response.ok) {

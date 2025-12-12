@@ -18,7 +18,12 @@ const criarUsuarioSchema = z.object({
   nome: z.string().min(1, 'Nome é obrigatório'),
   telefone: z.string().optional(),
   perfil: z.enum(['staff', 'conselho', 'auditor', 'morador']),
-  unidade_id: z.string().uuid().nullable().optional(),
+  // Aceita string vazia, UUID válido ou null/undefined
+  unidade_id: z
+    .union([z.string().uuid(), z.string().length(0), z.null(), z.undefined()])
+    .optional()
+    .nullable()
+    .transform((val) => (val === '' || val === undefined ? null : val)),
 });
 
 export async function GET() {
@@ -86,7 +91,7 @@ export async function POST(request: NextRequest) {
       nome: dados.nome,
       telefone: dados.telefone || '',
       perfil: dados.perfil,
-      unidade_id: dados.unidade_id || null,
+      unidade_id: dados.unidade_id, // Já normalizado pelo schema Zod
     });
 
     // Remove passwordHash da resposta
