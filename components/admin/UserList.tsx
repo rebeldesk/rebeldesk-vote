@@ -6,9 +6,11 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { Pagination } from '@/components/ui/Pagination';
+import { QuickFilters } from '@/components/ui/QuickFilters';
 
 interface Usuario {
   id: string;
@@ -31,25 +33,86 @@ interface UserListProps {
 export function UserList({ usuarios, currentUserId, canDelete = false }: UserListProps) {
   const router = useRouter();
   const [busca, setBusca] = useState('');
+  const [filtroPerfil, setFiltroPerfil] = useState<string>('todos');
+  const [filtroUnidade, setFiltroUnidade] = useState<string>('todos');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
   const [usuarioParaDeletar, setUsuarioParaDeletar] = useState<string | null>(null);
   const [deletando, setDeletando] = useState(false);
 
-  // Filtra usuários baseado na busca
+  // Conta usuários por perfil para os filtros
+  const contadoresPerfil = useMemo(() => {
+    const contadores: Record<string, number> = {
+      todos: usuarios.length,
+      staff: 0,
+      conselho: 0,
+      auditor: 0,
+      morador: 0,
+    };
+
+    usuarios.forEach((u) => {
+      if (contadores[u.perfil] !== undefined) {
+        contadores[u.perfil]++;
+      }
+    });
+
+    return contadores;
+  }, [usuarios]);
+
+  const contadoresUnidade = useMemo(() => {
+    const comUnidade = usuarios.filter((u) => u.unidades && u.unidades.length > 0).length;
+    const semUnidade = usuarios.length - comUnidade;
+    return {
+      todos: usuarios.length,
+      com: comUnidade,
+      sem: semUnidade,
+    };
+  }, [usuarios]);
+
+  // Filtra usuários baseado na busca e filtros
   const usuariosFiltrados = useMemo(() => {
-    if (!busca.trim()) {
-      return usuarios;
+    let filtrados = usuarios;
+
+    // Filtro por busca
+    if (busca.trim()) {
+      const termoBusca = busca.toLowerCase();
+      filtrados = filtrados.filter(
+        (usuario) =>
+          usuario.nome.toLowerCase().includes(termoBusca) ||
+          usuario.email.toLowerCase().includes(termoBusca) ||
+          usuario.telefone?.toLowerCase().includes(termoBusca) ||
+          usuario.perfil.toLowerCase().includes(termoBusca) ||
+          usuario.unidades?.some(u => u.numero.toLowerCase().includes(termoBusca))
+      );
     }
 
-    const termoBusca = busca.toLowerCase();
-    return usuarios.filter(
-      (usuario) =>
-        usuario.nome.toLowerCase().includes(termoBusca) ||
-        usuario.email.toLowerCase().includes(termoBusca) ||
-        usuario.telefone?.toLowerCase().includes(termoBusca) ||
-        usuario.perfil.toLowerCase().includes(termoBusca) ||
-        usuario.unidades?.some(u => u.numero.toLowerCase().includes(termoBusca))
-    );
-  }, [usuarios, busca]);
+    // Filtro por perfil
+    if (filtroPerfil !== 'todos') {
+      filtrados = filtrados.filter((u) => u.perfil === filtroPerfil);
+    }
+
+    // Filtro por unidade
+    if (filtroUnidade === 'com') {
+      filtrados = filtrados.filter((u) => u.unidades && u.unidades.length > 0);
+    } else if (filtroUnidade === 'sem') {
+      filtrados = filtrados.filter((u) => !u.unidades || u.unidades.length === 0);
+    }
+
+    return filtrados;
+  }, [usuarios, busca, filtroPerfil, filtroUnidade]);
+
+  // Paginação
+  const totalPages = Math.ceil(usuariosFiltrados.length / itemsPerPage);
+  const usuariosPaginados = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    return usuariosFiltrados.slice(start, end);
+  }, [usuariosFiltrados, currentPage, itemsPerPage]);
+
+  // Reset página quando filtros mudam
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [busca, filtroPerfil, filtroUnidade]);
 
   const handleDeletar = async (usuarioId: string) => {
     if (!confirm('Tem certeza que deseja excluir este usuário? Esta ação não pode ser desfeita.')) {
@@ -105,11 +168,37 @@ export function UserList({ usuarios, currentUserId, canDelete = false }: UserLis
             className="block w-full rounded-md border border-gray-300 bg-white py-2 pl-10 pr-3 text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
           />
         </div>
-        {busca && (
+        {(busca || filtroPerfil !== 'todos' || filtroUnidade !== 'todos') && (
           <p className="mt-2 text-sm text-gray-500">
             {usuariosFiltrados.length} usuário{usuariosFiltrados.length !== 1 ? 's' : ''} encontrado{usuariosFiltrados.length !== 1 ? 's' : ''}
           </p>
         )}
+      </div>
+
+      {/* Filtros rápidos */}
+      <div className="mb-4 space-y-3">
+        <QuickFilters
+          filters={[
+            { value: 'todos', label: 'Todos', count: contadoresPerfil.todos },
+            { value: 'staff', label: 'Staff', count: contadoresPerfil.staff },
+            { value: 'conselho', label: 'Conselho', count: contadoresPerfil.conselho },
+            { value: 'auditor', label: 'Auditor', count: contadoresPerfil.auditor },
+            { value: 'morador', label: 'Morador', count: contadoresPerfil.morador },
+          ]}
+          selectedFilter={filtroPerfil}
+          onFilterChange={setFiltroPerfil}
+          label="Perfil"
+        />
+        <QuickFilters
+          filters={[
+            { value: 'todos', label: 'Todos', count: contadoresUnidade.todos },
+            { value: 'com', label: 'Com Unidade', count: contadoresUnidade.com },
+            { value: 'sem', label: 'Sem Unidade', count: contadoresUnidade.sem },
+          ]}
+          selectedFilter={filtroUnidade}
+          onFilterChange={setFiltroUnidade}
+          label="Unidade"
+        />
       </div>
 
       {/* Tabela de usuários */}
@@ -147,7 +236,7 @@ export function UserList({ usuarios, currentUserId, canDelete = false }: UserLis
                 </td>
               </tr>
             ) : (
-              usuariosFiltrados.map((usuario) => (
+              usuariosPaginados.map((usuario) => (
                 <tr key={usuario.id}>
                   <td className="whitespace-nowrap px-3 sm:px-6 py-4 text-sm font-medium text-gray-900">
                     <div>
@@ -209,6 +298,17 @@ export function UserList({ usuarios, currentUserId, canDelete = false }: UserLis
           </div>
         </div>
       </div>
+
+      {/* Paginação */}
+      {totalPages > 1 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+          totalItems={usuariosFiltrados.length}
+          itemsPerPage={itemsPerPage}
+        />
+      )}
     </div>
   );
 }

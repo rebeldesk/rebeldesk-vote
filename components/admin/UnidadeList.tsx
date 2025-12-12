@@ -4,7 +4,9 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { Pagination } from '@/components/ui/Pagination';
+import { QuickFilters } from '@/components/ui/QuickFilters';
 
 interface Unidade {
   id: string;
@@ -20,19 +22,57 @@ interface UnidadeListProps {
 
 export function UnidadeList({ unidades }: UnidadeListProps) {
   const [busca, setBusca] = useState('');
+  const [filtroUsuarios, setFiltroUsuarios] = useState<string>('todos');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 15;
 
-  // Filtra unidades baseado na busca
+  // Conta unidades por filtro
+  const contadores = useMemo(() => {
+    const comUsuarios = unidades.filter((u) => u.total_usuarios > 0).length;
+    const semUsuarios = unidades.length - comUsuarios;
+    return {
+      todos: unidades.length,
+      com: comUsuarios,
+      sem: semUsuarios,
+    };
+  }, [unidades]);
+
+  // Filtra unidades baseado na busca e filtros
   const unidadesFiltradas = useMemo(() => {
-    if (!busca.trim()) {
-      return unidades;
+    let filtradas = unidades;
+
+    // Filtro por busca
+    if (busca.trim()) {
+      const termoBusca = busca.toLowerCase();
+      filtradas = filtradas.filter(
+        (unidade) =>
+          unidade.numero.toLowerCase().includes(termoBusca) ||
+          unidade.total_usuarios.toString().includes(termoBusca)
+      );
     }
 
-    const termoBusca = busca.toLowerCase();
-    return unidades.filter((unidade) =>
-      unidade.numero.toLowerCase().includes(termoBusca) ||
-      unidade.total_usuarios.toString().includes(termoBusca)
-    );
-  }, [unidades, busca]);
+    // Filtro por usuários
+    if (filtroUsuarios === 'com') {
+      filtradas = filtradas.filter((u) => u.total_usuarios > 0);
+    } else if (filtroUsuarios === 'sem') {
+      filtradas = filtradas.filter((u) => u.total_usuarios === 0);
+    }
+
+    return filtradas;
+  }, [unidades, busca, filtroUsuarios]);
+
+  // Paginação
+  const totalPages = Math.ceil(unidadesFiltradas.length / itemsPerPage);
+  const unidadesPaginadas = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    return unidadesFiltradas.slice(start, end);
+  }, [unidadesFiltradas, currentPage, itemsPerPage]);
+
+  // Reset página quando filtros mudam
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [busca, filtroUsuarios]);
 
   return (
     <div>
@@ -62,12 +102,24 @@ export function UnidadeList({ unidades }: UnidadeListProps) {
             className="block w-full rounded-md border border-gray-300 bg-white py-2 pl-10 pr-3 text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
           />
         </div>
-        {busca && (
+        {(busca || filtroUsuarios !== 'todos') && (
           <p className="mt-2 text-sm text-gray-500">
             {unidadesFiltradas.length} unidade{unidadesFiltradas.length !== 1 ? 's' : ''} encontrada{unidadesFiltradas.length !== 1 ? 's' : ''}
           </p>
         )}
       </div>
+
+      {/* Filtros rápidos */}
+      <QuickFilters
+        filters={[
+          { value: 'todos', label: 'Todas', count: contadores.todos },
+          { value: 'com', label: 'Com Usuários', count: contadores.com },
+          { value: 'sem', label: 'Sem Usuários', count: contadores.sem },
+        ]}
+        selectedFilter={filtroUsuarios}
+        onFilterChange={setFiltroUsuarios}
+        label="Filtros"
+      />
 
       {/* Tabela */}
       <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
@@ -95,8 +147,8 @@ export function UnidadeList({ unidades }: UnidadeListProps) {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200 bg-white">
-            {unidadesFiltradas.length > 0 ? (
-              unidadesFiltradas.map((unidade) => (
+            {unidadesPaginadas.length > 0 ? (
+              unidadesPaginadas.map((unidade) => (
                 <tr key={unidade.id} className="hover:bg-gray-50">
                   <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
                     {unidade.numero}
@@ -119,6 +171,17 @@ export function UnidadeList({ unidades }: UnidadeListProps) {
           </tbody>
         </table>
       </div>
+
+      {/* Paginação */}
+      {totalPages > 1 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+          totalItems={unidadesFiltradas.length}
+          itemsPerPage={itemsPerPage}
+        />
+      )}
     </div>
   );
 }
