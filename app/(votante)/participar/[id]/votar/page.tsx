@@ -8,6 +8,7 @@ import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import { buscarVotacaoCompleta, unidadeJaVotou, buscarVotoUnidade } from '@/lib/db';
 import { VotingCard } from '@/components/votante/VotingCard';
+import { ResultadoParcial } from '@/components/votante/ResultadoParcial';
 
 export default async function VotarPage({
   params,
@@ -109,6 +110,11 @@ export default async function VotarPage({
               );
             })}
           </div>
+          
+          {/* Mostra resultados parciais se permitido e votação está aberta */}
+          {votacao.mostrar_parcial && votacao.status === 'aberta' && (
+            <ResultadoParcial votacaoId={votacao.id} />
+          )}
         </div>
       </div>
     );
@@ -138,6 +144,11 @@ export default async function VotarPage({
       <div className="mt-8">
         <VotingCard votacao={votacao} opcoes={opcoes} />
       </div>
+      
+      {/* Mostra resultados parciais se permitido */}
+      {votacao.mostrar_parcial && votacao.status === 'aberta' && (
+        <ResultadoParcial votacaoId={votacao.id} />
+      )}
     </div>
   );
 }

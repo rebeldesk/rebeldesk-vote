@@ -14,6 +14,7 @@ import { prisma } from '@/lib/prisma';
 const atualizarVotacaoSchema = z.object({
   titulo: z.string().min(1).optional(),
   descricao: z.string().optional(),
+  mostrar_parcial: z.boolean().optional(),
   // Aceita formato datetime-local (YYYY-MM-DDTHH:mm) ou datetime ISO completo
   data_inicio: z.string().refine(
     (val) => {
@@ -95,6 +96,7 @@ export async function PUT(
       data: {
         titulo: dados.titulo,
         descricao: dados.descricao,
+        mostrarParcial: dados.mostrar_parcial,
         dataInicio: dados.data_inicio ? new Date(dados.data_inicio) : undefined,
         dataFim: dados.data_fim ? new Date(dados.data_fim) : undefined,
         status: dados.status,
@@ -108,6 +110,7 @@ export async function PUT(
       data_inicio: votacao.dataInicio,
       data_fim: votacao.dataFim,
       modo_auditoria: votacao.modoAuditoria,
+      mostrar_parcial: votacao.mostrarParcial,
       created_at: votacao.createdAt,
       updated_at: votacao.updatedAt,
     };

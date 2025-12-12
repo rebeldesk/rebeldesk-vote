@@ -15,6 +15,7 @@ const votingSchema = z.object({
   descricao: z.string().optional(),
   tipo: z.enum(['escolha_unica', 'multipla_escolha']),
   modo_auditoria: z.enum(['anonimo', 'rastreado']),
+  mostrar_parcial: z.boolean(),
   data_inicio: z.string().min(1, 'Data de início é obrigatória'),
   data_fim: z.string().min(1, 'Data de término é obrigatória'),
   opcoes: z.array(z.string().min(1, 'Opção não pode ser vazia')).min(2, 'Deve ter pelo menos 2 opções'),
@@ -43,14 +44,15 @@ export function VotingForm({ votacaoId, initialData }: VotingFormProps) {
     watch,
   } = useForm<VotingFormData>({
     resolver: zodResolver(votingSchema),
-    defaultValues: initialData || {
-      titulo: '',
-      descricao: '',
-      tipo: 'escolha_unica',
-      modo_auditoria: 'anonimo',
-      data_inicio: '',
-      data_fim: '',
-      opcoes: ['', ''],
+    defaultValues: {
+      titulo: initialData?.titulo || '',
+      descricao: initialData?.descricao || '',
+      tipo: initialData?.tipo || 'escolha_unica',
+      modo_auditoria: initialData?.modo_auditoria || 'anonimo',
+      mostrar_parcial: initialData?.mostrar_parcial ?? false,
+      data_inicio: initialData?.data_inicio || '',
+      data_fim: initialData?.data_fim || '',
+      opcoes: initialData?.opcoes || ['', ''],
     },
   });
 
@@ -179,6 +181,23 @@ export function VotingForm({ votacaoId, initialData }: VotingFormProps) {
             <option value="rastreado">Rastreado</option>
           </select>
         </div>
+      </div>
+
+      <div>
+        <div className="flex items-center">
+          <input
+            {...register('mostrar_parcial')}
+            type="checkbox"
+            id="mostrar_parcial"
+            className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+          />
+          <label htmlFor="mostrar_parcial" className="ml-2 block text-sm font-medium text-gray-700">
+            Mostrar resultados parciais durante a votação
+          </label>
+        </div>
+        <p className="mt-1 text-xs text-gray-500">
+          Se marcado, os votantes poderão ver os resultados parciais enquanto a votação está aberta
+        </p>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
