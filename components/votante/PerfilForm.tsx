@@ -12,6 +12,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { ChangePasswordModal } from '@/components/auth/ChangePasswordModal';
+import { maskTelefone, unmaskTelefone } from '@/lib/utils/masks';
 
 const perfilSchema = z.object({
   telefone: z.string().optional(),
@@ -41,12 +42,16 @@ export function PerfilForm({ usuario }: PerfilFormProps) {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [telefoneValue, setTelefoneValue] = useState(
+    usuario.telefone ? maskTelefone(usuario.telefone) : ''
+  );
 
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
+    setValue,
   } = useForm<PerfilFormData>({
     resolver: zodResolver(perfilSchema),
     defaultValues: {
@@ -54,16 +59,37 @@ export function PerfilForm({ usuario }: PerfilFormProps) {
     },
   });
 
+  // Função para capitalizar primeira letra
+  const capitalizeFirst = (str: string): string => {
+    if (!str) return str;
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  };
+
+  // Função para formatar email (lowercase)
+  const formatEmail = (email: string): string => {
+    return email.toLowerCase().trim();
+  };
+
+  const handleTelefoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const masked = maskTelefone(e.target.value);
+    setTelefoneValue(masked);
+    // Salva o valor sem máscara no form
+    setValue('telefone', unmaskTelefone(masked), { shouldValidate: true });
+  };
+
   const onSubmit = async (data: PerfilFormData) => {
     setLoading(true);
     setError('');
     setSuccess(false);
 
     try {
+      // Envia telefone sem máscara
+      const telefoneSemMascara = data.telefone ? unmaskTelefone(data.telefone) : '';
+      
       const response = await fetch('/api/perfil', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ telefone: telefoneSemMascara }),
       });
 
       const result = await response.json();
@@ -144,7 +170,7 @@ export function PerfilForm({ usuario }: PerfilFormProps) {
               <input
                 type="email"
                 id="email"
-                value={usuario.email}
+                value={formatEmail(usuario.email)}
                 disabled
                 className="block w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-gray-500 shadow-sm sm:text-sm"
               />
@@ -166,7 +192,7 @@ export function PerfilForm({ usuario }: PerfilFormProps) {
               <input
                 type="text"
                 id="perfil"
-                value={usuario.perfil}
+                value={capitalizeFirst(usuario.perfil)}
                 disabled
                 className="block w-full rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-gray-500 shadow-sm sm:text-sm"
               />
@@ -208,9 +234,10 @@ export function PerfilForm({ usuario }: PerfilFormProps) {
             </label>
             <div className="mt-1">
               <input
-                {...register('telefone')}
                 type="text"
                 id="telefone"
+                value={telefoneValue}
+                onChange={handleTelefoneChange}
                 placeholder="(11) 98765-4321"
                 className="block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
               />
@@ -248,7 +275,10 @@ export function PerfilForm({ usuario }: PerfilFormProps) {
           <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
             <button
               type="button"
-              onClick={() => reset()}
+              onClick={() => {
+                reset();
+                setTelefoneValue(usuario.telefone ? maskTelefone(usuario.telefone) : '');
+              }}
               className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
             >
               Cancelar
