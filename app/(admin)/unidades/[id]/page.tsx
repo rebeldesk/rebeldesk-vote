@@ -97,8 +97,8 @@ async function buscarUnidade(id: string) {
     id: unidade.id,
     numero: unidade.numero,
     tem_direito_vaga: unidade.temDireitoVaga,
-    created_at: unidade.createdAt?.toISOString(),
-    updated_at: unidade.updatedAt?.toISOString(),
+    created_at: unidade.createdAt?.toISOString() || new Date().toISOString(),
+    updated_at: unidade.updatedAt?.toISOString() || new Date().toISOString(),
     total_usuarios: unidade._count.usuarioUnidades,
     usuarios: unidade.usuarioUnidades.map((uu) => ({
       id: uu.usuario.id,
