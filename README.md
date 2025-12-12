@@ -126,9 +126,23 @@ Consulte a pasta `docs/` para documentação detalhada:
 
 ## Deploy na Vercel
 
-1. Conecte seu repositório Git à Vercel
-2. Configure as variáveis de ambiente na Vercel
-3. O deploy será automático a cada push
+1. **Conecte seu repositório Git à Vercel**
+
+2. **Configure as variáveis de ambiente na Vercel**:
+   - Acesse: Vercel Dashboard > Seu Projeto > Settings > Environment Variables
+   - Adicione as seguintes variáveis:
+     - `DATABASE_URL`: Connection string do PostgreSQL (Supabase)
+     - `NEXTAUTH_URL`: URL da aplicação (ex: `https://seu-projeto.vercel.app`)
+     - `NEXTAUTH_SECRET`: Secret gerado com `openssl rand -base64 32`
+     - `NEXT_PUBLIC_SUPABASE_URL`: (opcional) URL do Supabase
+     - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY`: (opcional)
+     - `SUPABASE_SERVICE_ROLE_KEY`: (opcional)
+
+3. **O build será executado automaticamente**:
+   - O script `build` já inclui `prisma generate` antes do build
+   - O `postinstall` também gera o Prisma Client após instalação de dependências
+
+4. **Importante**: Certifique-se de que a `DATABASE_URL` está configurada antes do build, pois o Prisma precisa dela para gerar o client.
 
 ## Segurança
 

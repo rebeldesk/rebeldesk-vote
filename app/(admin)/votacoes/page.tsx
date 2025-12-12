@@ -7,17 +7,35 @@
 import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import { prisma } from '@/lib/prisma';
 
 async function buscarVotacoes() {
-  const response = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/votacoes`, {
-    cache: 'no-store',
+  const votacoes = await prisma.votacao.findMany({
+    include: {
+      criadoPorUser: {
+        select: {
+          id: true,
+          nome: true,
+          email: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
   });
 
-  if (!response.ok) {
-    return [];
-  }
-
-  return response.json();
+  // Formata para manter compatibilidade
+  return votacoes.map((v) => ({
+    ...v,
+    criado_por: v.criadoPor,
+    data_inicio: v.dataInicio.toISOString(),
+    data_fim: v.dataFim.toISOString(),
+    modo_auditoria: v.modoAuditoria,
+    created_at: v.createdAt?.toISOString() || new Date().toISOString(),
+    updated_at: v.updatedAt?.toISOString() || new Date().toISOString(),
+    criado_por_user: v.criadoPorUser,
+  }));
 }
 
 function getStatusBadgeColor(status: string) {
