@@ -71,20 +71,46 @@ export function UnidadeForm() {
       )}
 
       <div>
-        <label htmlFor="numero" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="numero" className="block text-sm font-medium text-gray-700 mb-1">
           Número da Unidade *
         </label>
-        <input
-          {...register('numero')}
-          type="text"
-          id="numero"
-          placeholder="Ex: 101, 202, A-01"
-          className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
-        />
+        <div className="relative">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg
+              className="h-5 w-5 text-gray-400"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth="1.5"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"
+              />
+            </svg>
+          </div>
+          <input
+            {...register('numero')}
+            type="text"
+            id="numero"
+            placeholder="Ex: 101, 202, A-01"
+            className="block w-full rounded-lg border border-gray-300 bg-white pl-10 pr-3 py-2.5 text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-20 transition-all sm:text-sm"
+          />
+        </div>
         {errors.numero && (
-          <p className="mt-1 text-sm text-red-600">{errors.numero.message}</p>
+          <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+            <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+              <path
+                fillRule="evenodd"
+                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                clipRule="evenodd"
+              />
+            </svg>
+            {errors.numero.message}
+          </p>
         )}
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="mt-2 text-xs text-gray-500">
           Digite o número ou identificador da unidade (ex: 101, 202, A-01, Bloco A - Apt 101)
         </p>
       </div>

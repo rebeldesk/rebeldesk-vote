@@ -13,6 +13,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import type { PerfilUsuario } from '@/types';
+import { maskTelefone, unmaskTelefone } from '@/lib/utils/masks';
 
 // Schema Zod com validação e transformação
 const userSchema = z.object({
@@ -66,6 +67,16 @@ export function UserForm({ usuarioId, initialData }: UserFormProps) {
   const senhaAtual = watch('senha');
   const unidadeIdAtual = watch('unidade_id');
   const [unidadesCarregadas, setUnidadesCarregadas] = useState(false);
+  const [telefoneFormatado, setTelefoneFormatado] = useState(
+    initialData?.telefone ? maskTelefone(initialData.telefone) : ''
+  );
+
+  useEffect(() => {
+    // Formata telefone inicial se houver
+    if (initialData?.telefone) {
+      setTelefoneFormatado(maskTelefone(initialData.telefone));
+    }
+  }, [initialData?.telefone]);
 
   useEffect(() => {
     // Busca unidades apenas uma vez
@@ -171,14 +182,42 @@ export function UserForm({ usuarioId, initialData }: UserFormProps) {
         <label htmlFor="email" className="block text-sm font-medium text-gray-700">
           Email *
         </label>
-        <input
-          {...register('email')}
-          type="email"
-          id="email"
-          className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
-        />
+        <div className="mt-1 relative">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg
+              className="h-5 w-5 text-gray-400"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth="1.5"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"
+              />
+            </svg>
+          </div>
+          <input
+            {...register('email')}
+            type="email"
+            id="email"
+            autoComplete="email"
+            className="block w-full rounded-md border border-gray-300 bg-white pl-10 pr-3 py-2 text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-20 sm:text-sm transition-all"
+            placeholder="usuario@exemplo.com"
+          />
+        </div>
         {errors.email && (
-          <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+          <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+            <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+              <path
+                fillRule="evenodd"
+                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                clipRule="evenodd"
+              />
+            </svg>
+            {errors.email.message}
+          </p>
         )}
       </div>
 
@@ -253,12 +292,42 @@ export function UserForm({ usuarioId, initialData }: UserFormProps) {
         <label htmlFor="telefone" className="block text-sm font-medium text-gray-700">
           Telefone
         </label>
-        <input
-          {...register('telefone')}
-          type="tel"
-          id="telefone"
-          className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
-        />
+        <div className="mt-1 relative">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg
+              className="h-5 w-5 text-gray-400"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth="1.5"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z"
+              />
+            </svg>
+          </div>
+          <input
+            {...register('telefone', {
+              onChange: (e) => {
+                const masked = maskTelefone(e.target.value);
+                setTelefoneFormatado(masked);
+                // Salva o valor sem máscara no form
+                setValue('telefone', unmaskTelefone(masked), { shouldValidate: true });
+              },
+            })}
+            type="tel"
+            id="telefone"
+            value={telefoneFormatado}
+            className="block w-full rounded-md border border-gray-300 bg-white pl-10 pr-3 py-2 text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-20 sm:text-sm transition-all"
+            placeholder="(11) 98765-4321"
+            maxLength={15}
+          />
+        </div>
+        <p className="mt-1 text-xs text-gray-500">
+          Formato: (11) 98765-4321
+        </p>
       </div>
 
       <div>
