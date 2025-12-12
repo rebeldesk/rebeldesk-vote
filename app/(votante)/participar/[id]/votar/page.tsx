@@ -9,6 +9,7 @@ import { auth } from '@/lib/auth';
 import { buscarVotacaoCompleta, unidadeJaVotou, buscarVotoUnidade } from '@/lib/db';
 import { VotingCard } from '@/components/votante/VotingCard';
 import { ResultadoParcial } from '@/components/votante/ResultadoParcial';
+import { ResultadoFinal } from '@/components/votante/ResultadoFinal';
 
 export default async function VotarPage({
   params,
@@ -55,8 +56,8 @@ export default async function VotarPage({
     }
   }
 
-  // Se votação encerrada, apenas mostra detalhes
-  if (votacao.status !== 'aberta') {
+  // Se votação encerrada, mostra resultados finais
+  if (votacao.status === 'encerrada') {
     return (
       <div>
         <h1 className="text-3xl font-bold text-gray-900">{votacao.titulo}</h1>
@@ -78,10 +79,10 @@ export default async function VotarPage({
           )}
           <div className="mb-4 rounded-md bg-gray-50 p-4">
             <p className="text-sm text-gray-800">
-              Esta votação está {votacao.status === 'encerrada' ? 'encerrada' : 'em rascunho'}.
+              Esta votação está encerrada. Os resultados finais estão disponíveis abaixo.
             </p>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-2 mb-6">
             <h2 className="text-lg font-semibold">Opções:</h2>
             {opcoes.map((opcao) => {
               const foiVotada = opcoesVotadas.includes(opcao.id);
@@ -107,6 +108,26 @@ export default async function VotarPage({
                 </div>
               );
             })}
+          </div>
+          <ResultadoFinal votacaoId={votacao.id} />
+        </div>
+      </div>
+    );
+  }
+
+  // Se votação em rascunho
+  if (votacao.status === 'rascunho') {
+    return (
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900">{votacao.titulo}</h1>
+        {votacao.descricao && (
+          <p className="mt-2 text-gray-600">{votacao.descricao}</p>
+        )}
+        <div className="mt-8">
+          <div className="mb-4 rounded-md bg-gray-50 p-4">
+            <p className="text-sm text-gray-800">
+              Esta votação está em rascunho e ainda não está disponível para votação.
+            </p>
           </div>
         </div>
       </div>
