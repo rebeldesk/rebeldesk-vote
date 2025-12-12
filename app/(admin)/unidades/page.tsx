@@ -16,7 +16,7 @@ async function buscarUnidades() {
     include: {
       _count: {
         select: {
-          users: true,
+          usuarioUnidades: true, // Relacionamento N:N (correto)
         },
       },
     },
@@ -25,7 +25,7 @@ async function buscarUnidades() {
   return unidades.map((u) => ({
     id: u.id,
     numero: u.numero,
-    total_usuarios: u._count.users,
+    total_usuarios: u._count.usuarioUnidades || 0,
     created_at: u.createdAt?.toISOString() || new Date().toISOString(),
     updated_at: u.updatedAt?.toISOString() || new Date().toISOString(),
   }));

@@ -62,10 +62,12 @@ export function UserList({ usuarios, currentUserId, canDelete = false }: UserLis
   const contadoresUnidade = useMemo(() => {
     const comUnidade = usuarios.filter((u) => u.unidades && u.unidades.length > 0).length;
     const semUnidade = usuarios.length - comUnidade;
+    const comMultiplas = usuarios.filter((u) => u.unidades && u.unidades.length > 1).length;
     return {
       todos: usuarios.length,
       com: comUnidade,
       sem: semUnidade,
+      multiplas: comMultiplas,
     };
   }, [usuarios]);
 
@@ -96,6 +98,8 @@ export function UserList({ usuarios, currentUserId, canDelete = false }: UserLis
       filtrados = filtrados.filter((u) => u.unidades && u.unidades.length > 0);
     } else if (filtroUnidade === 'sem') {
       filtrados = filtrados.filter((u) => !u.unidades || u.unidades.length === 0);
+    } else if (filtroUnidade === 'multiplas') {
+      filtrados = filtrados.filter((u) => u.unidades && u.unidades.length > 1);
     }
 
     return filtrados;
@@ -194,6 +198,7 @@ export function UserList({ usuarios, currentUserId, canDelete = false }: UserLis
             { value: 'todos', label: 'Todos', count: contadoresUnidade.todos },
             { value: 'com', label: 'Com Unidade', count: contadoresUnidade.com },
             { value: 'sem', label: 'Sem Unidade', count: contadoresUnidade.sem },
+            { value: 'multiplas', label: 'Com Múltiplas Unidades', count: contadoresUnidade.multiplas },
           ]}
           selectedFilter={filtroUnidade}
           onFilterChange={setFiltroUnidade}

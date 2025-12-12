@@ -113,13 +113,30 @@ function parseCSV(content) {
 }
 
 /**
+ * Normaliza o número da unidade removendo ".0" do final se existir
+ */
+function normalizarNumeroUnidade(numero) {
+  if (typeof numero !== 'string') {
+    numero = String(numero);
+  }
+  // Remove ".0" apenas se estiver no final
+  if (numero.endsWith('.0')) {
+    return numero.slice(0, -2);
+  }
+  return numero.trim();
+}
+
+/**
  * Busca ou cria uma unidade
  */
 async function buscarOuCriarUnidade(client, numero) {
+  // Normaliza o número antes de processar
+  const numeroNormalizado = normalizarNumeroUnidade(numero);
+  
   // Busca unidade existente
   const result = await client.query(
     'SELECT id FROM unidades WHERE numero = $1',
-    [numero]
+    [numeroNormalizado]
   );
 
   if (result.rows.length > 0) {
@@ -129,7 +146,7 @@ async function buscarOuCriarUnidade(client, numero) {
   // Cria nova unidade
   const insertResult = await client.query(
     'INSERT INTO unidades (numero) VALUES ($1) RETURNING id',
-    [numero]
+    [numeroNormalizado]
   );
 
   return insertResult.rows[0].id;
