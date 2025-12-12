@@ -12,7 +12,7 @@ import { z } from 'zod';
 const moradorSchema = z.object({
   nome: z.string().min(1, 'Nome é obrigatório').max(255),
   documento: z.string().min(1, 'Documento é obrigatório').max(20),
-  grau_parentesco: z.enum(['Proprietario', 'Conjuge', 'Filho', 'Pai', 'Mae', 'Outro']),
+  grau_parentesco: z.enum(['Conjuge', 'Filho', 'Pai', 'Mae', 'Outro']),
 });
 
 type MoradorFormData = z.infer<typeof moradorSchema>;
@@ -49,7 +49,7 @@ export function MoradorForm({
     defaultValues: {
       nome: initialData?.nome || '',
       documento: initialData?.documento || '',
-      grau_parentesco: (initialData?.grau_parentesco as any) || 'Proprietario',
+      grau_parentesco: (initialData?.grau_parentesco as any) || 'Outro',
     },
   });
 
@@ -147,7 +147,6 @@ export function MoradorForm({
           {...register('grau_parentesco')}
           className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
         >
-          <option value="Proprietario">Proprietário</option>
           <option value="Conjuge">Cônjuge</option>
           <option value="Filho">Filho</option>
           <option value="Pai">Pai</option>

@@ -13,7 +13,7 @@ import { z } from 'zod';
 const criarMoradorSchema = z.object({
   nome: z.string().min(1, 'Nome é obrigatório').max(255),
   documento: z.string().min(1, 'Documento é obrigatório').max(20),
-  grau_parentesco: z.enum(['Proprietario', 'Conjuge', 'Filho', 'Pai', 'Mae', 'Outro']),
+  grau_parentesco: z.enum(['Conjuge', 'Filho', 'Pai', 'Mae', 'Outro']),
 });
 
 export async function GET(

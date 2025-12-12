@@ -203,7 +203,6 @@ model Morador {
 }
 
 enum GrauParentesco {
-  Proprietario
   Conjuge
   Filho
   Pai

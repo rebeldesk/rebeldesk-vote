@@ -50,7 +50,6 @@ export function MoradorList({ moradores, unidadeId, isStaff, onEdit }: MoradorLi
 
   const getGrauParentescoLabel = (grau: string) => {
     const labels: Record<string, string> = {
-      Proprietario: 'Proprietário',
       Conjuge: 'Cônjuge',
       Filho: 'Filho',
       Pai: 'Pai',

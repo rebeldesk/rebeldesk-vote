@@ -16,6 +16,7 @@
     "migrate:vagas-veiculos": "node scripts/run-migration-vagas-veiculos.js",
     "migrate:tem-direito-vaga": "node scripts/run-migration-tem-direito-vaga.js",
     "migrate:moradores": "node scripts/run-migration-moradores.js",
+    "migrate:remove-proprietario": "node scripts/run-migration-remove-proprietario.js",
     "forcar-troca-senha-moradores": "node scripts/forcar-troca-senha-todos-moradores.js",
     "importar:usuarios": "node scripts/importar-usuarios.js",
     "corrigir:unidades-ponto-zero": "node scripts/corrigir-unidades-ponto-zero.js",
