@@ -36,3 +36,4 @@ echo "✅ Banco de dados configurado com sucesso!"
 echo ""
 echo "📝 Configure sua DATABASE_URL no .env.local:"
 echo "   DATABASE_URL=postgresql://postgres:postgres@localhost:5432/votacao_db"
+

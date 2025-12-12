@@ -231,3 +231,4 @@ docker compose up -d
 - **Supabase**: Usado em produção/staging, tem features extras (auth, storage, etc.)
 
 Você pode alternar entre eles mudando apenas a `DATABASE_URL` no `.env.local`.
+
