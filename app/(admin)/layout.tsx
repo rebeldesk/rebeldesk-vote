@@ -9,6 +9,7 @@ import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import Link from 'next/link';
 import { MobileMenu } from '@/components/admin/MobileMenu';
+import { ChangePasswordButton } from '@/components/auth/ChangePasswordButton';
 
 export default async function AdminLayout({
   children,
@@ -80,6 +81,7 @@ export default async function AdminLayout({
               <span className="hidden sm:inline-block text-sm text-gray-700">
                 {session.user?.name} ({perfil})
               </span>
+              <ChangePasswordButton className="hidden sm:inline-block text-sm text-gray-600 hover:text-gray-900" />
               {/* Menu hambúrguer mobile */}
               <MobileMenu
                 links={[

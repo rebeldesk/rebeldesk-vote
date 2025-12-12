@@ -9,6 +9,7 @@
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import { ChangePasswordModal } from '@/components/auth/ChangePasswordModal';
 
 interface MobileMenuProps {
   links: Array<{
@@ -21,6 +22,7 @@ interface MobileMenuProps {
 
 export function MobileMenu({ links, userName, userProfile }: MobileMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const pathname = usePathname();
 
   // Fecha o menu quando a rota muda
@@ -128,9 +130,27 @@ export function MobileMenu({ links, userName, userProfile }: MobileMenuProps) {
                 </Link>
               );
             })}
+            {/* Botão de alterar senha */}
+            <div className="border-t border-gray-200 mt-2 pt-2">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsOpen(false);
+                  setIsPasswordModalOpen(true);
+                }}
+                className="block w-full text-left px-3 py-2 text-base font-medium rounded-md text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+              >
+                🔒 Alterar Senha
+              </button>
+            </div>
           </div>
         </div>
       )}
+      <ChangePasswordModal
+        isOpen={isPasswordModalOpen}
+        onClose={() => setIsPasswordModalOpen(false)}
+      />
     </div>
   );
 }
