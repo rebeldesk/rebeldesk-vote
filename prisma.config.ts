@@ -9,8 +9,9 @@ export default defineConfig({
     path: "prisma/migrations",
   },
   datasource: {
-    // Usa placeholder durante build se DATABASE_URL não estiver disponível
-    // O Prisma Client pode ser gerado sem conexão real ao banco
-    url: env("DATABASE_URL") || "postgresql://placeholder:placeholder@localhost:5432/placeholder",
+    // Para migrations, use MIGRATE_DATABASE_URL (Session Mode - porta 5432)
+    // Se não existir, usa DATABASE_URL como fallback
+    // IMPORTANTE: Migrations precisam de Session Mode, não Transaction Mode
+    url: env("MIGRATE_DATABASE_URL") || env("DATABASE_URL") || "postgresql://placeholder:placeholder@localhost:5432/placeholder",
   },
 });

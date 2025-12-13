@@ -74,15 +74,20 @@ Preencha o `.env.local` com:
 - `NEXTAUTH_URL`: URL da aplicação (http://localhost:3000 para dev)
 - `NEXTAUTH_SECRET`: Gere com `openssl rand -base64 32`
 - `DATABASE_URL`: Connection string do PostgreSQL (Supabase)
-  - **Recomendado (Transaction Pooler)**: `postgresql://postgres:[PASSWORD]@[HOST]:6543/postgres?pgbouncer=true`
+  - **⚠️ IMPORTANTE - IPv6**: O Supabase usa IPv6 por padrão. Se sua rede não suporta IPv6, use o **Supavisor** (connection pooler):
+  - **Recomendado (Session Mode - IPv4 compatível)**: `postgresql://postgres.PROJECT_REF:[PASSWORD]@aws-0-REGION.pooler.supabase.com:5432/postgres`
+    - Use "Connection pooling" > "Session mode" no Supabase Dashboard
+    - Compatível com IPv4 (resolve problemas de conexão IPv6)
+    - Ideal para Prisma migrations e desenvolvimento local
+  - **Alternativa (Transaction Pooler)**: `postgresql://postgres.PROJECT_REF:[PASSWORD]@aws-0-REGION.pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1`
     - Use "Connection pooling" > "Transaction mode" no Supabase Dashboard
-    - Ideal para Prisma + Next.js (serverless)
+    - Ideal para Prisma + Next.js (serverless) em produção
     - Mais eficiente e escalável
-  - **Alternativa (Direct Connection)**: `postgresql://postgres:[PASSWORD]@[HOST]:5432/postgres`
-    - Apenas para desenvolvimento local
-    - Não recomendado para produção
+  - **Não recomendado (Direct Connection IPv6)**: `postgresql://postgres:[PASSWORD]@db.PROJECT_REF.supabase.co:5432/postgres`
+    - Usa IPv6 por padrão e pode falhar em redes sem suporte IPv6
+    - Erro comum: "Can't reach database server" ou "Network is unreachable"
   - Encontre em: Supabase Dashboard > Settings > Database > Connection string
-  - **IMPORTANTE**: Use Transaction Pooler (porta 6543) em produção para melhor performance e evitar "max clients reached"
+  - **Dica**: Se receber erro de conexão, verifique se está usando Supavisor (pooler) ao invés da conexão direta
 - `NEXT_PUBLIC_SUPABASE_URL`: URL do seu projeto Supabase (opcional, para futuras integrações)
 - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY`: Publishable key do Supabase (opcional)
 - `SUPABASE_SERVICE_ROLE_KEY`: Service role key do Supabase (opcional)
