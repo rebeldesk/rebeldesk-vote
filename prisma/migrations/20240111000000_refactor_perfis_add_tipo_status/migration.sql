@@ -72,7 +72,22 @@ BEGIN
   END IF;
 END $$;
 
--- 5. Recriar enum perfil_usuario sem conselho e auditor
+-- 5. Definir tipoUsuario para usuários moradores existentes que não têm tipo definido
+-- Por padrão, definimos como 'proprietario' (pode ser ajustado manualmente depois)
+DO $$ 
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_name = 'users' AND column_name = 'tipo_usuario'
+  ) THEN
+    UPDATE users 
+    SET tipo_usuario = 'proprietario'::tipo_usuario
+    WHERE perfil = 'morador'::perfil_usuario 
+    AND tipo_usuario IS NULL;
+  END IF;
+END $$;
+
+-- 6. Recriar enum perfil_usuario sem conselho e auditor
 -- Como não podemos alterar um enum diretamente no PostgreSQL, precisamos:
 -- 1. Criar um novo enum sem 'conselho' e 'auditor'
 -- 2. Alterar a coluna para usar o novo enum
@@ -108,7 +123,7 @@ BEGIN
   END IF;
 END $$;
 
--- 6. Adicionar campo procuracao_ativa na tabela unidades (idempotente)
+-- 7. Adicionar campo procuracao_ativa na tabela unidades (idempotente)
 DO $$ 
 BEGIN
   IF NOT EXISTS (
