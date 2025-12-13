@@ -110,9 +110,18 @@ BEGIN
 
     -- Altera a coluna para usar o novo enum (apenas se a tabela existir)
     IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'users') THEN
+      -- Primeiro, remove o valor padrão
+      ALTER TABLE users 
+        ALTER COLUMN perfil DROP DEFAULT;
+      
+      -- Depois, altera o tipo da coluna
       ALTER TABLE users 
         ALTER COLUMN perfil TYPE perfil_usuario_new 
         USING perfil::text::perfil_usuario_new;
+      
+      -- Por fim, restaura o valor padrão com o novo tipo
+      ALTER TABLE users 
+        ALTER COLUMN perfil SET DEFAULT 'morador'::perfil_usuario_new;
     END IF;
 
     -- Remove o enum antigo

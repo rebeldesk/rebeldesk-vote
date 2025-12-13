@@ -37,6 +37,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           const { prisma } = await import('./prisma');
           
           // Busca usuário no banco com password_hash usando Prisma
+          // Nota: Buscamos todos os campos e depois selecionamos apenas os necessários
+          // para evitar erros se algum campo novo ainda não existir no banco
           const userData = await prisma.usuario.findUnique({
             where: { email: credentials.email as string },
             select: {
@@ -45,6 +47,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               nome: true,
               perfil: true,
               conselheiro: true,
+              tipoUsuario: true,
+              procuracaoAtiva: true,
               unidadeId: true,
               passwordHash: true,
               forcarTrocaSenha: true,

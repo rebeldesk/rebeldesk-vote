@@ -105,6 +105,7 @@ export function UserForm({ usuarioId, initialData }: UserFormProps) {
     formState: { errors },
     setValue,
     watch,
+    reset,
   } = useForm<UserFormData>({
     resolver: zodResolver(userSchema) as any,
     defaultValues: {
@@ -122,6 +123,26 @@ export function UserForm({ usuarioId, initialData }: UserFormProps) {
       forcar_troca_senha: (initialData as any)?.forcar_troca_senha || false,
     },
   });
+
+  // Atualiza os valores do formulário quando initialData mudar
+  useEffect(() => {
+    if (initialData) {
+      reset({
+        email: initialData.email || '',
+        senha: initialData.senha || '',
+        nome: initialData.nome || '',
+        telefone: initialData.telefone || '',
+        perfil: initialData.perfil || 'morador',
+        conselheiro: (initialData as any)?.conselheiro || false,
+        tipoUsuario: (initialData as any)?.tipoUsuario || null,
+        procuracaoAtiva: (initialData as any)?.procuracaoAtiva || false,
+        unidades_ids: (initialData as any)?.unidades?.map((u: any) => u.id) || 
+                      (initialData as any)?.unidades_ids || 
+                      ((initialData as any)?.unidade_id ? [(initialData as any).unidade_id] : []),
+        forcar_troca_senha: (initialData as any)?.forcar_troca_senha || false,
+      });
+    }
+  }, [initialData, reset]);
 
   const senhaAtual = watch('senha');
   const unidadesIdsAtual = watch('unidades_ids');
@@ -447,6 +468,35 @@ export function UserForm({ usuarioId, initialData }: UserFormProps) {
 
       {perfilAtual === 'morador' && (
         <>
+          <div>
+            <label htmlFor="tipoUsuario" className="block text-sm font-medium text-gray-700">
+              Tipo de Usuário *
+            </label>
+            <select
+              {...register('tipoUsuario', {
+                onChange: (e) => {
+                  // Se mudar para proprietario, limpa procuracaoAtiva
+                  if (e.target.value === 'proprietario') {
+                    setValue('procuracaoAtiva', false);
+                  }
+                  // Se mudar para inquilino, desativa conselheiro
+                  if (e.target.value === 'inquilino') {
+                    setValue('conselheiro', false);
+                  }
+                },
+              })}
+              id="tipoUsuario"
+              className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
+            >
+              <option value="">Selecione...</option>
+              <option value="proprietario">Proprietário</option>
+              <option value="inquilino">Inquilino</option>
+            </select>
+            {errors.tipoUsuario && (
+              <p className="mt-1 text-sm text-red-600">{errors.tipoUsuario.message}</p>
+            )}
+          </div>
+
           <div className="flex items-center">
             <input
               type="checkbox"
@@ -460,7 +510,8 @@ export function UserForm({ usuarioId, initialData }: UserFormProps) {
                   }
                 },
               })}
-              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              disabled={tipoUsuarioAtual !== 'proprietario'}
+              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
             />
             <label htmlFor="conselheiro" className="ml-2 block text-sm text-gray-700">
               É membro do conselho
@@ -469,37 +520,6 @@ export function UserForm({ usuarioId, initialData }: UserFormProps) {
           <p className="text-xs text-gray-500 -mt-4 ml-6 mb-4">
             Conselheiros têm acesso administrativo e são sempre proprietários
           </p>
-
-          <div>
-            <label htmlFor="tipoUsuario" className="block text-sm font-medium text-gray-700">
-              Tipo de Usuário *
-            </label>
-            <select
-              {...register('tipoUsuario', {
-                onChange: (e) => {
-                  // Se mudar para proprietario, limpa procuracaoAtiva
-                  if (e.target.value === 'proprietario') {
-                    setValue('procuracaoAtiva', false);
-                  }
-                },
-              })}
-              id="tipoUsuario"
-              disabled={conselheiroAtual}
-              className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm disabled:bg-gray-100 disabled:cursor-not-allowed"
-            >
-              <option value="">Selecione...</option>
-              <option value="proprietario">Proprietário</option>
-              <option value="inquilino">Inquilino</option>
-            </select>
-            {errors.tipoUsuario && (
-              <p className="mt-1 text-sm text-red-600">{errors.tipoUsuario.message}</p>
-            )}
-            {conselheiroAtual && (
-              <p className="mt-1 text-xs text-gray-500">
-                Conselheiros são sempre proprietários
-              </p>
-            )}
-          </div>
 
           {tipoUsuarioAtual === 'inquilino' && (
             <div className="flex items-center">
