@@ -17,14 +17,16 @@ export default async function ResultadoPage({
 }) {
   const session = await auth();
 
-  if (!session || (session.user?.perfil !== 'staff' && session.user?.perfil !== 'conselho' && session.user?.perfil !== 'auditor')) {
+  const perfil = session.user?.perfil;
+  const conselheiro = session.user?.conselheiro || false;
+  if (!session || (perfil !== 'staff' && !(perfil === 'morador' && conselheiro))) {
     redirect('/votacoes');
   }
 
   const { id } = await params;
   const resultado = await calcularResultado(
     id,
-    session.user?.perfil === 'staff' || session.user?.perfil === 'conselho' || session.user?.perfil === 'auditor'
+    perfil === 'staff' || (perfil === 'morador' && conselheiro)
   );
 
   return (

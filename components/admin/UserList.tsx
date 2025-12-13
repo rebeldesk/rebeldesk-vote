@@ -18,6 +18,9 @@ interface Usuario {
   email: string;
   telefone: string | null;
   perfil: string;
+  conselheiro?: boolean;
+  tipoUsuario?: string | null;
+  procuracaoAtiva?: boolean;
   unidades?: {
     id: string;
     numero: string;
@@ -45,8 +48,6 @@ export function UserList({ usuarios, currentUserId, canDelete = false }: UserLis
     const contadores: Record<string, number> = {
       todos: usuarios.length,
       staff: 0,
-      conselho: 0,
-      auditor: 0,
       morador: 0,
     };
 
@@ -185,8 +186,6 @@ export function UserList({ usuarios, currentUserId, canDelete = false }: UserLis
           filters={[
             { value: 'todos', label: 'Todos', count: contadoresPerfil.todos },
             { value: 'staff', label: 'Staff', count: contadoresPerfil.staff },
-            { value: 'conselho', label: 'Conselho', count: contadoresPerfil.conselho },
-            { value: 'auditor', label: 'Auditor', count: contadoresPerfil.auditor },
             { value: 'morador', label: 'Morador', count: contadoresPerfil.morador },
           ]}
           selectedFilter={filtroPerfil}
@@ -226,6 +225,9 @@ export function UserList({ usuarios, currentUserId, canDelete = false }: UserLis
                 Perfil
               </th>
               <th className="hidden lg:table-cell px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500">
+                Tipo/Status
+              </th>
+              <th className="hidden lg:table-cell px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500">
                 Unidades
               </th>
               <th className="px-3 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wide text-gray-500">
@@ -236,7 +238,7 @@ export function UserList({ usuarios, currentUserId, canDelete = false }: UserLis
           <tbody className="divide-y divide-gray-200 bg-white">
             {usuariosFiltrados.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-3 sm:px-6 py-4 text-center text-sm text-gray-500">
+                <td colSpan={7} className="px-3 sm:px-6 py-4 text-center text-sm text-gray-500">
                   {busca ? 'Nenhum usuário encontrado com os critérios de busca.' : 'Nenhum usuário cadastrado.'}
                 </td>
               </tr>
@@ -256,9 +258,30 @@ export function UserList({ usuarios, currentUserId, canDelete = false }: UserLis
                     {usuario.telefone || '-'}
                   </td>
                   <td className="whitespace-nowrap px-3 sm:px-6 py-4 text-sm text-gray-500">
-                    <span className="inline-flex rounded-full bg-blue-100 px-2 text-xs font-semibold leading-5 text-blue-800">
-                      {usuario.perfil}
-                    </span>
+                    <div className="flex flex-col gap-1">
+                      <span className="inline-flex rounded-full bg-blue-100 px-2 text-xs font-semibold leading-5 text-blue-800">
+                        {usuario.perfil}
+                      </span>
+                      {usuario.conselheiro && (
+                        <span className="inline-flex rounded-full bg-purple-100 px-2 text-xs font-semibold leading-5 text-purple-800">
+                          Conselheiro
+                        </span>
+                      )}
+                    </div>
+                  </td>
+                  <td className="hidden lg:table-cell px-6 py-4 text-sm text-gray-500">
+                    <div className="flex flex-col gap-1">
+                      {usuario.tipoUsuario && (
+                        <span className="inline-flex rounded-full bg-green-100 px-2 text-xs font-medium text-green-800">
+                          {usuario.tipoUsuario === 'proprietario' ? 'Proprietário' : 'Inquilino'}
+                        </span>
+                      )}
+                      {usuario.procuracaoAtiva && (
+                        <span className="inline-flex rounded-full bg-yellow-100 px-2 text-xs font-medium text-yellow-800">
+                          Procuração Ativa
+                        </span>
+                      )}
+                    </div>
                   </td>
                   <td className="hidden lg:table-cell px-6 py-4 text-sm text-gray-500">
                     {usuario.unidades && usuario.unidades.length > 0 ? (

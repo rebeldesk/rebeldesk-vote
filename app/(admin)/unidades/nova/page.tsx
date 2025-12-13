@@ -9,7 +9,9 @@ import { UnidadeForm } from '@/components/admin/UnidadeForm';
 export default async function NovaUnidadePage() {
   const session = await auth();
 
-  if (!session || (session.user?.perfil !== 'staff' && session.user?.perfil !== 'conselho')) {
+  const perfil = session.user?.perfil;
+  const conselheiro = session.user?.conselheiro || false;
+  if (!session || (perfil !== 'staff' && !(perfil === 'morador' && conselheiro))) {
     redirect('/dashboard');
   }
 

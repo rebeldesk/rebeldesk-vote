@@ -44,6 +44,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               email: true,
               nome: true,
               perfil: true,
+              conselheiro: true,
               unidadeId: true,
               passwordHash: true,
               forcarTrocaSenha: true,
@@ -80,6 +81,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             email: userData.email,
             name: userData.nome,
             perfil: userData.perfil,
+            conselheiro: userData.conselheiro || false,
             unidade_id: userData.unidadeId,
             forcar_troca_senha: userData.forcarTrocaSenha || false,
           };
@@ -96,6 +98,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         // Quando há um novo login, atualiza o token com os dados do usuário
         token.id = user.id;
         token.perfil = (user as any).perfil;
+        token.conselheiro = (user as any).conselheiro || false;
         token.unidade_id = (user as any).unidade_id;
         token.forcar_troca_senha = (user as any).forcar_troca_senha || false;
         console.log('[Auth] JWT atualizado - forcar_troca_senha:', token.forcar_troca_senha);
@@ -108,6 +111,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         // Garante que o ID está presente e é uma string válida
         session.user.id = String(token.id);
         session.user.perfil = token.perfil as PerfilUsuario;
+        session.user.conselheiro = (token.conselheiro as boolean) || false;
         session.user.unidade_id = token.unidade_id as string | null;
         session.user.forcar_troca_senha = (token.forcar_troca_senha as boolean) || false;
         console.log('[Auth] Session criada - forcar_troca_senha:', session.user.forcar_troca_senha);

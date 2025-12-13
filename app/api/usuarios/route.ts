@@ -30,7 +30,10 @@ const criarUsuarioSchema = z.object({
         message: 'Telefone deve ter DDD + número completo (10 ou 11 dígitos)',
       }
     ),
-  perfil: z.enum(['staff', 'conselho', 'auditor', 'morador']),
+  perfil: z.enum(['staff', 'morador']),
+  conselheiro: z.boolean().optional().default(false),
+  tipoUsuario: z.enum(['proprietario', 'inquilino']).optional().nullable(),
+  procuracaoAtiva: z.boolean().optional().default(false),
   // Aceita string vazia, UUID válido ou null/undefined (compatibilidade)
   unidade_id: z
     .union([z.string().uuid(), z.string().length(0), z.null(), z.undefined()])
@@ -40,6 +43,42 @@ const criarUsuarioSchema = z.object({
   // Array de IDs de unidades (novo)
   unidades_ids: z.array(z.string().uuid()).optional(),
   forcar_troca_senha: z.boolean().optional().default(false),
+}).refine((data) => {
+  // Se perfil = staff, conselheiro deve ser false e tipoUsuario deve ser null
+  if (data.perfil === 'staff') {
+    return !data.conselheiro && !data.tipoUsuario && !data.procuracaoAtiva;
+  }
+  return true;
+}, {
+  message: 'Staff não pode ter conselheiro, tipoUsuario ou procuracaoAtiva',
+  path: ['perfil'],
+}).refine((data) => {
+  // Se perfil = morador, tipoUsuario é obrigatório
+  if (data.perfil === 'morador') {
+    return data.tipoUsuario !== null && data.tipoUsuario !== undefined;
+  }
+  return true;
+}, {
+  message: 'Morador deve ter tipoUsuario definido',
+  path: ['tipoUsuario'],
+}).refine((data) => {
+  // Se conselheiro = true, tipoUsuario deve ser proprietario
+  if (data.conselheiro && data.tipoUsuario !== 'proprietario') {
+    return false;
+  }
+  return true;
+}, {
+  message: 'Conselheiro deve ser proprietário',
+  path: ['conselheiro'],
+}).refine((data) => {
+  // Se tipo = proprietario, procuracaoAtiva deve ser false
+  if (data.tipoUsuario === 'proprietario' && data.procuracaoAtiva) {
+    return false;
+  }
+  return true;
+}, {
+  message: 'Proprietário não pode ter procuração ativa',
+  path: ['procuracaoAtiva'],
 });
 
 export async function GET() {
@@ -122,6 +161,9 @@ export async function POST(request: NextRequest) {
       nome: dados.nome,
       telefone: dados.telefone || '',
       perfil: dados.perfil,
+      conselheiro: dados.conselheiro || false,
+      tipoUsuario: dados.tipoUsuario || null,
+      procuracaoAtiva: dados.procuracaoAtiva || false,
       unidade_id: dados.unidade_id, // Mantido para compatibilidade
       unidades_ids: dados.unidades_ids, // Novo: array de unidades
       forcar_troca_senha: dados.forcar_troca_senha || false,

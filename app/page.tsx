@@ -19,18 +19,19 @@ export default async function Home() {
 
   // Redireciona baseado no perfil
   const perfil = session.user?.perfil;
+  const conselheiro = session.user?.conselheiro || false;
 
   // Staff vai direto para admin
   if (perfil === 'staff') {
     redirect('/dashboard');
   }
 
-  // Conselho e auditor podem acessar ambas as áreas, mas redireciona para admin primeiro
+  // Morador com conselheiro=true pode acessar ambas as áreas, mas redireciona para admin primeiro
   // Eles podem navegar para /participar através do menu
-  if (perfil === 'conselho') {
+  if (perfil === 'morador' && conselheiro) {
     redirect('/dashboard');
   }
 
-  // Auditor e morador vão para área de votante
+  // Morador sem conselho vai para área de votante
   redirect('/participar');
 }

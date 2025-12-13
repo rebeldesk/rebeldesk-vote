@@ -24,9 +24,10 @@ export default async function AdminLayout({
   }
 
   const perfil = session.user?.perfil;
+  const conselheiro = session.user?.conselheiro || false;
 
-  // Apenas staff e conselho têm acesso administrativo
-  if (perfil !== 'staff' && perfil !== 'conselho') {
+  // Apenas staff OU morador com conselheiro=true têm acesso administrativo
+  if (perfil !== 'staff' && !(perfil === 'morador' && conselheiro)) {
     redirect('/votacoes');
   }
 
@@ -50,7 +51,7 @@ export default async function AdminLayout({
                 )}
                 <NavLink href="/unidades">Unidades</NavLink>
                 <NavLink href="/votacoes">Votações</NavLink>
-                {perfil === 'conselho' && (
+                {perfil === 'morador' && conselheiro && (
                   <NavLink href="/participar">Participar</NavLink>
                 )}
               </div>
@@ -73,12 +74,12 @@ export default async function AdminLayout({
                     : []),
                   { href: '/unidades', label: 'Unidades' },
                   { href: '/votacoes', label: 'Votações' },
-                  ...(perfil === 'conselho'
+                  ...(perfil === 'morador' && conselheiro
                     ? [{ href: '/participar', label: 'Participar' }]
                     : []),
                 ]}
                 userName={session.user?.name || ''}
-                userProfile={perfil}
+                userProfile={perfil === 'morador' && conselheiro ? 'conselheiro' : perfil}
               />
               <form
                 action={async () => {

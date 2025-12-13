@@ -8,12 +8,18 @@
 /**
  * Perfis de usuário no sistema.
  * 
- * - staff: Acesso administrativo completo (criar usuários, votações, auditar)
- * - conselho: Acesso administrativo + pode votar (criar votações, auditar, votar)
- * - auditor: Pode auditar resultados + pode votar (visualizar resultados detalhados, votar)
- * - morador: Apenas pode votar (visualizar e participar de votações)
+ * - staff: Funcionário do condomínio (acesso administrativo completo, não vota)
+ * - morador: Morador do condomínio (pode votar, tem tipo e pode ter status)
  */
-export type PerfilUsuario = 'staff' | 'conselho' | 'auditor' | 'morador';
+export type PerfilUsuario = 'staff' | 'morador';
+
+/**
+ * Tipo de usuário morador.
+ * 
+ * - proprietario: Proprietário da unidade
+ * - inquilino: Inquilino da unidade (pode ter procuração ativa)
+ */
+export type TipoUsuario = 'proprietario' | 'inquilino';
 
 /**
  * Tipo de votação disponível.
@@ -49,6 +55,9 @@ export interface Usuario {
   nome: string;
   telefone: string;
   perfil: PerfilUsuario;
+  conselheiro: boolean; // Indica se o morador é membro do conselho
+  tipoUsuario: TipoUsuario | null; // Tipo de usuário morador (apenas se perfil = morador)
+  procuracaoAtiva: boolean; // Indica se o inquilino tem procuração ativa (apenas se tipo = inquilino)
   unidade_id: string | null; // Mantido para compatibilidade (deprecated)
   unidades?: Unidade[]; // Array de unidades vinculadas (novo)
   created_at: string;
@@ -65,6 +74,7 @@ export interface Usuario {
 export interface Unidade {
   id: string;
   numero: string;
+  procuracaoAtiva: boolean; // Indica se existe inquilino com procuração ativa nesta unidade
   created_at: string;
   updated_at: string;
 }
@@ -129,6 +139,9 @@ export interface CriarUsuarioDTO {
   nome: string;
   telefone: string;
   perfil: PerfilUsuario;
+  conselheiro?: boolean; // Indica se é membro do conselho (apenas se perfil = morador)
+  tipoUsuario?: TipoUsuario; // Tipo de usuário morador (obrigatório se perfil = morador)
+  procuracaoAtiva?: boolean; // Indica se tem procuração ativa (apenas se tipo = inquilino)
   unidade_id?: string | null; // Mantido para compatibilidade (deprecated)
   unidades_ids?: string[]; // Array de IDs de unidades (novo)
   forcar_troca_senha?: boolean; // Força troca de senha no próximo login
@@ -142,6 +155,9 @@ export interface AtualizarUsuarioDTO {
   nome?: string;
   telefone?: string;
   perfil?: PerfilUsuario;
+  conselheiro?: boolean; // Indica se é membro do conselho (apenas se perfil = morador)
+  tipoUsuario?: TipoUsuario; // Tipo de usuário morador (obrigatório se perfil = morador)
+  procuracaoAtiva?: boolean; // Indica se tem procuração ativa (apenas se tipo = inquilino)
   unidade_id?: string | null; // Mantido para compatibilidade (deprecated)
   unidades_ids?: string[]; // Array de IDs de unidades (novo)
   forcar_troca_senha?: boolean; // Força troca de senha no próximo login

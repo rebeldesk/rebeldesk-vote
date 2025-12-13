@@ -10,6 +10,7 @@ model Unidade {
   id              String           @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   numero          String           @unique @db.VarChar(50)
   temDireitoVaga  Boolean          @default(false) @map("tem_direito_vaga")
+  procuracaoAtiva Boolean          @default(false) @map("procuracao_ativa")
   createdAt       DateTime?        @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt       DateTime?        @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
   users           Usuario[]
@@ -30,6 +31,9 @@ model Usuario {
   nome             String           @db.VarChar(255)
   telefone         String?          @db.VarChar(20)
   perfil           PerfilUsuario    @default(morador)
+  conselheiro      Boolean          @default(false)
+  tipoUsuario      TipoUsuario?     @map("tipo_usuario")
+  procuracaoAtiva  Boolean          @default(false) @map("procuracao_ativa")
   unidadeId        String?          @map("unidade_id") @db.Uuid
   forcarTrocaSenha Boolean          @default(false) @map("forcar_troca_senha")
   createdAt        DateTime?        @default(now()) @map("created_at") @db.Timestamptz(6)
@@ -102,11 +106,16 @@ model Voto {
 
 enum PerfilUsuario {
   staff
-  conselho
-  auditor
   morador
 
   @@map("perfil_usuario")
+}
+
+enum TipoUsuario {
+  proprietario
+  inquilino
+
+  @@map("tipo_usuario")
 }
 
 enum TipoVotacao {

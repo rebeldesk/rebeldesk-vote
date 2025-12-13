@@ -37,11 +37,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Votação não encontrada' }, { status: 404 });
     }
 
-    // Apenas staff, conselho e auditor podem ver detalhes
-    const podeAuditar =
-      session.user?.perfil === 'staff' ||
-      session.user?.perfil === 'conselho' ||
-      session.user?.perfil === 'auditor';
+    // Apenas staff OU morador com conselheiro=true podem ver detalhes
+    const perfil = session.user?.perfil;
+    const conselheiro = session.user?.conselheiro || false;
+    const podeAuditar = perfil === 'staff' || (perfil === 'morador' && conselheiro);
 
     // Se não é rastreado, não há detalhes para mostrar
     if (votacao.modoAuditoria !== 'rastreado') {

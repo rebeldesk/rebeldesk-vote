@@ -17,7 +17,9 @@ export default async function VotacaoDetalhesPage({
 }) {
   const session = await auth();
 
-  if (!session || (session.user?.perfil !== 'staff' && session.user?.perfil !== 'conselho')) {
+  const perfil = session.user?.perfil;
+  const conselheiro = session.user?.conselheiro || false;
+  if (!session || (perfil !== 'staff' && !(perfil === 'morador' && conselheiro))) {
     redirect('/dashboard');
   }
 
@@ -132,7 +134,9 @@ export default async function VotacaoDetalhesPage({
               'use server';
               const session = await auth();
               
-              if (!session || (session.user?.perfil !== 'staff' && session.user?.perfil !== 'conselho')) {
+              const perfil = session.user?.perfil;
+              const conselheiro = session.user?.conselheiro || false;
+              if (!session || (perfil !== 'staff' && !(perfil === 'morador' && conselheiro))) {
                 redirect('/dashboard');
               }
 
@@ -165,7 +169,9 @@ export default async function VotacaoDetalhesPage({
               'use server';
               const session = await auth();
               
-              if (!session || (session.user?.perfil !== 'staff' && session.user?.perfil !== 'conselho')) {
+              const perfil = session.user?.perfil;
+              const conselheiro = session.user?.conselheiro || false;
+              if (!session || (perfil !== 'staff' && !(perfil === 'morador' && conselheiro))) {
                 redirect('/dashboard');
               }
 

@@ -2,7 +2,7 @@
  * Middleware para proteção de rotas e redirecionamento baseado em autenticação.
  * 
  * Este middleware:
- * - Protege rotas administrativas (apenas staff e conselho)
+ * - Protege rotas administrativas (apenas staff e moradores com conselheiro=true)
  * - Protege rotas de votante (requer autenticação)
  * - Redireciona usuários não autenticados para login
  */
@@ -39,6 +39,7 @@ export async function middleware(request: NextRequest) {
   }
 
   const perfil = session.user?.perfil;
+  const conselheiro = session.user?.conselheiro || false;
 
   // Rotas de usuários - apenas staff
   if (pathname.startsWith('/usuarios')) {
@@ -47,9 +48,9 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Rotas administrativas - staff e conselho
+  // Rotas administrativas - staff OU morador com conselheiro=true
   if (pathname.startsWith('/dashboard') || (pathname.startsWith('/votacoes') && (pathname.includes('/nova') || pathname.includes('/resultado')))) {
-    if (perfil !== 'staff' && perfil !== 'conselho') {
+    if (perfil !== 'staff' && !(perfil === 'morador' && conselheiro)) {
       return NextResponse.redirect(new URL('/participar', request.url));
     }
   }

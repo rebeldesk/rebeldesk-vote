@@ -86,8 +86,10 @@ export async function POST(request: NextRequest) {
   try {
     const session = await auth();
 
-    // Apenas staff e conselho podem criar votações
-    if (!session || (session.user?.perfil !== 'staff' && session.user?.perfil !== 'conselho')) {
+    // Apenas staff OU morador com conselheiro=true podem criar votações
+    const perfil = session.user?.perfil;
+    const conselheiro = session.user?.conselheiro || false;
+    if (!session || (perfil !== 'staff' && !(perfil === 'morador' && conselheiro))) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 403 });
     }
 

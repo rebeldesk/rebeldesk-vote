@@ -19,7 +19,8 @@ export default async function TrocarSenhaObrigatoriaPage() {
   // Se não precisa trocar senha, redireciona
   if (!session.user?.forcar_troca_senha) {
     const perfil = session.user?.perfil;
-    if (perfil === 'staff' || perfil === 'conselho') {
+    const conselheiro = session.user?.conselheiro || false;
+    if (perfil === 'staff' || (perfil === 'morador' && conselheiro)) {
       redirect('/dashboard');
     } else {
       redirect('/participar');

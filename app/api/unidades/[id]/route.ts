@@ -16,8 +16,10 @@ export async function GET(
   try {
     const session = await auth();
 
-    // Apenas staff e conselho podem ver detalhes de unidades
-    if (!session || (session.user?.perfil !== 'staff' && session.user?.perfil !== 'conselho')) {
+    // Apenas staff OU morador com conselheiro=true podem ver detalhes de unidades
+    const perfil = session.user?.perfil;
+    const conselheiro = session.user?.conselheiro || false;
+    if (!session || (perfil !== 'staff' && !(perfil === 'morador' && conselheiro))) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 403 });
     }
 

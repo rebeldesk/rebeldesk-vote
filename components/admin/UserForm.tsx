@@ -35,10 +35,49 @@ const userSchema = z.object({
         message: 'Telefone deve ter DDD + número completo. Formato: (11) 98765-4321 ou (11) 3456-7890',
       }
     ),
-  perfil: z.enum(['staff', 'conselho', 'auditor', 'morador']),
+  perfil: z.enum(['staff', 'morador']),
+  conselheiro: z.boolean().default(false),
+  tipoUsuario: z.enum(['proprietario', 'inquilino']).optional().nullable(),
+  procuracaoAtiva: z.boolean().default(false),
   // Array de IDs de unidades
   unidades_ids: z.array(z.string().uuid()).default([]),
   forcar_troca_senha: z.boolean().default(false),
+}).refine((data) => {
+  // Se perfil = staff, conselheiro deve ser false e tipoUsuario deve ser null
+  if (data.perfil === 'staff') {
+    return !data.conselheiro && !data.tipoUsuario && !data.procuracaoAtiva;
+  }
+  return true;
+}, {
+  message: 'Staff não pode ter conselheiro, tipoUsuario ou procuracaoAtiva',
+  path: ['perfil'],
+}).refine((data) => {
+  // Se perfil = morador, tipoUsuario é obrigatório
+  if (data.perfil === 'morador') {
+    return data.tipoUsuario !== null && data.tipoUsuario !== undefined;
+  }
+  return true;
+}, {
+  message: 'Morador deve ter tipoUsuario definido',
+  path: ['tipoUsuario'],
+}).refine((data) => {
+  // Se conselheiro = true, tipoUsuario deve ser proprietario
+  if (data.conselheiro && data.tipoUsuario !== 'proprietario') {
+    return false;
+  }
+  return true;
+}, {
+  message: 'Conselheiro deve ser proprietário',
+  path: ['conselheiro'],
+}).refine((data) => {
+  // Se tipo = proprietario, procuracaoAtiva deve ser false
+  if (data.tipoUsuario === 'proprietario' && data.procuracaoAtiva) {
+    return false;
+  }
+  return true;
+}, {
+  message: 'Proprietário não pode ter procuração ativa',
+  path: ['procuracaoAtiva'],
 });
 
 // Tipo do formulário
@@ -74,6 +113,9 @@ export function UserForm({ usuarioId, initialData }: UserFormProps) {
       nome: initialData?.nome || '',
       telefone: initialData?.telefone || '',
       perfil: initialData?.perfil || 'morador',
+      conselheiro: (initialData as any)?.conselheiro || false,
+      tipoUsuario: (initialData as any)?.tipoUsuario || null,
+      procuracaoAtiva: (initialData as any)?.procuracaoAtiva || false,
       unidades_ids: (initialData as any)?.unidades?.map((u: any) => u.id) || 
                     (initialData as any)?.unidades_ids || 
                     ((initialData as any)?.unidade_id ? [(initialData as any).unidade_id] : []),
@@ -83,6 +125,9 @@ export function UserForm({ usuarioId, initialData }: UserFormProps) {
 
   const senhaAtual = watch('senha');
   const unidadesIdsAtual = watch('unidades_ids');
+  const perfilAtual = watch('perfil');
+  const conselheiroAtual = watch('conselheiro');
+  const tipoUsuarioAtual = watch('tipoUsuario');
   const [unidadesCarregadas, setUnidadesCarregadas] = useState(false);
   const [telefoneFormatado, setTelefoneFormatado] = useState(
     initialData?.telefone ? maskTelefone(initialData.telefone) : ''
@@ -147,6 +192,9 @@ export function UserForm({ usuarioId, initialData }: UserFormProps) {
         nome: data.nome,
         telefone: telefoneSemMascara,
         perfil: data.perfil,
+        conselheiro: data.conselheiro || false,
+        tipoUsuario: data.tipoUsuario || null,
+        procuracaoAtiva: data.procuracaoAtiva || false,
         unidades_ids: data.unidades_ids || [],
         forcar_troca_senha: forcarTrocaSenha,
       };
@@ -376,19 +424,103 @@ export function UserForm({ usuarioId, initialData }: UserFormProps) {
           Perfil *
         </label>
         <select
-          {...register('perfil')}
+          {...register('perfil', {
+            onChange: (e) => {
+              // Se mudar para staff, limpa campos de morador
+              if (e.target.value === 'staff') {
+                setValue('conselheiro', false);
+                setValue('tipoUsuario', null);
+                setValue('procuracaoAtiva', false);
+              }
+            },
+          })}
           id="perfil"
           className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
         >
           <option value="morador">Morador</option>
-          <option value="auditor">Auditor</option>
-          <option value="conselho">Conselho</option>
           <option value="staff">Staff</option>
         </select>
         {errors.perfil && (
           <p className="mt-1 text-sm text-red-600">{errors.perfil.message}</p>
         )}
       </div>
+
+      {perfilAtual === 'morador' && (
+        <>
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              id="conselheiro"
+              {...register('conselheiro', {
+                onChange: (e) => {
+                  // Se marcar conselheiro, força tipoUsuario para proprietario
+                  if (e.target.checked) {
+                    setValue('tipoUsuario', 'proprietario');
+                    setValue('procuracaoAtiva', false);
+                  }
+                },
+              })}
+              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            />
+            <label htmlFor="conselheiro" className="ml-2 block text-sm text-gray-700">
+              É membro do conselho
+            </label>
+          </div>
+          <p className="text-xs text-gray-500 -mt-4 ml-6 mb-4">
+            Conselheiros têm acesso administrativo e são sempre proprietários
+          </p>
+
+          <div>
+            <label htmlFor="tipoUsuario" className="block text-sm font-medium text-gray-700">
+              Tipo de Usuário *
+            </label>
+            <select
+              {...register('tipoUsuario', {
+                onChange: (e) => {
+                  // Se mudar para proprietario, limpa procuracaoAtiva
+                  if (e.target.value === 'proprietario') {
+                    setValue('procuracaoAtiva', false);
+                  }
+                },
+              })}
+              id="tipoUsuario"
+              disabled={conselheiroAtual}
+              className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm disabled:bg-gray-100 disabled:cursor-not-allowed"
+            >
+              <option value="">Selecione...</option>
+              <option value="proprietario">Proprietário</option>
+              <option value="inquilino">Inquilino</option>
+            </select>
+            {errors.tipoUsuario && (
+              <p className="mt-1 text-sm text-red-600">{errors.tipoUsuario.message}</p>
+            )}
+            {conselheiroAtual && (
+              <p className="mt-1 text-xs text-gray-500">
+                Conselheiros são sempre proprietários
+              </p>
+            )}
+          </div>
+
+          {tipoUsuarioAtual === 'inquilino' && (
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="procuracaoAtiva"
+                {...register('procuracaoAtiva')}
+                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              />
+              <label htmlFor="procuracaoAtiva" className="ml-2 block text-sm text-gray-700">
+                Procuração ativa
+              </label>
+            </div>
+          )}
+          {tipoUsuarioAtual === 'inquilino' && (
+            <p className="text-xs text-gray-500 -mt-4 ml-6 mb-4">
+              Se marcado, o inquilino pode votar em vez do proprietário
+            </p>
+          )}
+        </>
+      )}
 
       <div>
         <label htmlFor="unidades_ids" className="block text-sm font-medium text-gray-700">

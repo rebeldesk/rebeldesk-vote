@@ -25,6 +25,68 @@ import { Prisma } from '@prisma/client';
 export { hashSenha, verificarSenha };
 
 /**
+ * Atualiza a flag procuracaoAtiva nas unidades vinculadas ao usuário.
+ * 
+ * @param usuarioId - ID do usuário
+ */
+async function atualizarProcuracaoAtivaUnidades(usuarioId: string) {
+  // Busca o usuário com suas unidades
+  const usuario = await prisma.usuario.findUnique({
+    where: { id: usuarioId },
+    include: {
+      usuarioUnidades: {
+        include: {
+          unidade: true,
+        },
+      },
+      unidade: true, // Unidade antiga (compatibilidade)
+    },
+  });
+
+  if (!usuario) {
+    return;
+  }
+
+  // Coleta todas as unidades do usuário
+  const unidadesIds: string[] = [];
+  
+  // Unidades via relacionamento novo
+  if (usuario.usuarioUnidades && usuario.usuarioUnidades.length > 0) {
+    unidadesIds.push(...usuario.usuarioUnidades.map(uu => uu.unidadeId));
+  }
+  
+  // Unidade antiga (compatibilidade)
+  if (usuario.unidadeId) {
+    unidadesIds.push(usuario.unidadeId);
+  }
+
+  // Remove duplicatas
+  const unidadesUnicas = [...new Set(unidadesIds)];
+
+  // Para cada unidade, verifica se existe inquilino com procuração ativa
+  for (const unidadeId of unidadesUnicas) {
+    const inquilinoComProcuração = await prisma.usuario.findFirst({
+      where: {
+        OR: [
+          { usuarioUnidades: { some: { unidadeId } } },
+          { unidadeId },
+        ],
+        tipoUsuario: 'inquilino',
+        procuracaoAtiva: true,
+      },
+    });
+
+    // Atualiza a flag na unidade
+    await prisma.unidade.update({
+      where: { id: unidadeId },
+      data: {
+        procuracaoAtiva: !!inquilinoComProcuração,
+      },
+    });
+  }
+}
+
+/**
  * Busca um usuário por email.
  * 
  * @param email - Email do usuário
@@ -50,10 +112,14 @@ export async function buscarUsuarioPorEmail(email: string): Promise<Usuario | nu
   const { passwordHash, unidadeId, createdAt, updatedAt, usuarioUnidades, ...rest } = usuario;
   return {
     ...rest,
+    conselheiro: rest.conselheiro || false,
+    tipoUsuario: rest.tipoUsuario || null,
+    procuracaoAtiva: rest.procuracaoAtiva || false,
     unidade_id: unidadeId, // Mantido para compatibilidade
     unidades: usuarioUnidades?.map(uu => ({
       id: uu.unidade.id,
       numero: uu.unidade.numero,
+      procuracaoAtiva: uu.unidade.procuracaoAtiva || false,
       created_at: uu.unidade.createdAt?.toISOString() || new Date().toISOString(),
       updated_at: uu.unidade.updatedAt?.toISOString() || new Date().toISOString(),
     })) || [],
@@ -87,10 +153,14 @@ export async function buscarUsuarioPorId(id: string): Promise<Usuario | null> {
   const { passwordHash, unidadeId, createdAt, updatedAt, usuarioUnidades, ...rest } = usuario;
   return {
     ...rest,
+    conselheiro: rest.conselheiro || false,
+    tipoUsuario: rest.tipoUsuario || null,
+    procuracaoAtiva: rest.procuracaoAtiva || false,
     unidade_id: unidadeId, // Mantido para compatibilidade
     unidades: usuarioUnidades?.map(uu => ({
       id: uu.unidade.id,
       numero: uu.unidade.numero,
+      procuracaoAtiva: uu.unidade.procuracaoAtiva || false,
       created_at: uu.unidade.createdAt?.toISOString() || new Date().toISOString(),
       updated_at: uu.unidade.updatedAt?.toISOString() || new Date().toISOString(),
     })) || [],
@@ -126,6 +196,7 @@ export async function buscarUnidadesUsuario(userId: string): Promise<Unidade[]> 
   const unidadesNovas = usuario.usuarioUnidades?.map(uu => ({
     id: uu.unidade.id,
     numero: uu.unidade.numero,
+    procuracaoAtiva: uu.unidade.procuracaoAtiva || false,
     created_at: uu.unidade.createdAt?.toISOString() || new Date().toISOString(),
     updated_at: uu.unidade.updatedAt?.toISOString() || new Date().toISOString(),
   })) || [];
@@ -135,6 +206,7 @@ export async function buscarUnidadesUsuario(userId: string): Promise<Unidade[]> 
     return [{
       id: usuario.unidade.id,
       numero: usuario.unidade.numero,
+      procuracaoAtiva: usuario.unidade.procuracaoAtiva || false,
       created_at: usuario.unidade.createdAt?.toISOString() || new Date().toISOString(),
       updated_at: usuario.unidade.updatedAt?.toISOString() || new Date().toISOString(),
     }];
@@ -173,6 +245,9 @@ export async function criarUsuario(dados: CriarUsuarioDTO): Promise<Usuario> {
       nome: dados.nome,
       telefone: dados.telefone || null,
       perfil: dados.perfil,
+      conselheiro: dados.conselheiro || false,
+      tipoUsuario: dados.tipoUsuario || null,
+      procuracaoAtiva: dados.procuracaoAtiva || false,
       unidadeId: dados.unidade_id || null, // Mantido para compatibilidade
       forcarTrocaSenha: (dados as any).forcar_troca_senha || false,
       usuarioUnidades: unidadesIds.length > 0 ? {
@@ -191,6 +266,12 @@ export async function criarUsuario(dados: CriarUsuarioDTO): Promise<Usuario> {
   });
 
   const { passwordHash: _, unidadeId, createdAt, updatedAt, usuarioUnidades, ...rest } = usuario as any;
+  
+  // Atualiza flag procuracaoAtiva nas unidades se for inquilino com procuração
+  if (dados.tipoUsuario === 'inquilino' && dados.procuracaoAtiva) {
+    await atualizarProcuracaoAtivaUnidades(usuario.id);
+  }
+  
   return {
     ...rest,
     unidade_id: unidadeId, // Mantido para compatibilidade
@@ -223,6 +304,21 @@ export async function atualizarUsuario(
     telefone: dados.telefone,
     perfil: dados.perfil,
   };
+
+  // Se conselheiro foi fornecido, atualiza
+  if (dados.conselheiro !== undefined) {
+    dadosUpdate.conselheiro = dados.conselheiro;
+  }
+
+  // Se tipoUsuario foi fornecido, atualiza
+  if (dados.tipoUsuario !== undefined) {
+    dadosUpdate.tipoUsuario = dados.tipoUsuario;
+  }
+
+  // Se procuracaoAtiva foi fornecido, atualiza
+  if (dados.procuracaoAtiva !== undefined) {
+    dadosUpdate.procuracaoAtiva = dados.procuracaoAtiva;
+  }
 
   // Se forcar_troca_senha foi fornecido, atualiza
   if ((dados as any).forcar_troca_senha !== undefined) {
@@ -271,10 +367,14 @@ export async function atualizarUsuario(
   const { passwordHash, unidadeId, createdAt, updatedAt, usuarioUnidades, ...rest } = usuario;
   return {
     ...rest,
+    conselheiro: rest.conselheiro || false,
+    tipoUsuario: rest.tipoUsuario || null,
+    procuracaoAtiva: rest.procuracaoAtiva || false,
     unidade_id: unidadeId, // Mantido para compatibilidade
     unidades: usuarioUnidades?.map(uu => ({
       id: uu.unidade.id,
       numero: uu.unidade.numero,
+      procuracaoAtiva: uu.unidade.procuracaoAtiva || false,
       created_at: uu.unidade.createdAt?.toISOString() || new Date().toISOString(),
       updated_at: uu.unidade.updatedAt?.toISOString() || new Date().toISOString(),
     })) || [],
@@ -489,6 +589,56 @@ export async function registrarVoto(
   // Se rastreado, userId é obrigatório
   if (votacao.modoAuditoria === 'rastreado' && !userId) {
     throw new Error('User ID é obrigatório para votações rastreadas');
+  }
+
+  // Validação de procuração ativa
+  if (userId) {
+    // Busca a unidade para verificar procuração
+    const unidade = await prisma.unidade.findUnique({
+      where: { id: unidadeId },
+    });
+
+    if (!unidade) {
+      throw new Error('Unidade não encontrada');
+    }
+
+    // Busca o usuário que está votando
+    const usuarioVotante = await prisma.usuario.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        tipoUsuario: true,
+        procuracaoAtiva: true,
+      },
+    });
+
+    if (!usuarioVotante) {
+      throw new Error('Usuário não encontrado');
+    }
+
+    // Verifica se existe inquilino com procuração ativa na unidade
+    const inquilinoComProcuração = await prisma.usuario.findFirst({
+      where: {
+        OR: [
+          { usuarioUnidades: { some: { unidadeId } } },
+          { unidadeId },
+        ],
+        tipoUsuario: 'inquilino',
+        procuracaoAtiva: true,
+      },
+    });
+
+    if (inquilinoComProcuração) {
+      // Se existe inquilino com procuração, apenas ele pode votar
+      if (usuarioVotante.id !== inquilinoComProcuração.id) {
+        throw new Error('Apenas o inquilino com procuração ativa pode votar nesta unidade');
+      }
+    } else {
+      // Se não existe inquilino com procuração, apenas o proprietário pode votar
+      if (usuarioVotante.tipoUsuario !== 'proprietario') {
+        throw new Error('Apenas o proprietário pode votar nesta unidade');
+      }
+    }
   }
 
   // Verifica se já existe voto
