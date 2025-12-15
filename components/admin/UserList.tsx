@@ -37,6 +37,7 @@ export function UserList({ usuarios, currentUserId, canDelete = false }: UserLis
   const router = useRouter();
   const [busca, setBusca] = useState('');
   const [filtroPerfil, setFiltroPerfil] = useState<string>('todos');
+  const [filtroConselheiro, setFiltroConselheiro] = useState<string>('todos');
   const [filtroUnidade, setFiltroUnidade] = useState<string>('todos');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -58,6 +59,17 @@ export function UserList({ usuarios, currentUserId, canDelete = false }: UserLis
     });
 
     return contadores;
+  }, [usuarios]);
+
+  // Conta usuários por conselheiro
+  const contadoresConselheiro = useMemo(() => {
+    const conselheiros = usuarios.filter((u) => u.conselheiro === true).length;
+    const naoConselheiros = usuarios.filter((u) => u.conselheiro !== true).length;
+    return {
+      todos: usuarios.length,
+      sim: conselheiros,
+      nao: naoConselheiros,
+    };
   }, [usuarios]);
 
   const contadoresUnidade = useMemo(() => {
@@ -117,7 +129,7 @@ export function UserList({ usuarios, currentUserId, canDelete = false }: UserLis
   // Reset página quando filtros mudam
   useEffect(() => {
     setCurrentPage(1);
-  }, [busca, filtroPerfil, filtroUnidade]);
+  }, [busca, filtroPerfil, filtroConselheiro, filtroUnidade]);
 
   const handleDeletar = async (usuarioId: string) => {
     if (!confirm('Tem certeza que deseja excluir este usuário? Esta ação não pode ser desfeita.')) {
@@ -173,7 +185,7 @@ export function UserList({ usuarios, currentUserId, canDelete = false }: UserLis
             className="block w-full rounded-md border border-gray-300 bg-white py-2 pl-10 pr-3 text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
           />
         </div>
-        {(busca || filtroPerfil !== 'todos' || filtroUnidade !== 'todos') && (
+        {(busca || filtroPerfil !== 'todos' || filtroConselheiro !== 'todos' || filtroUnidade !== 'todos') && (
           <p className="mt-2 text-sm text-gray-500">
             {usuariosFiltrados.length} usuário{usuariosFiltrados.length !== 1 ? 's' : ''} encontrado{usuariosFiltrados.length !== 1 ? 's' : ''}
           </p>
@@ -191,6 +203,16 @@ export function UserList({ usuarios, currentUserId, canDelete = false }: UserLis
           selectedFilter={filtroPerfil}
           onFilterChange={setFiltroPerfil}
           label="Perfil"
+        />
+        <QuickFilters
+          filters={[
+            { value: 'todos', label: 'Todos', count: contadoresConselheiro.todos },
+            { value: 'sim', label: 'Conselheiro', count: contadoresConselheiro.sim },
+            { value: 'nao', label: 'Não Conselheiro', count: contadoresConselheiro.nao },
+          ]}
+          selectedFilter={filtroConselheiro}
+          onFilterChange={setFiltroConselheiro}
+          label="Conselheiro"
         />
         <QuickFilters
           filters={[
@@ -260,7 +282,7 @@ export function UserList({ usuarios, currentUserId, canDelete = false }: UserLis
                   <td className="whitespace-nowrap px-3 sm:px-6 py-4 text-sm text-gray-500">
                     <div className="flex flex-col gap-1">
                       <span className="inline-flex rounded-full bg-blue-100 px-2 text-xs font-semibold leading-5 text-blue-800">
-                        {usuario.perfil}
+                        {usuario.perfil.charAt(0).toUpperCase() + usuario.perfil.slice(1)}
                       </span>
                       {usuario.conselheiro && (
                         <span className="inline-flex rounded-full bg-purple-100 px-2 text-xs font-semibold leading-5 text-purple-800">
