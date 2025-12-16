@@ -9,6 +9,7 @@ import { auth } from '@/lib/auth';
 import { buscarVotacaoCompleta } from '@/lib/db';
 import { prisma } from '@/lib/prisma';
 import Link from 'next/link';
+import { MarkdownContent } from '@/components/ui/MarkdownContent';
 
 export default async function VotacaoDetalhesPage({
   params,
@@ -64,7 +65,9 @@ export default async function VotacaoDetalhesPage({
       </div>
 
       {votacao.descricao && (
-        <p className="mt-4 text-gray-600">{votacao.descricao}</p>
+        <div className="mt-4">
+          <MarkdownContent content={votacao.descricao} className="text-gray-600" />
+        </div>
       )}
 
       <div className="mt-8 grid grid-cols-2 gap-6">

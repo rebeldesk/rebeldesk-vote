@@ -11,6 +11,7 @@ import { VotingCard } from '@/components/votante/VotingCard';
 import { ResultadoParcial } from '@/components/votante/ResultadoParcial';
 import { ResultadoFinal } from '@/components/votante/ResultadoFinal';
 import { UnidadeSelectorWrapper } from '@/components/votante/UnidadeSelectorWrapper';
+import { MarkdownContent } from '@/components/ui/MarkdownContent';
 
 export default async function VotarPage({
   params,
@@ -86,7 +87,9 @@ export default async function VotarPage({
       <div>
         <h1 className="text-3xl font-bold text-gray-900">{votacao.titulo}</h1>
         {votacao.descricao && (
-          <p className="mt-2 text-gray-600">{votacao.descricao}</p>
+          <div className="mt-2">
+            <MarkdownContent content={votacao.descricao} className="text-gray-600" />
+          </div>
         )}
         <div className="mt-8">
           {unidadesQueVotaram.length > 0 && (
@@ -150,7 +153,9 @@ export default async function VotarPage({
       <div>
         <h1 className="text-3xl font-bold text-gray-900">{votacao.titulo}</h1>
         {votacao.descricao && (
-          <p className="mt-2 text-gray-600">{votacao.descricao}</p>
+          <div className="mt-2">
+            <MarkdownContent content={votacao.descricao} className="text-gray-600" />
+          </div>
         )}
         <div className="mt-8">
           <div className="mb-4 rounded-md bg-gray-50 p-4">
@@ -182,7 +187,9 @@ export default async function VotarPage({
     <div>
       <h1 className="text-3xl font-bold text-gray-900">{votacao.titulo}</h1>
       {votacao.descricao && (
-        <p className="mt-2 text-gray-600">{votacao.descricao}</p>
+        <div className="mt-2">
+          <MarkdownContent content={votacao.descricao} className="text-gray-600" />
+        </div>
       )}
       <div className="mt-8">
         {jaVotou && (

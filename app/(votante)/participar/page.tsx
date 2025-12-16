@@ -13,6 +13,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 import { unidadeJaVotou, buscarUnidadesUsuario } from '@/lib/db';
+import { MarkdownContent } from '@/components/ui/MarkdownContent';
 
 async function buscarVotacoesDisponiveis() {
   const votacoes = await prisma.votacao.findMany({
@@ -110,9 +111,9 @@ export default async function VotacoesDisponiveisPage() {
               </div>
 
               {votacao.descricao && (
-                <p className="mt-2 text-sm text-gray-600 line-clamp-3">
-                  {votacao.descricao}
-                </p>
+                <div className="mt-2 text-sm text-gray-600 line-clamp-3">
+                  <MarkdownContent content={votacao.descricao} />
+                </div>
               )}
 
               <div className="mt-4 space-y-2 text-sm text-gray-500">
