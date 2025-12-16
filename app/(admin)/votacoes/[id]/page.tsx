@@ -126,7 +126,13 @@ export default async function VotacaoDetalhesPage({
       </div>
 
       {votacao.status === 'rascunho' && (
-        <div className="mt-8">
+        <div className="mt-8 flex space-x-4">
+          <Link
+            href={`/votacoes/${id}/editar`}
+            className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+          >
+            Editar Votação
+          </Link>
           <form
             action={async () => {
               'use server';

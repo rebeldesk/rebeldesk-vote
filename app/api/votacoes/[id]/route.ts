@@ -14,6 +14,8 @@ import { prisma } from '@/lib/prisma';
 const atualizarVotacaoSchema = z.object({
   titulo: z.string().min(1).optional(),
   descricao: z.string().optional(),
+  tipo: z.enum(['escolha_unica', 'multipla_escolha']).optional(),
+  modo_auditoria: z.enum(['anonimo', 'rastreado']).optional(),
   mostrar_parcial: z.boolean().optional(),
   permitir_alterar_voto: z.boolean().optional(),
   // Aceita formato datetime-local (YYYY-MM-DDTHH:mm) ou datetime ISO completo
@@ -34,6 +36,7 @@ const atualizarVotacaoSchema = z.object({
     { message: 'Data de término inválida' }
   ).optional(),
   status: z.enum(['rascunho', 'aberta', 'encerrada']).optional(),
+  opcoes: z.array(z.string().min(1, 'Opção não pode ser vazia')).min(2, 'Deve ter pelo menos 2 opções').optional(),
 });
 
 export async function GET(
@@ -76,8 +79,32 @@ export async function PUT(
     }
 
     const { id } = await params;
+    
+    // Verifica se a votação existe e seu status
+    const votacaoExistente = await prisma.votacao.findUnique({
+      where: { id },
+      include: { opcoes: true },
+    });
+
+    if (!votacaoExistente) {
+      return NextResponse.json({ error: 'Votação não encontrada' }, { status: 404 });
+    }
+
+    // Se a votação não está em rascunho, não permite editar opções, tipo e modo_auditoria
+    const podeEditarCompleto = votacaoExistente.status === 'rascunho';
+
     const body = await request.json();
     const dados = atualizarVotacaoSchema.parse(body);
+
+    // Valida se está tentando editar campos bloqueados
+    if (!podeEditarCompleto) {
+      if (dados.opcoes || dados.tipo || dados.modo_auditoria) {
+        return NextResponse.json(
+          { error: 'Não é possível editar opções, tipo ou modo de auditoria de uma votação que já foi aberta' },
+          { status: 400 }
+        );
+      }
+    }
 
     // Valida datas se ambas foram fornecidas
     if (dados.data_inicio && dados.data_fim) {
@@ -92,17 +119,51 @@ export async function PUT(
       }
     }
 
-    const votacao = await prisma.votacao.update({
-      where: { id },
-      data: {
-        titulo: dados.titulo,
-        descricao: dados.descricao,
-        mostrarParcial: dados.mostrar_parcial,
-        permitirAlterarVoto: dados.permitir_alterar_voto,
-        dataInicio: dados.data_inicio ? new Date(dados.data_inicio) : undefined,
-        dataFim: dados.data_fim ? new Date(dados.data_fim) : undefined,
-        status: dados.status,
-      },
+    // Atualiza a votação e opções em uma transação
+    const votacao = await prisma.$transaction(async (tx) => {
+      // Atualiza dados da votação
+      const votacaoAtualizada = await tx.votacao.update({
+        where: { id },
+        data: {
+          titulo: dados.titulo,
+          descricao: dados.descricao,
+          tipo: dados.tipo,
+          modoAuditoria: dados.modo_auditoria,
+          mostrarParcial: dados.mostrar_parcial,
+          permitirAlterarVoto: dados.permitir_alterar_voto,
+          dataInicio: dados.data_inicio ? new Date(dados.data_inicio) : undefined,
+          dataFim: dados.data_fim ? new Date(dados.data_fim) : undefined,
+          status: dados.status,
+        },
+        include: { opcoes: true },
+      });
+
+      // Se opções foram fornecidas e a votação está em rascunho, atualiza as opções
+      if (dados.opcoes && podeEditarCompleto) {
+        // Remove opções antigas
+        await tx.opcaoVotacao.deleteMany({
+          where: { votacaoId: id },
+        });
+
+        // Cria novas opções
+        await tx.opcaoVotacao.createMany({
+          data: dados.opcoes.map((texto, index) => ({
+            votacaoId: id,
+            texto,
+            ordem: index,
+          })),
+        });
+
+        // Busca opções atualizadas
+        const opcoesAtualizadas = await tx.opcaoVotacao.findMany({
+          where: { votacaoId: id },
+          orderBy: { ordem: 'asc' },
+        });
+
+        return { ...votacaoAtualizada, opcoes: opcoesAtualizadas };
+      }
+
+      return votacaoAtualizada;
     });
 
     // Formata resposta
@@ -127,6 +188,7 @@ export async function PUT(
       );
     }
 
+    console.error('Erro ao atualizar votação:', error);
     return NextResponse.json(
       { error: 'Erro ao atualizar votação' },
       { status: 500 }
