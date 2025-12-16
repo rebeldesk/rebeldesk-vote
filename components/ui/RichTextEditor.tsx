@@ -135,12 +135,12 @@ export function RichTextEditor({
   return (
     <div>
       {/* Barra de ferramentas */}
-      <div className="mb-2 flex flex-wrap items-center gap-2 rounded-md border border-gray-300 bg-gray-50 p-2">
+      <div className="mb-2 flex flex-wrap items-center gap-2 rounded-md border border-gray-300 bg-white p-2 shadow-sm">
         <button
           type="button"
           onClick={formatBold}
-          className="flex h-8 w-8 items-center justify-center rounded hover:bg-gray-200"
-          title="Negrito (Ctrl+B)"
+          className="flex h-8 w-8 items-center justify-center rounded border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 hover:border-gray-400 transition-colors"
+          title="Negrito"
           aria-label="Negrito"
         >
           <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -152,7 +152,7 @@ export function RichTextEditor({
         <button
           type="button"
           onClick={formatItalic}
-          className="flex h-8 w-8 items-center justify-center rounded hover:bg-gray-200"
+          className="flex h-8 w-8 items-center justify-center rounded border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 hover:border-gray-400 transition-colors"
           title="Itálico"
           aria-label="Itálico"
         >
@@ -166,7 +166,7 @@ export function RichTextEditor({
         <button
           type="button"
           onClick={formatLink}
-          className="flex h-8 w-8 items-center justify-center rounded hover:bg-gray-200"
+          className="flex h-8 w-8 items-center justify-center rounded border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 hover:border-gray-400 transition-colors"
           title="Inserir link"
           aria-label="Inserir link"
         >
@@ -178,7 +178,7 @@ export function RichTextEditor({
         <button
           type="button"
           onClick={formatList}
-          className="flex h-8 w-8 items-center justify-center rounded hover:bg-gray-200"
+          className="flex h-8 w-8 items-center justify-center rounded border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 hover:border-gray-400 transition-colors"
           title="Lista com marcadores"
           aria-label="Lista"
         >
@@ -190,7 +190,7 @@ export function RichTextEditor({
         <button
           type="button"
           onClick={formatLineBreak}
-          className="flex h-8 w-8 items-center justify-center rounded hover:bg-gray-200"
+          className="flex h-8 w-8 items-center justify-center rounded border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 hover:border-gray-400 transition-colors"
           title="Quebra de linha"
           aria-label="Quebra de linha"
         >
@@ -203,7 +203,7 @@ export function RichTextEditor({
           <button
             type="button"
             onClick={() => setShowHelp(!showHelp)}
-            className="rounded px-2 py-1 text-xs text-gray-600 hover:bg-gray-200"
+            className="rounded-md border border-blue-300 bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 hover:bg-blue-100 hover:border-blue-400 transition-colors"
             title="Mostrar ajuda"
           >
             {showHelp ? 'Ocultar' : 'Ajuda'} ℹ️
